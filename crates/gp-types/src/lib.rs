@@ -134,6 +134,79 @@ impl Receipt {
         Ok(format!("{trimmed_host}/r/{encoded}"))
     }
 
+    /// Compute the message bytes the ed25519 signature commits to:
+    /// `tx_id (32 bytes) || output_index_le (4 bytes) || ock (32 bytes) ||
+    ///  label_len_le (4 bytes) || label_utf8`.
+    /// This is deterministic and stable across serialisations.
+    pub fn signing_message(&self) -> Result<Vec<u8>, ReceiptError> {
+        let tx = self.tx_id_bytes()?;
+        let ock = self.ock_bytes()?;
+        let label = self.label.as_bytes();
+        let mut buf = Vec::with_capacity(32 + 4 + 32 + 4 + label.len());
+        buf.extend_from_slice(&tx);
+        buf.extend_from_slice(&self.output_index.to_le_bytes());
+        buf.extend_from_slice(&ock);
+        buf.extend_from_slice(&(label.len() as u32).to_le_bytes());
+        buf.extend_from_slice(label);
+        Ok(buf)
+    }
+
+    /// Sign the receipt envelope with an ed25519 signing key seed (32 bytes).
+    /// Adds a `signature` field that any verifier can check later via
+    /// `verify_signature_if_present`.
+    pub fn sign_ed25519(&mut self, signing_key_seed: [u8; 32]) -> Result<(), ReceiptError> {
+        use ed25519_dalek::{Signer, SigningKey};
+        let sk = SigningKey::from_bytes(&signing_key_seed);
+        let pk = sk.verifying_key();
+        let msg = self.signing_message()?;
+        let sig = sk.sign(&msg);
+        self.signature = Some(Signature {
+            scheme: "ed25519".into(),
+            public_key: base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(pk.to_bytes()),
+            sig: base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(sig.to_bytes()),
+        });
+        Ok(())
+    }
+
+    /// If a signature is attached, verify it. If no signature is attached,
+    /// returns Ok(false). Returns Ok(true) on a valid signature, Err on a
+    /// signature that is present but does not verify.
+    pub fn verify_signature_if_present(&self) -> Result<bool, ReceiptError> {
+        use ed25519_dalek::{Signature as Ed25519Sig, Verifier, VerifyingKey};
+        let Some(sig_env) = &self.signature else {
+            return Ok(false);
+        };
+        if sig_env.scheme != "ed25519" {
+            return Err(ReceiptError::UnsupportedSignatureScheme(
+                sig_env.scheme.clone(),
+            ));
+        }
+        let pk_bytes = base64::engine::general_purpose::URL_SAFE_NO_PAD
+            .decode(&sig_env.public_key)
+            .map_err(|_| ReceiptError::InvalidSignature)?;
+        if pk_bytes.len() != 32 {
+            return Err(ReceiptError::InvalidSignature);
+        }
+        let mut pk_arr = [0u8; 32];
+        pk_arr.copy_from_slice(&pk_bytes);
+        let pk = VerifyingKey::from_bytes(&pk_arr).map_err(|_| ReceiptError::InvalidSignature)?;
+
+        let sig_bytes = base64::engine::general_purpose::URL_SAFE_NO_PAD
+            .decode(&sig_env.sig)
+            .map_err(|_| ReceiptError::InvalidSignature)?;
+        if sig_bytes.len() != 64 {
+            return Err(ReceiptError::InvalidSignature);
+        }
+        let mut sig_arr = [0u8; 64];
+        sig_arr.copy_from_slice(&sig_bytes);
+        let sig = Ed25519Sig::from_bytes(&sig_arr);
+
+        let msg = self.signing_message()?;
+        pk.verify(&msg, &sig)
+            .map(|_| true)
+            .map_err(|_| ReceiptError::InvalidSignature)
+    }
+
     /// Decode a Glasspane URL produced by `to_url` back into a Receipt.
     /// Accepts either the full URL `https://host/r/<data>` or just the
     /// `<data>` segment. Always validates the resulting receipt envelope.
@@ -169,6 +242,10 @@ pub enum ReceiptError {
     InvalidOck,
     #[error("label exceeds 120 characters")]
     LabelTooLong,
+    #[error("unsupported signature scheme: {0}")]
+    UnsupportedSignatureScheme(String),
+    #[error("signature does not verify")]
+    InvalidSignature,
 }
 
 #[cfg(test)]
@@ -252,5 +329,43 @@ mod tests {
     fn from_url_rejects_garbage() {
         assert!(Receipt::from_url("https://glasspane.zec/r/!!!notbase64!!!").is_err());
         assert!(Receipt::from_url("not a url at all").is_err());
+    }
+
+    #[test]
+    fn ed25519_signature_round_trip() {
+        // Deterministic signing key.
+        let seed = [0x11u8; 32];
+        let mut r = Receipt::new(
+            Network::Mainnet,
+            Pool::Orchard,
+            [0x22u8; 32],
+            0,
+            [0x33u8; 32],
+            "signed receipt",
+        );
+        assert!(!r.verify_signature_if_present().unwrap());
+        r.sign_ed25519(seed).unwrap();
+        assert!(r.signature.is_some());
+        assert!(r.verify_signature_if_present().unwrap());
+    }
+
+    #[test]
+    fn ed25519_signature_rejects_tampering() {
+        let seed = [0x55u8; 32];
+        let mut r = Receipt::new(
+            Network::Mainnet,
+            Pool::Orchard,
+            [0x66u8; 32],
+            0,
+            [0x77u8; 32],
+            "original",
+        );
+        r.sign_ed25519(seed).unwrap();
+        // Mutate the label after signing. The signature should no longer verify.
+        r.label = "tampered".into();
+        assert!(matches!(
+            r.verify_signature_if_present(),
+            Err(ReceiptError::InvalidSignature)
+        ));
     }
 }

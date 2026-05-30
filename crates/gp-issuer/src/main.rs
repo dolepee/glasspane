@@ -80,6 +80,12 @@ struct Args {
     /// Host to use when emitting a shareable receipt URL with --url.
     #[arg(long, default_value = "https://glasspane.dev")]
     url_host: String,
+
+    /// Optional ed25519 signing key seed (32 hex bytes). When provided, the
+    /// receipt is signed and the `signature` field is populated so any
+    /// downstream verifier can confirm the issuer's identity.
+    #[arg(long)]
+    sign_with_key: Option<String>,
 }
 
 #[derive(clap::ValueEnum, Clone, Copy, Debug)]
@@ -141,7 +147,7 @@ async fn main() -> Result<()> {
     };
 
     // Build the receipt.
-    let receipt = Receipt::new(
+    let mut receipt = Receipt::new(
         args.network.into(),
         args.pool.into(),
         tx_id,
@@ -150,6 +156,14 @@ async fn main() -> Result<()> {
         args.label,
     );
     receipt.validate()?;
+
+    if let Some(key_hex) = args.sign_with_key.as_deref() {
+        let seed = parse_hex_32(key_hex).context("--sign-with-key must be 32 byte hex")?;
+        receipt
+            .sign_ed25519(seed)
+            .map_err(|e| anyhow!("sign receipt: {e}"))?;
+        eprintln!("Receipt signed with ed25519.");
+    }
 
     let json = serde_json::to_string_pretty(&receipt)?;
     match args.out {

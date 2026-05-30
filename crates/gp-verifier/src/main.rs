@@ -16,12 +16,17 @@ use clap::Parser;
 use gp_core::{
     ock_from_bytes, recover_orchard, recover_sapling, OrchardDisclosure, SaplingDisclosure,
 };
-use gp_types::{Pool, Receipt};
+use gp_types::{Network, Pool, Receipt};
 use tonic::transport::Channel;
+use zcash_address::{
+    unified::{self, Encoding, Receiver},
+    ToAddress, ZcashAddress,
+};
 use zcash_client_backend::proto::service::{
     compact_tx_streamer_client::CompactTxStreamerClient, TxFilter,
 };
 use zcash_primitives::transaction::Transaction;
+use zcash_protocol::consensus::NetworkType;
 use zcash_protocol::consensus::{BranchId, MainNetwork, NetworkUpgrade, Parameters};
 
 #[derive(Parser, Debug)]
@@ -77,8 +82,18 @@ async fn main() -> Result<()> {
             }
         }
     };
+    set_display_network(receipt.network);
     let tx_id_bytes = receipt.tx_id_bytes()?;
     let ock_bytes = receipt.ock_bytes()?;
+
+    // Auto-verify any ed25519 signature attached to the envelope. We do this
+    // before chain verification because a bad signature is informative on its
+    // own: it means someone tampered with the receipt after issuance.
+    match receipt.verify_signature_if_present() {
+        Ok(true) => println!("  signature   : ed25519 OK"),
+        Ok(false) => {} // no signature attached
+        Err(e) => bail!("signature verification failed: {e}"),
+    }
 
     println!("RECEIPT  {}", &receipt.tx_id);
     println!("  pool        : {:?}", receipt.pool);
@@ -214,10 +229,12 @@ fn verify_sapling(tx: &Transaction, output_index: u32, ock: [u8; 32]) -> Result<
 fn display_sapling(disc: &SaplingDisclosure) {
     println!();
     println!("OUTPUT RECOVERED (Sapling)");
-    println!(
-        "  recipient   : sapling:{}",
-        hex::encode(disc.recipient.to_bytes())
+    let ua = encode_ua(
+        receipt_network_for_display(),
+        Pool::Sapling,
+        disc.recipient.to_bytes(),
     );
+    println!("  recipient   : {ua}");
     println!(
         "  value       : {} zatoshis ({:.8} ZEC)",
         disc.value.inner(),
@@ -247,12 +264,42 @@ fn display(disc: &OrchardDisclosure) {
     println!("VERIFIED.");
 }
 
-/// Encode an Orchard recipient address. For v0 we display the 43 byte raw
-/// address form as hex. Full UA encoding (with checksum + Bech32m) lands
-/// in v0.2 when we wire `zcash_address`.
+/// Encode an Orchard recipient as a Unified Address (Bech32m, `u1...`).
 fn encode_recipient(addr: &orchard::Address) -> String {
     let bytes = addr.to_raw_address_bytes();
-    format!("orchard:{}", hex::encode(bytes))
+    encode_ua(receipt_network_for_display(), Pool::Orchard, bytes)
+}
+
+// The display path doesn't have direct access to the receipt's network field
+// because the helpers operate on disclosures. We thread it via this
+// thread-local set at the top of `main`. Default is mainnet.
+thread_local! {
+    static DISPLAY_NETWORK: std::cell::Cell<Network> = const { std::cell::Cell::new(Network::Mainnet) };
+}
+fn set_display_network(n: Network) {
+    DISPLAY_NETWORK.with(|c| c.set(n));
+}
+fn receipt_network_for_display() -> Network {
+    DISPLAY_NETWORK.with(|c| c.get())
+}
+
+/// Wrap a raw 43-byte Orchard or Sapling receiver in a single-receiver
+/// Unified Address and encode as Bech32m. Falls back to a raw hex display
+/// if UA construction fails for any reason.
+fn encode_ua(network: Network, pool: Pool, bytes: [u8; 43]) -> String {
+    let net = match network {
+        Network::Mainnet => NetworkType::Main,
+        Network::Testnet => NetworkType::Test,
+        Network::Regtest => NetworkType::Regtest,
+    };
+    let receiver = match pool {
+        Pool::Orchard => Receiver::Orchard(bytes),
+        Pool::Sapling => Receiver::Sapling(bytes),
+    };
+    match unified::Address::try_from_items(vec![receiver]) {
+        Ok(ua) => ZcashAddress::from_unified(net, ua).encode(),
+        Err(_) => format!("{:?}:{}", pool, hex::encode(bytes)),
+    }
 }
 
 /// Heuristic: does this look like a Glasspane URL rather than a file path

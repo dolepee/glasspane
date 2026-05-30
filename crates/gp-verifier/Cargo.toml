@@ -16,6 +16,7 @@ gp-core = { path = "../gp-core" }
 # Zcash protocol
 orchard = { workspace = true }
 sapling-crypto = { workspace = true }
+zcash_address = { workspace = true }
 zcash_primitives = { workspace = true }
 zcash_protocol = { workspace = true }
 zcash_client_backend = { workspace = true }

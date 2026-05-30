@@ -311,6 +311,22 @@ or
     hideResult();
   });
 
+  // Auto-decode when the page is opened with a /r/<payload> path.
+  // The hosting platform (Vercel rewrite, GitHub Pages SPA fallback) sends
+  // the request to index.html, and we recover the payload from the URL bar
+  // and run the decode automatically.
+  (function autoLoadFromUrl() {
+    const path = window.location.pathname || "";
+    const m = path.match(/\/r\/([^/]+)\/?$/);
+    if (!m) return;
+    const payload = m[1];
+    document.getElementById("input").value = window.location.origin + "/r/" + payload;
+    document.getElementById("decode").click();
+    // Scroll the result into view on a real device.
+    const r = document.getElementById("result");
+    if (r) r.scrollIntoView({ behavior: "smooth", block: "start" });
+  })();
+
   document.getElementById("example").addEventListener("click", () => {
     // A synthetic v0 receipt for demonstration. The OCK is bogus, so a real
     // `gp-verify` against mainnet will fail recovery — but the envelope is

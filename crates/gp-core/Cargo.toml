@@ -8,6 +8,7 @@ description = "Glasspane core verification: OCK based selective disclosure of Zc
 [dependencies]
 gp-types = { path = "../gp-types" }
 orchard = { workspace = true }
+sapling-crypto = { workspace = true }
 zcash_note_encryption = { workspace = true }
 thiserror = { workspace = true }
 

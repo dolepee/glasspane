@@ -9,11 +9,13 @@
 //!   6. Call gp_core::recover_orchard with the disclosed OCK.
 //!   7. Display recipient + value + memo if recovery succeeds, FAIL otherwise.
 //!
-//! v0 implements Orchard. Sapling lands in v0.2.
+//! v0 implements both Orchard and Sapling pools.
 
 use anyhow::{anyhow, bail, Context, Result};
 use clap::Parser;
-use gp_core::{ock_from_bytes, recover_orchard, OrchardDisclosure};
+use gp_core::{
+    ock_from_bytes, recover_orchard, recover_sapling, OrchardDisclosure, SaplingDisclosure,
+};
 use gp_types::{Pool, Receipt};
 use tonic::transport::Channel;
 use zcash_client_backend::proto::service::{
@@ -29,7 +31,11 @@ use zcash_protocol::consensus::{BranchId, MainNetwork, NetworkUpgrade, Parameter
     about = "Verify a Glasspane receipt against Zcash mainnet"
 )]
 struct Args {
-    /// Path to receipt JSON file. Default: read from stdin.
+    /// Source of the receipt to verify. Can be:
+    ///   * a path to a receipt JSON file,
+    ///   * a Glasspane URL of the form `https://<host>/r/<base64url-json>`,
+    ///     or a bare `<base64url-json>` payload,
+    ///   * omitted, in which case stdin is read.
     receipt: Option<String>,
 
     /// lightwalletd endpoint URL. Default: zec.rocks (used by Zashi wallet).
@@ -46,18 +52,31 @@ struct Args {
 async fn main() -> Result<()> {
     let args = Args::parse();
 
-    // 1. Load the receipt.
-    let raw = match args.receipt.as_deref() {
-        Some(path) => std::fs::read_to_string(path).with_context(|| format!("read {path}"))?,
+    // 1. Load the receipt. Accept URL, file path, or stdin.
+    let receipt: Receipt = match args.receipt.as_deref() {
+        Some(arg) if looks_like_url(arg) => Receipt::from_url(arg).context("parse receipt URL")?,
+        Some(path) => {
+            let raw = std::fs::read_to_string(path).with_context(|| format!("read {path}"))?;
+            let r: Receipt = serde_json::from_str(&raw).context("parse receipt JSON")?;
+            r.validate().context("receipt envelope invalid")?;
+            r
+        }
         None => {
             use std::io::Read;
             let mut buf = String::new();
             std::io::stdin().read_to_string(&mut buf)?;
-            buf
+            // stdin may carry either JSON or a URL.
+            let trimmed = buf.trim();
+            if looks_like_url(trimmed) {
+                Receipt::from_url(trimmed).context("parse receipt URL from stdin")?
+            } else {
+                let r: Receipt =
+                    serde_json::from_str(&buf).context("parse receipt JSON from stdin")?;
+                r.validate().context("receipt envelope invalid")?;
+                r
+            }
         }
     };
-    let receipt: Receipt = serde_json::from_str(&raw).context("parse receipt JSON")?;
-    receipt.validate().context("receipt envelope invalid")?;
     let tx_id_bytes = receipt.tx_id_bytes()?;
     let ock_bytes = receipt.ock_bytes()?;
 
@@ -86,15 +105,15 @@ async fn main() -> Result<()> {
     println!("Fetching transaction from {} ...", args.lightwalletd);
     let raw_tx = fetch_tx(&args.lightwalletd, tx_id_bytes).await?;
     let tx = parse_tx(&raw_tx)?;
-    println!("  Transaction fetched and parsed (consensus branch={:?}).", tx.consensus_branch_id());
+    println!(
+        "  Transaction fetched and parsed (consensus branch={:?}).",
+        tx.consensus_branch_id()
+    );
 
     // 5-6. Recover the disclosed output.
     match receipt.pool {
         Pool::Orchard => verify_orchard(&tx, receipt.output_index, ock_bytes)?,
-        Pool::Sapling => bail!(
-            "Sapling pool verification is not yet implemented in v0.\n\
-             Resend the payment via an Orchard-capable wallet, or wait for gp-core v0.2."
-        ),
+        Pool::Sapling => verify_sapling(&tx, receipt.output_index, ock_bytes)?,
     }
     Ok(())
 }
@@ -119,7 +138,10 @@ async fn fetch_tx(endpoint: &str, tx_id_bytes: [u8; 32]) -> Result<Vec<u8>> {
         index: 0,
         hash: hash.to_vec(),
     };
-    let resp = client.get_transaction(req).await.context("GetTransaction RPC")?;
+    let resp = client
+        .get_transaction(req)
+        .await
+        .context("GetTransaction RPC")?;
     let raw = resp.into_inner();
     if raw.data.is_empty() {
         bail!("lightwalletd returned an empty transaction for the given txid");
@@ -164,6 +186,49 @@ fn verify_orchard(tx: &Transaction, output_index: u32, ock: [u8; 32]) -> Result<
     }
 }
 
+/// Run the Sapling recovery path against the output at `output_index`.
+fn verify_sapling(tx: &Transaction, output_index: u32, ock: [u8; 32]) -> Result<()> {
+    let bundle = tx
+        .sapling_bundle()
+        .ok_or_else(|| anyhow!("transaction has no Sapling bundle"))?;
+    let outputs = bundle.shielded_outputs();
+    let output = outputs
+        .get(output_index as usize)
+        .ok_or_else(|| anyhow!("transaction has no Sapling output at index {output_index}"))?;
+    let ock_key = ock_from_bytes(ock);
+    // Current mainnet (post-Canopy) enforces ZIP-212 unconditionally.
+    let zip212 = sapling_crypto::note_encryption::Zip212Enforcement::On;
+
+    match recover_sapling(output, &ock_key, zip212) {
+        Ok(disc) => {
+            display_sapling(&disc);
+            Ok(())
+        }
+        Err(_) => bail!(
+            "OCK does not match this Sapling output. The receipt's `ock` field is wrong,\n\
+             the `output_index` is wrong, or the receipt was forged."
+        ),
+    }
+}
+
+fn display_sapling(disc: &SaplingDisclosure) {
+    println!();
+    println!("OUTPUT RECOVERED (Sapling)");
+    println!(
+        "  recipient   : sapling:{}",
+        hex::encode(disc.recipient.to_bytes())
+    );
+    println!(
+        "  value       : {} zatoshis ({:.8} ZEC)",
+        disc.value.inner(),
+        disc.value.inner() as f64 / 1e8
+    );
+    let memo_text = memo_to_display(&disc.memo).unwrap_or_else(|| "(non text memo)".to_string());
+    println!("  memo        : {memo_text}");
+    println!();
+    println!("VERIFIED.");
+}
+
 fn display(disc: &OrchardDisclosure) {
     println!();
     println!("OUTPUT RECOVERED");
@@ -188,6 +253,14 @@ fn display(disc: &OrchardDisclosure) {
 fn encode_recipient(addr: &orchard::Address) -> String {
     let bytes = addr.to_raw_address_bytes();
     format!("orchard:{}", hex::encode(bytes))
+}
+
+/// Heuristic: does this look like a Glasspane URL rather than a file path
+/// or JSON blob? We treat "contains `/r/`" or "starts with http(s)://" as
+/// URL.
+fn looks_like_url(s: &str) -> bool {
+    let s = s.trim();
+    s.starts_with("http://") || s.starts_with("https://") || s.contains("/r/")
 }
 
 /// Try to render a 512-byte memo as a UTF-8 string, trimming trailing zeros.

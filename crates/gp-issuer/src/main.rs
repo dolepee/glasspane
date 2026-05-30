@@ -16,7 +16,9 @@
 
 use anyhow::{anyhow, bail, Context, Result};
 use clap::Parser;
-use gp_core::{derive_orchard_ock, ock_to_bytes, OrchardOckInputs};
+use gp_core::{
+    derive_orchard_ock, derive_sapling_ock, ock_to_bytes, OrchardOckInputs, SaplingOckInputs,
+};
 use gp_types::{Network, Pool, Receipt};
 use orchard::keys::OutgoingViewingKey;
 use tonic::transport::Channel;
@@ -68,6 +70,16 @@ struct Args {
     /// Write the receipt JSON to this path. Default: stdout.
     #[arg(long)]
     out: Option<String>,
+
+    /// Also emit a shareable URL of the form
+    /// `https://<host>/r/<base64url-json>` to stderr. Default host is
+    /// `https://glasspane.dev`; pass --url-host to override.
+    #[arg(long, default_value_t = false)]
+    url: bool,
+
+    /// Host to use when emitting a shareable receipt URL with --url.
+    #[arg(long, default_value = "https://glasspane.dev")]
+    url_host: String,
 }
 
 #[derive(clap::ValueEnum, Clone, Copy, Debug)]
@@ -104,16 +116,8 @@ impl From<PoolArg> for Pool {
 async fn main() -> Result<()> {
     let args = Args::parse();
 
-    if matches!(args.pool, PoolArg::Sapling) {
-        bail!(
-            "Sapling pool is not yet implemented in v0. Resend the payment via an\n\
-             Orchard capable wallet, or wait for gp-core v0.2."
-        );
-    }
-
     let tx_id = parse_hex_32(&args.tx_id).context("--tx-id must be 32 byte hex")?;
     let ovk_bytes = parse_hex_32(&args.ovk).context("--ovk must be 32 byte hex")?;
-    let ovk = OutgoingViewingKey::from(ovk_bytes);
     if args.label.len() > 120 {
         bail!("--label exceeds 120 characters");
     }
@@ -124,8 +128,17 @@ async fn main() -> Result<()> {
     let tx = parse_tx(&raw_tx)?;
     eprintln!("  Transaction fetched and parsed.");
 
-    // Locate the named Orchard action and derive OCK.
-    let ock_bytes = derive_orchard_ock_from_chain(&tx, args.output_index, &ovk)?;
+    // Locate the action / output for the named pool and derive OCK.
+    let ock_bytes = match args.pool {
+        PoolArg::Orchard => {
+            let ovk = OutgoingViewingKey::from(ovk_bytes);
+            derive_orchard_ock_from_chain(&tx, args.output_index, &ovk)?
+        }
+        PoolArg::Sapling => {
+            let ovk = sapling_crypto::keys::OutgoingViewingKey(ovk_bytes);
+            derive_sapling_ock_from_chain(&tx, args.output_index, &ovk)?
+        }
+    };
 
     // Build the receipt.
     let receipt = Receipt::new(
@@ -145,6 +158,10 @@ async fn main() -> Result<()> {
             eprintln!("Receipt written to {path}");
         }
         None => println!("{json}"),
+    }
+    if args.url {
+        let url = receipt.to_url(&args.url_host).context("emit receipt URL")?;
+        eprintln!("Shareable URL: {url}");
     }
     Ok(())
 }
@@ -212,6 +229,30 @@ fn derive_orchard_ock_from_chain(
         epk_bytes: &epk_bytes,
     });
 
+    Ok(ock_to_bytes(&ock))
+}
+
+/// Locate the Sapling output at `output_index`, extract (cv, cmu, epk),
+/// and derive the per-output OCK using `ovk`.
+fn derive_sapling_ock_from_chain(
+    tx: &Transaction,
+    output_index: u32,
+    ovk: &sapling_crypto::keys::OutgoingViewingKey,
+) -> Result<[u8; 32]> {
+    let bundle = tx
+        .sapling_bundle()
+        .ok_or_else(|| anyhow!("transaction has no Sapling bundle"))?;
+    let outputs = bundle.shielded_outputs();
+    let output = outputs
+        .get(output_index as usize)
+        .ok_or_else(|| anyhow!("transaction has no Sapling output at index {output_index}"))?;
+
+    let ock = derive_sapling_ock(&SaplingOckInputs {
+        ovk,
+        cv: output.cv(),
+        cmu: output.cmu(),
+        epk_bytes: output.ephemeral_key(),
+    });
     Ok(ock_to_bytes(&ock))
 }
 

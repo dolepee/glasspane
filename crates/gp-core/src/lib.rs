@@ -9,13 +9,13 @@
 //! OCK lets a verifier recover the note plaintext (recipient, value, memo)
 //! for that ONE output and learn nothing about the rest of the wallet.
 //!
-//! v0 targets the Orchard pool. The Sapling shape is mechanically the same
-//! and lands in v0.2.
+//! v0 supports both the Orchard pool (via `derive_orchard_ock` /
+//! `recover_orchard`) and the Sapling pool (via `derive_sapling_ock` /
+//! `recover_sapling`). Both paths are validated against the published
+//! Zcash protocol test vectors in the `tests` module.
 
 use orchard::{
-    keys::OutgoingViewingKey,
-    note::ExtractedNoteCommitment,
-    note_encryption::OrchardDomain,
+    keys::OutgoingViewingKey, note::ExtractedNoteCommitment, note_encryption::OrchardDomain,
     value::ValueCommitment,
 };
 use thiserror::Error;
@@ -90,6 +90,54 @@ pub fn recover_orchard<T>(
     }
 }
 
+/// Inputs needed to derive a Sapling OCK once gp-issuer has located the
+/// Sapling output description it wants to disclose.
+pub struct SaplingOckInputs<'a> {
+    pub ovk: &'a sapling_crypto::keys::OutgoingViewingKey,
+    pub cv: &'a sapling_crypto::value::ValueCommitment,
+    pub cmu: &'a sapling_crypto::note::ExtractedNoteCommitment,
+    pub epk_bytes: &'a EphemeralKeyBytes,
+}
+
+/// Derive the per-output OCK for a Sapling output. Wraps `prf_ock` which
+/// the `sapling-crypto` crate exposes publicly (in contrast to Orchard,
+/// which keeps its `prf_ock_orchard` `pub(crate)` and forces external
+/// callers through the `Domain` trait).
+pub fn derive_sapling_ock(inputs: &SaplingOckInputs) -> OutgoingCipherKey {
+    sapling_crypto::note_encryption::prf_ock(
+        inputs.ovk,
+        inputs.cv,
+        &inputs.cmu.to_bytes(),
+        inputs.epk_bytes,
+    )
+}
+
+/// Disclosure recovered from a Sapling output via OCK.
+#[derive(Debug)]
+pub struct SaplingDisclosure {
+    pub recipient: sapling_crypto::PaymentAddress,
+    pub value: sapling_crypto::value::NoteValue,
+    pub memo: [u8; 512],
+}
+
+/// Recover the disclosed payment from a published Sapling output description
+/// using the OCK shared in a Glasspane receipt.
+pub fn recover_sapling(
+    output: &sapling_crypto::bundle::OutputDescription<sapling_crypto::bundle::GrothProofBytes>,
+    ock: &OutgoingCipherKey,
+    zip212: sapling_crypto::note_encryption::Zip212Enforcement,
+) -> Result<SaplingDisclosure, CoreError> {
+    match sapling_crypto::note_encryption::try_sapling_output_recovery_with_ock(ock, output, zip212)
+    {
+        Some((note, recipient, memo)) => Ok(SaplingDisclosure {
+            recipient,
+            value: note.value(),
+            memo,
+        }),
+        None => Err(CoreError::RecoveryFailed),
+    }
+}
+
 /// Build an `OutgoingCipherKey` from raw 32 byte material, e.g. the bytes
 /// decoded from a Glasspane receipt's `ock` field.
 pub fn ock_from_bytes(bytes: [u8; 32]) -> OutgoingCipherKey {
@@ -107,9 +155,7 @@ pub fn ock_to_bytes(ock: &OutgoingCipherKey) -> [u8; 32] {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use orchard::{
-        note::ExtractedNoteCommitment as Cmx, value::ValueCommitment as Cv,
-    };
+    use orchard::{note::ExtractedNoteCommitment as Cmx, value::ValueCommitment as Cv};
     use zcash_note_encryption::EphemeralKeyBytes;
 
     /// Orchard test vector index 0, sourced from
@@ -218,6 +264,63 @@ mod tests {
         );
     }
 
+    /// Sapling protocol test vector 0 sourced from
+    /// `sapling-crypto 0.7` `src/test_vectors/note_encryption.rs`.
+    mod sap_tv0 {
+        pub const OVK: [u8; 32] = [
+            0x98, 0xd1, 0x69, 0x13, 0xd9, 0x9b, 0x04, 0x17, 0x7c, 0xab, 0xa4, 0x4f, 0x6e, 0x4d,
+            0x22, 0x4e, 0x03, 0xb5, 0xac, 0x03, 0x1d, 0x7c, 0xe4, 0x5e, 0x86, 0x51, 0x38, 0xe1,
+            0xb9, 0x96, 0xd6, 0x3b,
+        ];
+        pub const CV: [u8; 32] = [
+            0xa9, 0xcb, 0x0d, 0x13, 0x72, 0x32, 0xff, 0x84, 0x48, 0xd0, 0xf0, 0x78, 0xb6, 0x81,
+            0x4c, 0x66, 0xcb, 0x33, 0x1b, 0x0f, 0x2d, 0x3d, 0x8a, 0x08, 0x5b, 0xed, 0xba, 0x81,
+            0x5f, 0x00, 0xa8, 0xdb,
+        ];
+        pub const CMU: [u8; 32] = [
+            0x63, 0x55, 0x72, 0xf5, 0x72, 0xa8, 0xa1, 0xa0, 0xb7, 0xac, 0xbc, 0x0a, 0xfc, 0x6d,
+            0x66, 0xf1, 0x4a, 0x02, 0xef, 0xac, 0xde, 0x7b, 0xdf, 0x03, 0x44, 0x3e, 0xd4, 0xc3,
+            0xe5, 0x51, 0xd4, 0x70,
+        ];
+        pub const EPK: [u8; 32] = [
+            0xde, 0xd6, 0x8f, 0x05, 0xc6, 0x58, 0xfc, 0xae, 0x5a, 0xe2, 0x18, 0x64, 0x6f, 0xf8,
+            0x44, 0x40, 0x6f, 0x84, 0x42, 0x67, 0x84, 0x04, 0x0d, 0x0b, 0xef, 0x2b, 0x09, 0xcb,
+            0x38, 0x48, 0xc4, 0xdc,
+        ];
+        pub const OCK: [u8; 32] = [
+            0x6c, 0xe6, 0x1e, 0xad, 0x78, 0x49, 0x20, 0x42, 0x93, 0x34, 0x9e, 0x83, 0x2e, 0x95,
+            0xca, 0x3a, 0xc6, 0x42, 0x2e, 0xc4, 0xfe, 0x21, 0xe5, 0xd1, 0x53, 0x86, 0x55, 0x8e,
+            0x4d, 0x37, 0x79, 0x6d,
+        ];
+    }
+
+    /// gp-core::derive_sapling_ock must produce the OCK specified by the
+    /// Zcash protocol's Sapling note-encryption test vector 0.
+    #[test]
+    fn derive_sapling_ock_matches_zcash_test_vector_0() {
+        use sapling_crypto::{
+            keys::OutgoingViewingKey as SapOvk, note::ExtractedNoteCommitment as SapCmu,
+            value::ValueCommitment as SapCv,
+        };
+        let ovk = SapOvk(sap_tv0::OVK);
+        let cv = SapCv::from_bytes_not_small_order(&sap_tv0::CV).unwrap();
+        let cmu = SapCmu::from_bytes(&sap_tv0::CMU).unwrap();
+        let epk = EphemeralKeyBytes(sap_tv0::EPK);
+
+        let ock = derive_sapling_ock(&SaplingOckInputs {
+            ovk: &ovk,
+            cv: &cv,
+            cmu: &cmu,
+            epk_bytes: &epk,
+        });
+
+        assert_eq!(
+            ock_to_bytes(&ock),
+            sap_tv0::OCK,
+            "gp-core::derive_sapling_ock must produce the OCK specified by Zcash protocol Sapling test vector 0",
+        );
+    }
+
     /// Sensitivity: any single bit flip in any input must change the OCK.
     /// Confirms the derivation depends on every input we feed it, which is
     /// the property that makes the OCK a per-output disclosure unit rather
@@ -244,15 +347,13 @@ mod tests {
             let mut cmx_mut = tv0::CMX;
             cmx_mut[k] ^= 0x01;
             if Cmx::from_bytes(&cmx_mut).is_some().into() {
-                let ock_cmx =
-                    derive_for_vector(tv0::OVK, tv0::CV_NET, cmx_mut, tv0::EPHEMERAL_KEY);
+                let ock_cmx = derive_for_vector(tv0::OVK, tv0::CV_NET, cmx_mut, tv0::EPHEMERAL_KEY);
                 assert_ne!(ock_cmx, baseline, "OCK must depend on cmx");
                 return;
             }
         }
         panic!("could not find a mutated cmx that still decodes");
     }
-
 
     /// Helper bytes go from raw -> OutgoingCipherKey -> raw cleanly.
     #[test]
@@ -296,7 +397,9 @@ mod tests {
     fn recover_orchard_is_reachable_via_public_api() {
         // If this compiles, gp-verifier can call recover_orchard against
         // any `orchard::Action<T>` returned by a transaction parser.
-        let _: fn(&orchard::Action<()>, &OutgoingCipherKey) -> Result<OrchardDisclosure, CoreError> =
-            recover_orchard::<()>;
+        let _: fn(
+            &orchard::Action<()>,
+            &OutgoingCipherKey,
+        ) -> Result<OrchardDisclosure, CoreError> = recover_orchard::<()>;
     }
 }

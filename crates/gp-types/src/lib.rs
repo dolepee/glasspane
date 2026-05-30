@@ -120,12 +120,49 @@ impl Receipt {
         let _ = self.ock_bytes()?;
         Ok(())
     }
+
+    /// Encode this receipt as a shareable URL of the form
+    /// `https://<host>/r/<base64url-json>`. Anyone with the URL can
+    /// reconstruct the full Receipt via `Receipt::from_url`.
+    ///
+    /// This is the "click this link" disclosure form — equivalent to
+    /// sharing the JSON file, more convenient for chat / email / QR.
+    pub fn to_url(&self, host: &str) -> Result<String, ReceiptError> {
+        let json = serde_json::to_vec(self).map_err(|_| ReceiptError::SerializationFailed)?;
+        let encoded = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(&json);
+        let trimmed_host = host.trim_end_matches('/');
+        Ok(format!("{trimmed_host}/r/{encoded}"))
+    }
+
+    /// Decode a Glasspane URL produced by `to_url` back into a Receipt.
+    /// Accepts either the full URL `https://host/r/<data>` or just the
+    /// `<data>` segment. Always validates the resulting receipt envelope.
+    pub fn from_url(s: &str) -> Result<Self, ReceiptError> {
+        let trimmed = s.trim();
+        // Locate the `/r/` segment to find the data payload.
+        let data = match trimmed.rsplit_once("/r/") {
+            Some((_, data)) => data,
+            None => trimmed,
+        };
+        let data = data.split(['?', '#']).next().unwrap_or(data);
+        let bytes = base64::engine::general_purpose::URL_SAFE_NO_PAD
+            .decode(data.as_bytes())
+            .map_err(|_| ReceiptError::InvalidUrl)?;
+        let receipt: Receipt =
+            serde_json::from_slice(&bytes).map_err(|_| ReceiptError::InvalidUrl)?;
+        receipt.validate()?;
+        Ok(receipt)
+    }
 }
 
 #[derive(Debug, Error)]
 pub enum ReceiptError {
     #[error("unsupported receipt version: {0}")]
     UnsupportedVersion(String),
+    #[error("invalid url (must contain /r/<base64url-json>)")]
+    InvalidUrl,
+    #[error("serialization failed")]
+    SerializationFailed,
     #[error("invalid tx_id (must be 32 byte hex)")]
     InvalidTxId,
     #[error("invalid ock (must be base64url of 32 bytes)")]
@@ -177,5 +214,43 @@ mod tests {
             "x".repeat(121),
         );
         assert!(matches!(r.validate(), Err(ReceiptError::LabelTooLong)));
+    }
+
+    #[test]
+    fn url_round_trip() {
+        let mut tx_id = [0u8; 32];
+        for (i, b) in tx_id.iter_mut().enumerate() {
+            *b = (i * 7) as u8;
+        }
+        let mut ock = [0u8; 32];
+        for (i, b) in ock.iter_mut().enumerate() {
+            *b = (i * 13) as u8;
+        }
+        let r = Receipt::new(Network::Mainnet, Pool::Orchard, tx_id, 2, ock, "url demo");
+
+        let url = r.to_url("https://glasspane.zec").unwrap();
+        assert!(url.starts_with("https://glasspane.zec/r/"));
+
+        let back = Receipt::from_url(&url).unwrap();
+        assert_eq!(back.tx_id_bytes().unwrap(), tx_id);
+        assert_eq!(back.ock_bytes().unwrap(), ock);
+        assert_eq!(back.output_index, 2);
+        assert_eq!(back.label, "url demo");
+        assert_eq!(back.pool, Pool::Orchard);
+    }
+
+    #[test]
+    fn from_url_accepts_bare_payload() {
+        let r = Receipt::new(Network::Mainnet, Pool::Orchard, [1u8; 32], 0, [2u8; 32], "");
+        let url = r.to_url("https://glasspane.zec").unwrap();
+        let bare = url.rsplit_once("/r/").unwrap().1;
+        let back = Receipt::from_url(bare).unwrap();
+        assert_eq!(back.output_index, 0);
+    }
+
+    #[test]
+    fn from_url_rejects_garbage() {
+        assert!(Receipt::from_url("https://glasspane.zec/r/!!!notbase64!!!").is_err());
+        assert!(Receipt::from_url("not a url at all").is_err());
     }
 }

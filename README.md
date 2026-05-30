@@ -44,7 +44,12 @@ The receipt is scoped to ONE payment. Read the threat model in `THREAT.md` for t
 
 ## Status
 
-Currently in the 24 hour cryptographic gate phase. Receipt format spec is in `spec/receipt.md`.
+v0 protocol is implemented end to end for both **Orchard** and **Sapling** pools. The cryptographic gate passes against the published Zcash protocol test vectors for both pools (`cargo test --workspace`).
+
+What works today:
+- `gp-issue` derives the OCK for a specific shielded output by fetching the transaction from lightwalletd and computing `prf_ock` over the on-chain `(cv, cmstar, epk)`.
+- `gp-verify` accepts a receipt as a file path, a `https://host/r/<base64url>` URL, a bare base64url payload, or stdin. It fetches the named transaction, runs `try_output_recovery_with_ock` against the disclosed OCK, and prints the recovered note plaintext.
+- Receipt format spec is in `spec/receipt.md`. Engineering gate report is in `spec/24h-gate.md`. End to end mainnet tutorial is in `docs/run-a-real-receipt.md`.
 
 ## Build
 

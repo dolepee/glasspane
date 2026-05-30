@@ -1,0 +1,16 @@
+[package]
+name = "gp-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Glasspane core verification: OCK based selective disclosure of Zcash outputs"
+
+[dependencies]
+gp-types = { path = "../gp-types" }
+orchard = { workspace = true }
+zcash_note_encryption = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+rand = { workspace = true }
+rand_core = { workspace = true }

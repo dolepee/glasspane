@@ -24,6 +24,25 @@ Crates needed:
 - `zcash_client_backend` for lightwalletd block / tx fetching
 - `zcash_primitives` for transaction parsing
 
+## Progress log
+
+**Hour 0-3 (DONE):**
+- Repo scaffold + receipt format spec v0 (OCK as disclosure primitive).
+- `gp-types` crate: receipt JSON serialisation, validation, version reject. **3 tests pass.**
+- `gp-core` crate: `derive_orchard_ock`, `recover_orchard` wired against published `orchard 0.13.1` + `zcash_note_encryption 0.4.1`. Compile-time signature checks confirm `OrchardDomain::derive_ock` and `try_output_recovery_with_ock` are reachable via the public Domain trait. **3 tests pass.**
+- `gp-issuer` CLI (`gp-issue`): produces a valid v0 receipt JSON. End-to-end CLI tested with synthetic OCK.
+- `gp-verifier` CLI (`gp-verify`): parses receipt, validates envelope, rejects unsupported versions. Chain verification step stubbed.
+
+**Validated by tests so far:**
+- Receipt envelope format is correct and round trips.
+- The cryptographic API surface (OCK derive + recover) compiles against the published Zcash crates.
+- Our function signatures `derive_orchard_ock(OrchardOckInputs)` and `recover_orchard(&Action<T>, &OCK)` are stable.
+
+**Still needed for full gate PASS (Hours 4-24):**
+- Wire a lightwalletd tonic client into gp-issuer + gp-verifier so they fetch tx data from Zcash mainnet.
+- Hand a REAL mainnet shielded payment through the pipeline: extract `(cv, cmx, epk)` from the action, derive OCK, write receipt, verify recovery returns the expected note plaintext.
+- This step needs the operator to send ~0.005 ZEC from a wallet that exposes the OVK.
+
 ## Acceptance criteria
 
 By the end of hour 24:

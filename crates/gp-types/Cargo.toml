@@ -1,9 +1,15 @@
 [package]
 name = "gp-types"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-description = "Glasspane receipt format types and serialization"
+version = "0.0.1"
+edition = "2021"
+license = "MIT"
+description = "Glasspane receipt format types: per-output OCK based selective disclosure receipts for shielded Zcash payments. Includes JSON envelope, URL form, and optional ed25519 signing."
+repository = "https://github.com/dolepee/glasspane"
+homepage = "https://github.com/dolepee/glasspane"
+documentation = "https://docs.rs/gp-types"
+readme = "README.md"
+keywords = ["zcash", "privacy", "selective-disclosure", "shielded", "receipt"]
+categories = ["cryptography"]
 
 [dependencies]
 serde = { workspace = true }

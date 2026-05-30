@@ -11,6 +11,21 @@ path = "src/main.rs"
 
 [dependencies]
 gp-types = { path = "../gp-types" }
+gp-core = { path = "../gp-core" }
+
+# Zcash protocol
+orchard = { workspace = true }
+zcash_primitives = { workspace = true }
+zcash_protocol = { workspace = true }
+zcash_client_backend = { workspace = true }
+zcash_note_encryption = { workspace = true }
+
+# Async + RPC
+tokio = { workspace = true }
+tonic = { workspace = true }
+prost = { workspace = true }
+
+# CLI + util
 clap = { workspace = true }
 anyhow = { workspace = true }
 serde_json = { workspace = true }

@@ -1,0 +1,40 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/gp-types",
+    "crates/gp-issuer",
+    "crates/gp-verifier",
+]
+
+[workspace.package]
+version = "0.0.1"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/dolepee/glasspane"
+
+[workspace.dependencies]
+# Cryptography + protocol
+zcash_primitives = "0.24"
+zcash_protocol = "0.6"
+zcash_keys = "0.10"
+zcash_client_backend = { version = "0.20", default-features = false, features = ["lightwalletd-tonic"] }
+sapling-crypto = "0.7"
+orchard = "0.13"
+zcash_note_encryption = "0.5"
+zcash_address = "0.10"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+hex = "0.4"
+base64 = "0.22"
+
+# Async + networking (verifier needs lightwalletd RPC)
+tokio = { version = "1", features = ["full"] }
+tonic = "0.12"
+
+# Errors + util
+anyhow = "1"
+thiserror = "2"
+clap = { version = "4", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }

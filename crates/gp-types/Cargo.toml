@@ -1,0 +1,14 @@
+[package]
+name = "gp-types"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Glasspane receipt format types and serialization"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+hex = { workspace = true }
+base64 = { workspace = true }
+thiserror = { workspace = true }
+chrono = { workspace = true }

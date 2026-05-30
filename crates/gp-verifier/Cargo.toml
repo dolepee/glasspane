@@ -1,0 +1,17 @@
+[package]
+name = "gp-verifier"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Glasspane receipt verifier"
+
+[[bin]]
+name = "gp-verify"
+path = "src/main.rs"
+
+[dependencies]
+gp-types = { path = "../gp-types" }
+clap = { workspace = true }
+anyhow = { workspace = true }
+serde_json = { workspace = true }
+hex = { workspace = true }

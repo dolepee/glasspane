@@ -14,12 +14,19 @@ license = "MIT"
 repository = "https://github.com/dolepee/glasspane"
 
 [workspace.dependencies]
-# Cryptography + protocol. Pinned to published-on-crates.io versions
-# (orchard 0.13.1 uses zcash_note_encryption 0.4, not the 0.5 on main).
+# Cryptography + Zcash protocol (versions pinned to a self-consistent
+# published set on crates.io).
 orchard = "=0.13.1"
 zcash_note_encryption = "0.4"
-rand = "0.8"
-rand_core = "0.6"
+zcash_primitives = "0.27"
+zcash_protocol = "0.8"
+zcash_client_backend = { version = "0.22", default-features = false, features = ["lightwalletd-tonic"] }
+sapling-crypto = "0.7"
+
+# Async networking for the lightwalletd gRPC client.
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+tonic = "0.14"
+prost = "0.14"
 
 # Serialization
 serde = { version = "1", features = ["derive"] }
@@ -32,3 +39,7 @@ anyhow = "1"
 thiserror = "2"
 clap = { version = "4", features = ["derive"] }
 chrono = { version = "0.4", features = ["serde"] }
+
+# Test helpers
+rand = "0.8"
+rand_core = "0.6"

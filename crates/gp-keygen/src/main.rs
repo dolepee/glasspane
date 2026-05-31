@@ -43,6 +43,21 @@ struct Args {
     /// printing. The path should be OUTSIDE any git repo. Default: print only.
     #[arg(long)]
     out: Option<String>,
+
+    /// Seed derivation convention from the mnemonic. Zcash wallets
+    /// (zkool, YWallet, zcashd) use the raw BIP39 ENTROPY (32 bytes) as the
+    /// ZIP-32 seed. The BIP39 standard PBKDF2 seed (64 bytes) is what some
+    /// other ecosystems use. Default is `entropy` to match Zcash wallets.
+    #[arg(long, value_enum, default_value_t = SeedMode::Entropy)]
+    seed_mode: SeedMode,
+}
+
+#[derive(clap::ValueEnum, Clone, Copy, Debug, PartialEq)]
+enum SeedMode {
+    /// Raw BIP39 entropy (32 bytes). Matches zkool / YWallet / zcashd.
+    Entropy,
+    /// BIP39 PBKDF2 seed (64 bytes). Matches some non-Zcash ecosystems.
+    Bip39seed,
 }
 
 fn main() -> Result<()> {
@@ -54,9 +69,14 @@ fn main() -> Result<()> {
         None => Mnemonic::generate(Count::Words24),
     };
     let phrase = mnemonic.phrase().to_string();
-    let seed = mnemonic.to_seed("");
 
     // 2. Derive account-0 unified spending key for Zcash mainnet.
+    // Zcash wallets use the raw BIP39 entropy as the ZIP-32 seed; that is
+    // the default here so the keys match zkool / YWallet / zcashd.
+    let seed: Vec<u8> = match args.seed_mode {
+        SeedMode::Entropy => mnemonic.entropy().to_vec(),
+        SeedMode::Bip39seed => mnemonic.to_seed("").to_vec(),
+    };
     let account = AccountId::try_from(0u32).expect("0 is a valid account id");
     let usk = UnifiedSpendingKey::from_seed(&MainNetwork, &seed, account)
         .map_err(|e| anyhow::anyhow!("derive unified spending key from seed: {e:?}"))?;
@@ -68,6 +88,10 @@ fn main() -> Result<()> {
         .context("derived key has no Orchard component")?;
     let ovk = orchard_fvk.to_ovk(Scope::External);
     let ovk_hex = hex::encode(ovk.as_ref());
+
+    // The Unified Full Viewing Key string, for cross-checking with gp-ovk and
+    // for wallets that import a UFVK directly.
+    let ufvk_str = ufvk.encode(&MainNetwork);
 
     // 4. Unified Address (all receiver types) for receiving funds.
     let (ua, _) = ufvk
@@ -98,6 +122,9 @@ fn main() -> Result<()> {
     println!();
     println!("OVK (feed to gp-issue --ovk for the Orchard pool):");
     println!("  {ovk_hex}");
+    println!();
+    println!("UFVK (cross-check with: gp-ovk \"<this>\"):");
+    println!("  {ufvk_str}");
     println!();
     println!("Next:");
     println!("  1. Import the mnemonic into YWallet or Zashi (restore from seed).");

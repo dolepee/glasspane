@@ -42,6 +42,22 @@ A verifier with this receipt can fetch the named transaction from any Zcash full
 
 The full threat-model boundary (what receipts do and do not prove) is in [`spec/receipt.md`](spec/receipt.md).
 
+## Verified on Zcash mainnet
+
+Glasspane has been demonstrated end to end on **mainnet**. A real shielded payment was made, and `gp-verify` recovered it from the live chain using only the per-output OCK:
+
+* Tx: [`66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0`](https://mainnet.zcashexplorer.app/transactions/66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0) (block 3,361,512)
+* Recovered: **0.001 ZEC** to an Orchard address, memo `glasspane first receipt`
+* The rest of the wallet stayed opaque.
+
+Reproduce it from a fresh clone in one command (offline, using the bundled raw tx):
+
+```bash
+cargo run --release -p gp-verifier -- examples/mainnet-receipt.json --raw-tx-file examples/mainnet-tx.hex
+```
+
+Details and the exact receipt are in [`examples/`](examples/).
+
 ## Status
 
 Production-shape v0 across two pools.

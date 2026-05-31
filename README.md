@@ -4,13 +4,13 @@
 
 [![CI](https://github.com/dolepee/glasspane/actions/workflows/ci.yml/badge.svg)](https://github.com/dolepee/glasspane/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Web verifier](https://img.shields.io/badge/web-verifier-blue)](https://dolepee.github.io/glasspane/)
+[![Web verifier](https://img.shields.io/badge/web-verifier-blue)](https://glasspane-iota.vercel.app)
 
 Glasspane is a portable receipt format and toolchain for **per-payment selective disclosure** on Zcash. A sender who made a shielded payment can issue a Glasspane receipt that lets any third party verify exactly that one transaction against Zcash mainnet, while learning nothing else about the sender's wallet.
 
 The cryptography is the per-output **Out Cipher Key (OCK)** that already exists inside the Zcash protocol. Sharing the OCK for one output is the smallest, cleanest disclosure unit Zcash provides. We've packaged it.
 
-* Web verifier (paste a receipt, see the envelope, get the CLI command): **https://dolepee.github.io/glasspane/**
+* Web verifier (paste a receipt, see the envelope, get the CLI command): **https://glasspane-iota.vercel.app**
 * End-to-end tutorial: [`docs/run-a-real-receipt.md`](docs/run-a-real-receipt.md)
 * Receipt format spec: [`spec/receipt.md`](spec/receipt.md)
 * Engineering validation report: [`spec/24h-gate.md`](spec/24h-gate.md)
@@ -54,7 +54,7 @@ Production-shape v0 across two pools.
 | Receipt URL form (`https://host/r/<base64url>`) | shipped |
 | Bech32m UA encoding for recovered recipients (`u1...`) | shipped |
 | Optional ed25519 receipt signing | shipped |
-| Static web verifier (envelope decode + tx explorer link) | shipped, [live](https://dolepee.github.io/glasspane/) |
+| Static web verifier (envelope decode + tx explorer link) | shipped, [live](https://glasspane-iota.vercel.app) |
 | Protocol-correctness tests against published Zcash test vectors | Orchard TV0 + TV1, Sapling TV0 |
 | Input-sensitivity tests (bit flips must change the OCK) | shipped |
 | CI (cargo fmt + clippy `-D warnings` + tests on every push) | shipped |
@@ -102,7 +102,7 @@ Add `--sign-with-key <32-hex>` to sign the envelope.
 
 ### 4. Or share the URL form
 
-Hand the contents of `receipt.json` to anyone with `gp-verify` installed, or share the URL emitted on stderr by `gp-issue --url`. Anyone with the URL can paste it into the **[web verifier](https://dolepee.github.io/glasspane/)** to see the envelope, or into `gp-verify` to do the full cryptographic recovery.
+Hand the contents of `receipt.json` to anyone with `gp-verify` installed, or share the URL emitted on stderr by `gp-issue --url`. Anyone with the URL can paste it into the **[web verifier](https://glasspane-iota.vercel.app)** to see the envelope, or into `gp-verify` to do the full cryptographic recovery.
 
 ## How the protocol works
 
@@ -129,9 +129,10 @@ glasspane/
 ├── web/
 │   └── index.html    # Static web verifier (GitHub Pages)
 └── .github/workflows/
-    ├── ci.yml        # fmt + clippy + tests on every push
-    └── pages.yml     # Deploys web/ to github.io
+    └── ci.yml        # fmt + clippy + tests on every push
 ```
+
+The web verifier (`web/`) deploys to Vercel automatically on every push to `main` (Vercel's GitHub integration, project root set to `web/`).
 
 `gp-types` and `gp-core` are pure libraries with no network dependencies. They can be embedded in other Rust tooling without pulling tonic, lightwalletd, or async runtimes.
 
@@ -165,7 +166,7 @@ All versions are pinned to released-on-crates.io releases for reproducibility.
 
 ## Roadmap (post v0)
 
-* WASM-compile `gp-core` and ship the full cryptographic recovery in the browser, so the [web verifier](https://dolepee.github.io/glasspane/) does the whole thing without a separate CLI step.
+* WASM-compile `gp-core` and ship the full cryptographic recovery in the browser, so the [web verifier](https://glasspane-iota.vercel.app) does the whole thing without a separate CLI step.
 * ZSA-aware receipts (when Zcash Shielded Assets ship a stable application surface).
 * ZK proof of a property *over* the disclosed value ("this payment was greater than 1 ZEC") without revealing the amount.
 * Batched receipts (multiple outputs in one envelope, each with its own OCK).

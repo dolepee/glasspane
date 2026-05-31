@@ -5,6 +5,7 @@ members = [
     "crates/gp-core",
     "crates/gp-issuer",
     "crates/gp-verifier",
+    "crates/gp-keygen",
 ]
 
 [workspace.package]
@@ -20,7 +21,7 @@ orchard = "=0.13.1"
 zcash_note_encryption = "0.4"
 zcash_primitives = "0.27"
 zcash_protocol = "0.8"
-zcash_client_backend = { version = "0.22", default-features = false, features = ["lightwalletd-tonic"] }
+zcash_client_backend = { version = "0.22", default-features = false, features = ["lightwalletd-tonic", "orchard"] }
 sapling-crypto = "0.7"
 zcash_address = "0.11"
 ed25519-dalek = "2"

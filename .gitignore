@@ -6,3 +6,7 @@ Cargo.lock
 .env
 .env.local
 /tmp/
+
+# wallet secrets — never commit
+wallet*.json
+*.local.json

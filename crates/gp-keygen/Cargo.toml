@@ -1,0 +1,24 @@
+[package]
+name = "gp-keygen"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Generate a Zcash mainnet test wallet for Glasspane: BIP39 mnemonic, Unified Address, transparent address, and the Orchard OVK that gp-issue needs"
+
+[[bin]]
+name = "gp-keygen"
+path = "src/main.rs"
+
+[dependencies]
+zcash_keys = { version = "0.13", default-features = false, features = ["orchard", "sapling", "transparent-inputs"] }
+zcash_protocol = { workspace = true }
+zcash_address = { workspace = true }
+orchard = { workspace = true }
+zip32 = "0.2"
+zcash_transparent = { version = "0.7", features = ["transparent-inputs"] }
+bip0039 = { version = "0.12", features = ["all-languages"] }
+anyhow = { workspace = true }
+clap = { workspace = true }
+hex = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }

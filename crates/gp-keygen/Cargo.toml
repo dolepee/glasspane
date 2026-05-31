@@ -16,6 +16,8 @@ zcash_address = { workspace = true }
 orchard = { workspace = true }
 zip32 = "0.2"
 zcash_transparent = { version = "0.7", features = ["transparent-inputs"] }
+secp256k1 = "0.29"
+bs58 = { version = "0.5", features = ["check"] }
 bip0039 = { version = "0.12", features = ["all-languages"] }
 anyhow = { workspace = true }
 clap = { workspace = true }

@@ -44,6 +44,12 @@ struct Args {
     #[arg(long)]
     out: Option<String>,
 
+    /// Also export the transparent private key (WIF) for the external
+    /// index-0 address. This is a SPENDING secret; use it only to sweep
+    /// funds out of a transparent address into a wallet you control.
+    #[arg(long, default_value_t = false)]
+    export_wif: bool,
+
     /// Seed derivation convention from the mnemonic. Zcash wallets
     /// (zkool, YWallet, zcashd) use the raw BIP39 ENTROPY (32 bytes) as the
     /// ZIP-32 seed. The BIP39 standard PBKDF2 seed (64 bytes) is what some
@@ -108,6 +114,26 @@ fn main() -> Result<()> {
         .default_address();
     let taddr_str = Address::from(taddr).encode(&MainNetwork);
 
+    // Optional: the transparent private key (WIF) for the external index-0
+    // address, used to sweep funds out of that t-address.
+    let wif: Option<(String, String)> = if args.export_wif {
+        use zcash_transparent::keys::NonHardenedChildIndex;
+        let sk = usk
+            .transparent()
+            .derive_external_secret_key(NonHardenedChildIndex::ZERO)
+            .map_err(|e| anyhow::anyhow!("derive transparent secret key: {e:?}"))?;
+        // Zcash mainnet WIF: 0x80 || 32-byte key || 0x01 (compressed), base58check.
+        let mut payload = Vec::with_capacity(34);
+        payload.push(0x80);
+        payload.extend_from_slice(&sk.secret_bytes());
+        payload.push(0x01);
+        let wif = bs58::encode(payload).with_check().into_string();
+        let raw_hex = hex::encode(sk.secret_bytes());
+        Some((wif, raw_hex))
+    } else {
+        None
+    };
+
     // Output.
     println!("=== Glasspane Zcash mainnet test wallet ===");
     println!();
@@ -126,6 +152,14 @@ fn main() -> Result<()> {
     println!("UFVK (cross-check with: gp-ovk \"<this>\"):");
     println!("  {ufvk_str}");
     println!();
+    if let Some((w, raw_hex)) = &wif {
+        println!("TRANSPARENT PRIVATE KEY for the t1 address above — SPENDING SECRET:");
+        println!("  WIF:     {w}");
+        println!("  raw hex: {raw_hex}");
+        println!("  Import this into a wallet (zkool: add account from transparent secret key)");
+        println!("  to move funds out of the t1 address.");
+        println!();
+    }
     println!("Next:");
     println!("  1. Import the mnemonic into YWallet or Zashi (restore from seed).");
     println!("  2. Fund the t1 address from ChangeNOW (or the UA if the swap supports it).");

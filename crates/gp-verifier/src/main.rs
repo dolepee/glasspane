@@ -51,6 +51,12 @@ struct Args {
     /// Validate only the receipt envelope. Skip chain verification.
     #[arg(long, default_value_t = false)]
     envelope_only: bool,
+
+    /// Offline mode: read the raw transaction hex from this file instead of
+    /// fetching it from lightwalletd. Useful where outbound gRPC is blocked.
+    /// Get the hex from any block explorer's raw-transaction endpoint.
+    #[arg(long)]
+    raw_tx_file: Option<String>,
 }
 
 #[tokio::main]
@@ -115,13 +121,23 @@ async fn main() -> Result<()> {
         return Ok(());
     }
 
-    // 2-4. Fetch + parse the transaction from lightwalletd.
+    // 2-4. Obtain + parse the transaction, either from a local raw-hex file
+    // (offline mode) or from lightwalletd.
     println!();
-    println!("Fetching transaction from {} ...", args.lightwalletd);
-    let raw_tx = fetch_tx(&args.lightwalletd, tx_id_bytes).await?;
+    let raw_tx = match args.raw_tx_file.as_deref() {
+        Some(path) => {
+            println!("Reading raw transaction from {path} (offline mode) ...");
+            let hex_str = std::fs::read_to_string(path).with_context(|| format!("read {path}"))?;
+            hex::decode(hex_str.trim()).context("decode raw tx hex")?
+        }
+        None => {
+            println!("Fetching transaction from {} ...", args.lightwalletd);
+            fetch_tx(&args.lightwalletd, tx_id_bytes).await?
+        }
+    };
     let tx = parse_tx(&raw_tx)?;
     println!(
-        "  Transaction fetched and parsed (consensus branch={:?}).",
+        "  Transaction parsed (consensus branch={:?}).",
         tx.consensus_branch_id()
     );
 

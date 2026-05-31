@@ -67,6 +67,11 @@ struct Args {
     #[arg(long, default_value = "https://zec.rocks:443")]
     lightwalletd: String,
 
+    /// Offline mode: read the raw transaction hex from this file instead of
+    /// fetching from lightwalletd.
+    #[arg(long)]
+    raw_tx_file: Option<String>,
+
     /// Write the receipt JSON to this path. Default: stdout.
     #[arg(long)]
     out: Option<String>,
@@ -128,11 +133,20 @@ async fn main() -> Result<()> {
         bail!("--label exceeds 120 characters");
     }
 
-    // Fetch + parse the transaction.
-    eprintln!("Fetching transaction from {} ...", args.lightwalletd);
-    let raw_tx = fetch_tx(&args.lightwalletd, tx_id).await?;
+    // Obtain + parse the transaction (offline raw-hex file or lightwalletd).
+    let raw_tx = match args.raw_tx_file.as_deref() {
+        Some(path) => {
+            eprintln!("Reading raw transaction from {path} (offline mode) ...");
+            let hex_str = std::fs::read_to_string(path).with_context(|| format!("read {path}"))?;
+            hex::decode(hex_str.trim()).context("decode raw tx hex")?
+        }
+        None => {
+            eprintln!("Fetching transaction from {} ...", args.lightwalletd);
+            fetch_tx(&args.lightwalletd, tx_id).await?
+        }
+    };
     let tx = parse_tx(&raw_tx)?;
-    eprintln!("  Transaction fetched and parsed.");
+    eprintln!("  Transaction parsed.");
 
     // Locate the action / output for the named pool and derive OCK.
     let ock_bytes = match args.pool {

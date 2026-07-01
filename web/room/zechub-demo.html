@@ -3,16 +3,18 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Glasspane Rooms — private Zcash payout proof board</title>
-<meta name="description" content="A private payout proof board for Zcash teams: prove selected shielded payouts, totals, and memos without handing over a viewing key." />
+<title>Glasspane Rooms - private Zcash payout board</title>
+<meta name="description" content="A private payout board for Zcash teams: verify selected shielded payouts, totals, and memos without handing over a viewing key." />
+<link rel="canonical" href="https://glasspane-iota.vercel.app/room/zechub-demo" />
 <meta property="og:title" content="Glasspane Rooms" />
-<meta property="og:description" content="Prove selected shielded Zcash payouts while the rest of the treasury stays opaque." />
+<meta property="og:description" content="Verify selected shielded Zcash payouts while the rest of the treasury stays opaque." />
 <meta property="og:type" content="website" />
-<meta property="og:image" content="/room/og-glasspane-rooms.svg" />
+<meta property="og:url" content="https://glasspane-iota.vercel.app/room/zechub-demo" />
+<meta property="og:image" content="https://glasspane-iota.vercel.app/room/og-glasspane-rooms.svg" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Glasspane Rooms" />
-<meta name="twitter:description" content="Private payout proof boards for Zcash teams." />
-<meta name="twitter:image" content="/room/og-glasspane-rooms.svg" />
+<meta name="twitter:description" content="Private payout boards for Zcash teams." />
+<meta name="twitter:image" content="https://glasspane-iota.vercel.app/room/og-glasspane-rooms.svg" />
 <link rel="icon" href="data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22&gt;&lt;rect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%23f4b323%22/&gt;&lt;path d=%22M8 10h16v12H8z%22 fill=%22%23111111%22/&gt;&lt;path d=%22M11 13h10v6H11z%22 fill=%22%23f4b323%22/&gt;&lt;/svg&gt;">
 <style>
   :root {
@@ -336,9 +338,11 @@
       </span>
     </a>
     <nav aria-label="Primary">
+      <a class="nav-link" href="/">Home</a>
       <a class="nav-link" href="#payouts">Payouts</a>
       <a class="nav-link" href="#reproduce">Reproduce</a>
       <a class="nav-link" href="/room/create">Create</a>
+      <a class="nav-link" href="/receipt.html">Receipt utility</a>
       <a class="nav-link" href="https://github.com/dolepee/glasspane">GitHub</a>
     </nav>
   </header>
@@ -348,8 +352,8 @@
       <div class="hero-copy">
         <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Mainnet room</span>
         <span class="proof-mode"><span class="dot" aria-hidden="true"></span>Rust verified</span>
-        <h1 id="title">Private payout proof board</h1>
-        <p class="lede" id="summary">Loading room proof...</p>
+        <h1 id="title">Private payout board</h1>
+        <p class="lede" id="summary">Loading payout board...</p>
         <div class="hero-actions">
           <a class="button" href="#payouts">View payout board</a>
           <a class="button secondary" href="#reproduce">Verify locally</a>
@@ -498,7 +502,7 @@
     })
     .then(render)
     .catch(err => {
-      summary.textContent = "Room proof could not be loaded.";
+      summary.textContent = "Payout board could not be loaded.";
       errorBox.hidden = false;
       errorBox.textContent = err.message;
     });

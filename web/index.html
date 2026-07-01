@@ -3,350 +3,507 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Glasspane — selective disclosure receipts for shielded Zcash</title>
-<meta name="description" content="Prove one shielded ZEC payment without revealing the rest of your wallet." />
-<link rel="icon" href="data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22&gt;&lt;rect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%23f4b323%22/&gt;&lt;rect x=%228%22 y=%228%22 width=%2216%22 height=%2216%22 rx=%222%22 fill=%22%23000%22/&gt;&lt;rect x=%2210%22 y=%2210%22 width=%2212%22 height=%2212%22 rx=%221%22 fill=%22%23f4b323%22 fill-opacity=%220.55%22/&gt;&lt;/svg&gt;">
+<title>Glasspane Rooms - private payout boards for Zcash teams</title>
+<meta name="description" content="A private payout board for Zcash teams: verify selected shielded payouts, totals, and memos without handing over a viewing key." />
+<link rel="canonical" href="https://glasspane-iota.vercel.app/" />
+<meta property="og:title" content="Glasspane Rooms" />
+<meta property="og:description" content="Private payout boards for Zcash teams. Selected shielded payouts are verified while the rest of the treasury stays opaque." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://glasspane-iota.vercel.app/" />
+<meta property="og:image" content="https://glasspane-iota.vercel.app/room/og-glasspane-rooms.svg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Glasspane Rooms" />
+<meta name="twitter:description" content="Private payout boards for Zcash teams." />
+<meta name="twitter:image" content="https://glasspane-iota.vercel.app/room/og-glasspane-rooms.svg" />
+<link rel="icon" href="data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22&gt;&lt;rect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%23f4b323%22/&gt;&lt;path d=%22M8 10h16v12H8z%22 fill=%22%23111111%22/&gt;&lt;path d=%22M11 13h10v6H11z%22 fill=%22%23f4b323%22/&gt;&lt;/svg&gt;">
 <style>
   :root {
-    --ink: #1b1b1b;
-    --bg:  #f3f1ea;
+    --bg: #edf3f1;
+    --paper: #ffffff;
+    --ink: #121614;
+    --muted: #5d6864;
+    --line: #cbd7d2;
     --gold: #f4b323;
-    --line: #d6d2c4;
-    --dim: #6b6557;
-    --pos: #1f7a3a;
-    --neg: #b2381f;
+    --green: #167a43;
+    --green-soft: #e6f4eb;
+    --red: #b63324;
+    --red-soft: #fae7e3;
+    --blue: #245b8f;
+    --blue-soft: #e8f0f7;
+    --shadow: 0 20px 60px rgba(9, 39, 31, 0.12);
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
+  html, body { margin: 0; min-height: 100%; }
   body {
-    font-family: ui-sans-serif, system-ui, -apple-system, "Inter", "Helvetica Neue", Arial, sans-serif;
-    background: var(--bg);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:
+      linear-gradient(90deg, rgba(23, 23, 19, 0.045) 1px, transparent 1px),
+      linear-gradient(180deg, rgba(23, 23, 19, 0.035) 1px, transparent 1px),
+      var(--bg);
+    background-size: 64px 64px;
     color: var(--ink);
-    line-height: 1.5;
   }
-  main { max-width: 760px; margin: 0 auto; padding: 36px 22px 80px; }
-  header h1 {
-    font-size: 32px;
-    letter-spacing: -0.02em;
-    margin: 0 0 6px;
+  a { color: inherit; }
+  .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 22px 0 18px;
   }
-  header p.lede {
-    color: var(--dim);
-    margin: 0 0 28px;
+  .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .mark {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: var(--gold);
+    border: 2px solid var(--ink);
+    box-shadow: 5px 5px 0 var(--ink);
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
   }
-  .panel {
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 18px 18px 22px;
-    margin: 18px 0;
+  .mark span {
+    width: 21px;
+    height: 15px;
+    border: 3px solid var(--ink);
+    display: block;
+    position: relative;
   }
-  label { display: block; font-size: 13px; color: var(--dim); margin: 0 0 8px; }
-  textarea {
-    width: 100%;
-    min-height: 110px;
+  .mark span::after {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    background: rgba(23, 23, 19, 0.22);
+  }
+  .brand strong { display: block; font-size: 18px; line-height: 1.1; }
+  .brand small { color: var(--muted); font-weight: 650; }
+  nav { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+  .nav-link, .button {
     border: 1px solid var(--line);
     border-radius: 8px;
-    padding: 10px 12px;
-    font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    background: #fbf9f3;
-    resize: vertical;
+    background: rgba(255, 255, 255, 0.92);
     color: var(--ink);
+    padding: 9px 12px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 750;
   }
-  textarea:focus { outline: 2px solid var(--gold); outline-offset: 2px; }
-  .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
-  button, .copy-btn {
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
     background: var(--ink);
     color: #fff;
-    border: 0;
-    padding: 9px 14px;
-    border-radius: 8px;
-    font-size: 14px;
-    cursor: pointer;
+    border-color: var(--ink);
   }
-  button.secondary, .copy-btn {
-    background: #fff;
-    color: var(--ink);
+  .nav-link:focus-visible, .button:focus-visible, .tx-link:focus-visible {
+    outline: 3px solid var(--gold);
+    outline-offset: 3px;
+  }
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 24px;
+    align-items: stretch;
+    padding: 28px 0 16px;
+  }
+  .hero-copy {
+    background: rgba(255, 255, 255, 0.82);
     border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: var(--shadow);
   }
-  button:disabled { opacity: 0.45; cursor: not-allowed; }
-  .grid { display: grid; gap: 10px 18px; grid-template-columns: 150px 1fr; align-items: baseline; }
-  .grid dt { color: var(--dim); font-size: 13px; }
-  .grid dd { margin: 0; font: 14px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; word-break: break-all; }
-  .pill {
-    display: inline-block;
-    padding: 2px 8px;
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(22, 122, 67, 0.28);
+    background: var(--green-soft);
+    color: var(--green);
     border-radius: 999px;
-    background: var(--gold);
-    color: var(--ink);
+    padding: 6px 10px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0;
   }
-  .pill.pool-orchard { background: #c9aff5; }
-  .pill.pool-sapling { background: #f5d1aa; }
-  .ok { color: var(--pos); }
-  .err { color: var(--neg); }
-  .muted { color: var(--dim); }
-  code, pre {
+  .proof-mode {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(36, 91, 143, 0.24);
+    background: var(--blue-soft);
+    color: var(--blue);
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    margin-left: 8px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  h1 {
+    max-width: 780px;
+    margin: 22px 0 14px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(46px, 7vw, 84px);
+    line-height: 0.94;
+    letter-spacing: 0;
+  }
+  .lede {
+    max-width: 760px;
+    color: #3d392f;
+    font-size: 20px;
+    line-height: 1.55;
+    margin: 0 0 22px;
+  }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+  .button.secondary { background: var(--paper); color: var(--ink); border-color: var(--line); }
+  .status-panel {
+    background: var(--ink);
+    color: #fff;
+    border-radius: 8px;
+    padding: 22px;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: var(--shadow);
+  }
+  .status-panel .label { color: #b9c9c3; font-size: 12px; text-transform: uppercase; font-weight: 850; }
+  .status-value { font-size: 54px; line-height: 1; font-weight: 900; margin: 10px 0; }
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 22px;
+  }
+  .status-grid div { padding: 14px; border-right: 1px solid rgba(255, 255, 255, 0.12); border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
+  .status-grid div:nth-child(2n) { border-right: 0; }
+  .status-grid div:nth-last-child(-n+2) { border-bottom: 0; }
+  .status-grid strong { display: block; font-size: 24px; }
+  .status-grid span { color: #b9c9c3; font-size: 12px; font-weight: 750; text-transform: uppercase; }
+  .section { padding: 28px 0; }
+  .section-title {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 16px;
+  }
+  h2 {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 32px;
+    line-height: 1.05;
+    letter-spacing: 0;
+  }
+  .section-title p { margin: 0; color: var(--muted); max-width: 480px; line-height: 1.45; }
+  .board {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 130px minmax(180px, 1.2fr) minmax(160px, 1fr) 130px 140px;
+    gap: 0;
+    align-items: stretch;
+    border-top: 1px solid var(--line);
+  }
+  .row:first-child { border-top: 0; }
+  .cell { padding: 16px; border-left: 1px solid var(--line); min-width: 0; }
+  .cell:first-child { border-left: 0; }
+  .head {
+    background: #e4ece8;
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 900;
+  }
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 9px;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+  .status.verified { color: var(--green); background: var(--green-soft); }
+  .status.rejected { color: var(--red); background: var(--red-soft); }
+  .mono {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 13px;
+    overflow-wrap: anywhere;
   }
-  pre.cli {
-    background: #1b1b1b;
-    color: #fafaf3;
-    padding: 12px 14px;
-    border-radius: 10px;
+  .muted { color: var(--muted); }
+  .tx-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    background: var(--blue-soft);
+    color: var(--blue);
+    text-decoration: none;
+    font-weight: 850;
+  }
+  .contrast {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .contrast-item {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.86);
+    padding: 20px;
+  }
+  .contrast-item strong { display: block; font-size: 18px; margin-bottom: 8px; }
+  .contrast-item p { margin: 0; color: var(--muted); line-height: 1.5; }
+  .terminal {
+    background: #141411;
+    color: #fff;
+    border-radius: 8px;
+    padding: 18px;
     overflow-x: auto;
-    margin: 8px 0 0;
+    border: 1px solid #2f2c24;
   }
-  a { color: var(--ink); }
-  small { color: var(--dim); }
-  .footer { color: var(--dim); font-size: 12px; margin-top: 28px; text-align: center; }
-  hr.sep { border: 0; border-top: 1px solid var(--line); margin: 26px 0; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  footer {
+    padding: 36px 0 54px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .load-error {
+    background: var(--red-soft);
+    color: var(--red);
+    border: 1px solid rgba(182, 51, 36, 0.25);
+    border-radius: 8px;
+    padding: 14px;
+    margin-top: 12px;
+    font-weight: 800;
+  }
+  @media (max-width: 920px) {
+    .hero { grid-template-columns: 1fr; }
+    .status-panel { min-height: 260px; }
+    .row { grid-template-columns: 1fr; }
+    .cell { border-left: 0; border-top: 1px solid var(--line); }
+    .cell:first-child { border-top: 0; }
+    .head { display: none; }
+    .cell::before {
+      content: attr(data-label);
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+  }
+  @media (max-width: 640px) {
+    .shell { width: min(100% - 22px, 1180px); }
+    header { align-items: flex-start; flex-direction: column; }
+    nav { justify-content: flex-start; }
+    .hero-copy { padding: 22px; }
+    h1 { font-size: 44px; }
+    .lede { font-size: 17px; }
+    .status-value { font-size: 42px; }
+    .contrast { grid-template-columns: 1fr; }
+    .section-title { display: block; }
+    .section-title p { margin-top: 8px; }
+  }
 </style>
 </head>
 <body>
-<main>
+<div class="shell">
   <header>
-    <h1>Glasspane <span class="pill">v0</span></h1>
-    <p class="lede">Prove one shielded Zcash payment without revealing the rest of your wallet.</p>
+    <a class="brand" href="/" aria-label="Glasspane home">
+      <span class="mark" aria-hidden="true"><span></span></span>
+      <span>
+        <strong>Glasspane Rooms</strong>
+        <small>Private Zcash payout boards</small>
+      </span>
+    </a>
+    <nav aria-label="Primary">
+      <a class="nav-link" href="/room/zechub-demo">Live board</a>
+      <a class="nav-link" href="/room/create">Create</a>
+      <a class="nav-link" href="/receipt.html">Receipt utility</a>
+      <a class="nav-link" href="https://github.com/dolepee/glasspane">GitHub</a>
+    </nav>
   </header>
 
-  <section class="panel">
-    <label for="input">Paste a Glasspane receipt URL or JSON</label>
-    <textarea id="input" autocomplete="off" spellcheck="false" placeholder="https://glasspane.dev/r/eyJ2ZXJzaW9uIjoiMCIsIm5ldHdvcmsiOiJtYWlubmV0IiwicG9vbCI6Im9yY2hhcmQiLC4uLn0
-&#10;
-or
-&#10;
-{ &quot;version&quot;: &quot;0&quot;, &quot;network&quot;: &quot;mainnet&quot;, &quot;pool&quot;: &quot;orchard&quot;, ... }"></textarea>
-    <div class="row">
-      <button id="decode">Decode</button>
-      <button id="example" class="secondary">Load example</button>
-      <button id="clear" class="secondary">Clear</button>
-    </div>
-  </section>
+  <main>
+    <section class="hero" aria-labelledby="title">
+      <div class="hero-copy">
+        <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Accounting track</span>
+        <span class="proof-mode"><span class="dot" aria-hidden="true"></span>Rust verified fallback</span>
+        <h1 id="title">Private payout boards for Zcash teams</h1>
+        <p class="lede" id="summary">Loading payout board...</p>
+        <div class="hero-actions">
+          <a class="button" href="/room/zechub-demo">Open live board</a>
+          <a class="button secondary" href="/room/create">Create a room</a>
+        </div>
+        <div id="load-error" class="load-error" hidden></div>
+      </div>
 
-  <section id="result" class="panel" hidden>
-    <div id="status"></div>
-    <hr class="sep" />
-    <dl class="grid" id="fields"></dl>
-    <hr class="sep" />
-    <label>To complete verification against Zcash mainnet, run:</label>
-    <pre class="cli" id="cli"></pre>
-    <small>This page only decodes the receipt envelope. The cryptographic recovery (decrypting the disclosed output with the OCK) needs lightwalletd access, which the `gp-verify` CLI handles. Install: <code>cargo install --git https://github.com/dolepee/glasspane gp-verifier</code></small>
-  </section>
+      <aside class="status-panel" aria-label="Room status">
+        <div>
+          <div class="label">Selected disclosed</div>
+          <div class="status-value" id="total-zec">...</div>
+          <div class="muted">Only selected outputs are opened.</div>
+        </div>
+        <div class="status-grid">
+          <div><strong id="verified-count">...</strong><span>verified</span></div>
+          <div><strong id="rejected-count">...</strong><span>rejected</span></div>
+          <div><strong id="network">...</strong><span>network</span></div>
+          <div><strong>opaque</strong><span>wallet rest</span></div>
+        </div>
+      </aside>
+    </section>
 
-  <section class="panel">
-    <h2 style="margin-top:0;font-size:18px">How Glasspane works</h2>
-    <p class="muted" style="margin-top:4px">
-      Every shielded Zcash output is encrypted twice on chain: once to the receiver
-      with their Incoming Viewing Key, and once to the sender with their Outgoing
-      Viewing Key. The sender's encryption uses a <strong>per-output</strong>
-      key called the <strong>OCK</strong>, derived from the sender's OVK plus the
-      output's published <code>cv</code>, <code>cmstar</code>, and <code>epk</code>.
-    </p>
-    <p class="muted">
-      A Glasspane receipt discloses one specific OCK. Anyone holding the receipt
-      can decrypt exactly that one output and learn the recipient, value, and memo.
-      Other outputs in the same transaction stay opaque (each one uses a different
-      OCK). The sender's wallet stays private. Receipts are forwardable and not
-      revocable — share deliberately.
-    </p>
-    <p class="muted">
-      The cryptography is the same primitive used inside the Zcash protocol spec
-      and verified by Glasspane's test suite against the published Zcash test
-      vectors for both Orchard and Sapling pools.
-    </p>
-  </section>
+    <section class="section" id="payouts" aria-labelledby="payouts-title">
+      <div class="section-title">
+        <h2 id="payouts-title">Live payout board</h2>
+        <p id="privacy-boundary">Only the selected receipts are disclosed. The rest of the wallet remains opaque.</p>
+      </div>
+      <div class="board" id="board" aria-live="polite">
+        <div class="row head" aria-hidden="true">
+          <div class="cell">Status</div>
+          <div class="cell">Recipient role</div>
+          <div class="cell">Recovered memo</div>
+          <div class="cell">Amount</div>
+          <div class="cell">Mainnet tx</div>
+        </div>
+      </div>
+    </section>
 
-  <p class="footer">
-    Source: <a href="https://github.com/dolepee/glasspane">github.com/dolepee/glasspane</a>
-    &middot; ZecHub Hackathon 3.0 submission
-  </p>
-</main>
+    <section class="section" aria-labelledby="contrast-title">
+      <div class="section-title">
+        <h2 id="contrast-title">Why teams use it</h2>
+        <p>Glasspane uses the per-output OCK already in Zcash, so the disclosure unit is one selected output.</p>
+      </div>
+      <div class="contrast">
+        <div class="contrast-item">
+          <strong>Viewing key</strong>
+          <p>Useful for audits, but it can expose wallet-wide transaction history to the reviewer.</p>
+        </div>
+        <div class="contrast-item">
+          <strong>Glasspane Rooms</strong>
+          <p>Shows only the chosen payouts, recovered amounts, memos, and tamper result. Everything else remains opaque.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="reproduce" aria-labelledby="reproduce-title">
+      <div class="section-title">
+        <h2 id="reproduce-title">Local verification</h2>
+        <p>The current build is verified by the Rust verifier and reproducible locally. Browser WASM verification will only be labeled when it actually lands.</p>
+      </div>
+      <pre class="terminal"><code>cargo run -p gp-room -- examples/rooms/zechub-demo/room.json --out verified-room.json</code></pre>
+    </section>
+  </main>
+
+  <footer>
+    <span id="generated-at">Room report loading...</span>
+  </footer>
+</div>
 
 <script>
-  // Glasspane v0 receipt decoder (envelope-only, no crypto).
-  // Mirrors `gp-types::Receipt::from_url` in Rust.
+  const roomUrl = "/room/zechub-demo.json";
+  const board = document.getElementById("board");
+  const summary = document.getElementById("summary");
+  const errorBox = document.getElementById("load-error");
 
-  const RECEIPT_VERSION = "0";
-
-  // base64url decoder, padding tolerant
-  function fromBase64Url(s) {
-    s = s.replace(/-/g, "+").replace(/_/g, "/");
-    while (s.length % 4 !== 0) s += "=";
-    const bin = atob(s);
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    return bytes;
+  function statusLabel(status) {
+    return status === "verified" ? "verified" : "rejected";
   }
 
-  function bytesToUtf8(bytes) {
-    return new TextDecoder("utf-8").decode(bytes);
+  function shortTx(tx) {
+    if (!tx) return "tx";
+    return tx.slice(0, 8) + "..." + tx.slice(-6);
   }
 
-  function hexShort(hex, head = 8, tail = 6) {
-    if (!hex || hex.length <= head + tail + 3) return hex;
-    return hex.slice(0, head) + "..." + hex.slice(-tail);
-  }
+  function renderRow(item) {
+    const row = document.createElement("div");
+    row.className = "row";
 
-  function parseAnyReceipt(raw) {
-    const trimmed = raw.trim();
-    // URL form: take everything after the LAST /r/ segment, drop query/hash
-    let dataSegment = trimmed;
-    const idx = trimmed.lastIndexOf("/r/");
-    if (idx !== -1) dataSegment = trimmed.slice(idx + 3);
-    dataSegment = dataSegment.split("?")[0].split("#")[0].trim();
+    const status = document.createElement("div");
+    status.className = "cell";
+    status.setAttribute("data-label", "Status");
+    status.innerHTML = `<span class="status ${item.status}"><span class="dot" aria-hidden="true"></span>${statusLabel(item.status)}</span>`;
 
-    // Try URL form first
-    if (
-      /^[A-Za-z0-9_-]+={0,2}$/.test(dataSegment) &&
-      dataSegment.length > 10 &&
-      !trimmed.trim().startsWith("{")
-    ) {
-      try {
-        const bytes = fromBase64Url(dataSegment);
-        return JSON.parse(bytesToUtf8(bytes));
-      } catch (_) {
-        // fall through to JSON path
-      }
-    }
-    // Fallback: raw JSON
-    return JSON.parse(trimmed);
-  }
+    const role = document.createElement("div");
+    role.className = "cell";
+    role.setAttribute("data-label", "Recipient role");
+    role.innerHTML = `<strong>${item.role}</strong><br><span class="muted">${item.label}</span>`;
 
-  function validateReceipt(r) {
-    if (!r || typeof r !== "object") throw new Error("not a JSON object");
-    if (r.version !== RECEIPT_VERSION)
-      throw new Error("unsupported receipt version: " + r.version);
-    if (!r.tx_id || !/^[0-9a-f]{64}$/i.test(r.tx_id))
-      throw new Error("invalid tx_id (must be 32 byte hex)");
-    if (!r.ock || !/^[A-Za-z0-9_-]+={0,2}$/.test(r.ock))
-      throw new Error("invalid ock (must be base64url)");
-    const ockBytes = fromBase64Url(r.ock);
-    if (ockBytes.length !== 32)
-      throw new Error("ock must decode to 32 bytes (got " + ockBytes.length + ")");
-    if (typeof r.output_index !== "number") throw new Error("missing output_index");
-    if (!["orchard", "sapling"].includes(r.pool)) throw new Error("invalid pool");
-    if (!["mainnet", "testnet", "regtest"].includes(r.network))
-      throw new Error("invalid network");
-    if (r.label && r.label.length > 120) throw new Error("label > 120 chars");
-    return true;
-  }
+    const memo = document.createElement("div");
+    memo.className = "cell mono";
+    memo.setAttribute("data-label", "Recovered memo");
+    memo.textContent = item.memo || item.error || "No memo disclosed";
 
-  function poolLabel(p) {
-    return p[0].toUpperCase() + p.slice(1);
-  }
+    const amount = document.createElement("div");
+    amount.className = "cell mono";
+    amount.setAttribute("data-label", "Amount");
+    amount.textContent = item.amount_zec ? `${item.amount_zec} ZEC` : "not opened";
 
-  function explorerHref(txid, network) {
-    if (network === "mainnet") return `https://mainnet.zcashexplorer.app/transactions/${txid}`;
-    if (network === "testnet") return `https://testnet.zcashexplorer.app/transactions/${txid}`;
-    return null;
-  }
-
-  function renderReceipt(r) {
-    const fields = document.getElementById("fields");
-    fields.innerHTML = "";
-    const rows = [
-      ["status", `<span class="pill pool-${r.pool}">${poolLabel(r.pool)}</span> <span class="muted">${r.network}</span>`],
-      ["tx id", explorerHref(r.tx_id, r.network)
-        ? `<a href="${explorerHref(r.tx_id, r.network)}" target="_blank" rel="noopener">${r.tx_id}</a>`
-        : r.tx_id],
-      ["output index", String(r.output_index)],
-      ["label", r.label ? escapeHtml(r.label) : `<span class="muted">(none)</span>`],
-      ["issued at", r.issued_at],
-      ["ock (truncated)", `<span class="muted">${hexShort(r.ock, 12, 12)}</span>`],
-    ];
-    for (const [k, v] of rows) {
-      const dt = document.createElement("dt"); dt.textContent = k;
-      const dd = document.createElement("dd"); dd.innerHTML = v;
-      fields.appendChild(dt); fields.appendChild(dd);
-    }
-  }
-
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" })[c]);
-  }
-
-  function setStatus(kind, text) {
-    const el = document.getElementById("status");
-    if (kind === "ok") {
-      el.innerHTML = `<strong class="ok">Receipt envelope OK.</strong> The format is valid v${RECEIPT_VERSION}. The on chain verification step is below.`;
+    const tx = document.createElement("div");
+    tx.className = "cell";
+    tx.setAttribute("data-label", "Mainnet tx");
+    if (item.tx_url) {
+      const link = document.createElement("a");
+      link.className = "tx-link";
+      link.href = item.tx_url;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = shortTx(item.tx_id);
+      tx.appendChild(link);
     } else {
-      el.innerHTML = `<strong class="err">Receipt invalid.</strong> ${escapeHtml(text)}`;
+      tx.textContent = "not linked";
     }
+
+    row.append(status, role, memo, amount, tx);
+    return row;
   }
 
-  function setCli(input) {
-    document.getElementById("cli").textContent = `gp-verify '${input.replace(/'/g, "'\\''")}'`;
+  function render(data) {
+    document.title = "Glasspane Rooms - private payout boards for Zcash teams";
+    const selected = data.verified_count === 1 ? "selected shielded payout" : "selected shielded payouts";
+    const rejected = data.rejected_count === 1 ? "tampered receipt" : "tampered receipts";
+    summary.textContent = `${data.verified_count} ${selected} verified, ${data.rejected_count} ${rejected} rejected, rest of treasury opaque.`;
+    document.getElementById("total-zec").textContent = `${data.total_zec} ZEC`;
+    document.getElementById("verified-count").textContent = data.verified_count;
+    document.getElementById("rejected-count").textContent = data.rejected_count;
+    document.getElementById("network").textContent = data.network;
+    document.getElementById("privacy-boundary").textContent = data.privacy_boundary;
+    document.getElementById("generated-at").textContent = `Generated from verified-room.json at ${new Date(data.generated_at).toLocaleString()}.`;
+    data.results.forEach(item => board.appendChild(renderRow(item)));
   }
 
-  function showResult() {
-    document.getElementById("result").hidden = false;
-  }
-  function hideResult() {
-    document.getElementById("result").hidden = true;
-  }
-
-  document.getElementById("decode").addEventListener("click", () => {
-    const raw = document.getElementById("input").value;
-    if (!raw.trim()) { hideResult(); return; }
-    try {
-      const r = parseAnyReceipt(raw);
-      validateReceipt(r);
-      renderReceipt(r);
-      setStatus("ok");
-      setCli(raw.trim());
-      showResult();
-    } catch (e) {
-      setStatus("err", e.message);
-      document.getElementById("fields").innerHTML = "";
-      document.getElementById("cli").textContent = "";
-      showResult();
-    }
-  });
-
-  document.getElementById("clear").addEventListener("click", () => {
-    document.getElementById("input").value = "";
-    hideResult();
-  });
-
-  // Auto-decode when the page is opened with a /r/<payload> path.
-  // The hosting platform (Vercel rewrite, GitHub Pages SPA fallback) sends
-  // the request to index.html, and we recover the payload from the URL bar
-  // and run the decode automatically.
-  (function autoLoadFromUrl() {
-    const path = window.location.pathname || "";
-    const m = path.match(/\/r\/([^/]+)\/?$/);
-    if (!m) return;
-    const payload = m[1];
-    document.getElementById("input").value = window.location.origin + "/r/" + payload;
-    document.getElementById("decode").click();
-    // Scroll the result into view on a real device.
-    const r = document.getElementById("result");
-    if (r) r.scrollIntoView({ behavior: "smooth", block: "start" });
-  })();
-
-  document.getElementById("example").addEventListener("click", () => {
-    // A synthetic v0 receipt for demonstration. The OCK is bogus, so a real
-    // `gp-verify` against mainnet will fail recovery — but the envelope is
-    // valid v0 and the page demonstrates the decode path.
-    const sample = {
-      version: "0",
-      network: "mainnet",
-      pool: "orchard",
-      tx_id: "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
-      output_index: 0,
-      ock: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8",
-      label: "example receipt",
-      issued_at: new Date().toISOString(),
-    };
-    const json = JSON.stringify(sample);
-    const b64 = btoa(json).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
-    const url = `https://glasspane.dev/r/${b64}`;
-    document.getElementById("input").value = url;
-    document.getElementById("decode").click();
-  });
+  fetch(roomUrl)
+    .then(response => {
+      if (!response.ok) throw new Error(`could not load ${roomUrl}`);
+      return response.json();
+    })
+    .then(render)
+    .catch(err => {
+      summary.textContent = "Payout board could not be loaded.";
+      errorBox.hidden = false;
+      errorBox.textContent = err.message;
+    });
 </script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
   <title id="title">Glasspane Rooms</title>
-  <desc id="desc">Private payout proof boards for Zcash teams.</desc>
+  <desc id="desc">Private payout boards for Zcash teams.</desc>
   <rect width="1200" height="675" fill="#edf3f1"/>
   <path d="M0 0h1200v675H0z" fill="none"/>
   <g opacity=".55" stroke="#cbd7d2" stroke-width="1">
@@ -12,8 +12,8 @@
   <rect x="113" y="117" width="36" height="28" fill="#121614"/>
   <rect x="121" y="125" width="20" height="12" fill="#f4b323"/>
   <text x="190" y="127" font-family="Arial, sans-serif" font-size="34" font-weight="800" fill="#121614">Glasspane Rooms</text>
-  <text x="190" y="160" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#666154">Private payout proof boards for Zcash teams</text>
-  <text x="96" y="286" font-family="Georgia, serif" font-size="72" font-weight="700" fill="#121614">Prove selected</text>
+  <text x="190" y="160" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#666154">Private payout boards for Zcash teams</text>
+  <text x="96" y="286" font-family="Georgia, serif" font-size="72" font-weight="700" fill="#121614">Verify selected</text>
   <text x="96" y="364" font-family="Georgia, serif" font-size="72" font-weight="700" fill="#121614">shielded payouts.</text>
   <text x="98" y="421" font-family="Arial, sans-serif" font-size="28" fill="#3d392f">No viewing key. No wallet-wide disclosure.</text>
   <g transform="translate(782 214)">

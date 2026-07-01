@@ -1,6 +1,6 @@
 # Glasspane Rooms
 
-> A private payout proof board for Zcash teams.
+> A private payout board for Zcash teams.
 
 [![CI](https://github.com/dolepee/glasspane/actions/workflows/ci.yml/badge.svg)](https://github.com/dolepee/glasspane/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -14,6 +14,7 @@ The public board is simple: green rows are selected payouts recovered from
 Zcash mainnet, the red row is a deliberately tampered receipt rejected by the
 verifier, and the wallet remainder stays opaque.
 
+* Website: **https://glasspane-iota.vercel.app/**
 * Rooms board: **https://glasspane-iota.vercel.app/room/zechub-demo**
 * Self-serve renderer: **https://glasspane-iota.vercel.app/room/create**
 * Room schema: [`spec/room.md`](spec/room.md)

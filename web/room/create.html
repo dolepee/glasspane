@@ -354,7 +354,7 @@
 
   function shortTx(tx) {
     if (!tx) return "tx";
-    return tx.slice(0, 8) + "..." + tx.slice(-6);
+    return tx.slice(0, 6) + "..." + tx.slice(-4);
   }
 
   function cell(label, content, className = "") {

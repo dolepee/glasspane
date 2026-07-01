@@ -1,21 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
   <title id="title">Glasspane Rooms</title>
   <desc id="desc">Private payout boards for Zcash teams.</desc>
-  <rect width="1200" height="675" fill="#edf3f1"/>
+  <rect width="1200" height="675" fill="#f6f8f9"/>
   <path d="M0 0h1200v675H0z" fill="none"/>
   <g opacity=".55" stroke="#cbd7d2" stroke-width="1">
     <path d="M0 100h1200M0 200h1200M0 300h1200M0 400h1200M0 500h1200M0 600h1200"/>
     <path d="M100 0v675M200 0v675M300 0v675M400 0v675M500 0v675M600 0v675M700 0v675M800 0v675M900 0v675M1000 0v675M1100 0v675"/>
   </g>
-  <rect x="72" y="72" width="1056" height="531" rx="18" fill="#ffffff" stroke="#121614" stroke-width="3"/>
+  <rect x="72" y="72" width="1056" height="531" rx="14" fill="#ffffff" stroke="#d8e0dc" stroke-width="2"/>
   <rect x="94" y="94" width="74" height="74" rx="14" fill="#f4b323" stroke="#121614" stroke-width="4"/>
   <rect x="113" y="117" width="36" height="28" fill="#121614"/>
   <rect x="121" y="125" width="20" height="12" fill="#f4b323"/>
   <text x="190" y="127" font-family="Arial, sans-serif" font-size="34" font-weight="800" fill="#121614">Glasspane Rooms</text>
   <text x="190" y="160" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#666154">Private payout boards for Zcash teams</text>
-  <text x="96" y="286" font-family="Georgia, serif" font-size="72" font-weight="700" fill="#121614">Verify selected</text>
-  <text x="96" y="364" font-family="Georgia, serif" font-size="72" font-weight="700" fill="#121614">shielded payouts.</text>
-  <text x="98" y="421" font-family="Arial, sans-serif" font-size="28" fill="#3d392f">No viewing key. No wallet-wide disclosure.</text>
+  <text x="96" y="282" font-family="Arial, sans-serif" font-size="62" font-weight="900" fill="#121614">Private payout boards</text>
+  <text x="96" y="352" font-family="Arial, sans-serif" font-size="62" font-weight="900" fill="#121614">for Zcash teams</text>
+  <text x="98" y="414" font-family="Arial, sans-serif" font-size="27" fill="#3d392f">Selected payouts verified. Treasury stays opaque.</text>
   <g transform="translate(782 214)">
     <rect width="270" height="82" rx="14" fill="#e6f4eb" stroke="#167a43" stroke-width="2"/>
     <circle cx="38" cy="41" r="10" fill="#167a43"/>
@@ -26,6 +26,6 @@
     <text x="64" y="147" font-family="Arial, sans-serif" font-size="18" font-weight="800" fill="#b63324">tamper rejected</text>
     <text x="64" y="174" font-family="Arial, sans-serif" font-size="28" font-weight="900" fill="#b63324">red</text>
   </g>
-  <rect x="96" y="500" width="456" height="54" rx="12" fill="#121614"/>
+  <rect x="96" y="500" width="456" height="54" rx="8" fill="#121614"/>
   <text x="124" y="535" font-family="Arial, sans-serif" font-size="20" font-weight="800" fill="#ffffff">Rest of treasury: opaque</text>
 </svg>

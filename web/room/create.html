@@ -245,8 +245,9 @@
     .stats { grid-template-columns: 1fr; }
   }
 </style>
+<link rel="stylesheet" href="/app.css" />
 </head>
-<body>
+<body class="site page-create">
 <div class="shell">
   <header>
     <a class="brand" href="/" aria-label="Glasspane home">
@@ -294,6 +295,7 @@
       <h2 id="preview-title" style="position:absolute;left:-10000px;">Room preview</h2>
       <div class="stats" id="stats" hidden></div>
       <div class="board" id="board" hidden>
+        <div class="board-title">Rendered room preview</div>
         <div class="row head" aria-hidden="true">
           <div class="cell">Status</div>
           <div class="cell">Recipient role</div>

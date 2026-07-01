@@ -19,6 +19,6 @@ jobs:
       - name: cargo fmt --check
         run: cargo fmt --all -- --check
       - name: cargo clippy
-        run: cargo clippy --workspace --all-targets -- -D warnings
+        run: cargo clippy --locked --workspace --all-targets -- -D warnings
       - name: cargo test (Zcash protocol test vectors run here)
-        run: cargo test --workspace --all-targets
+        run: cargo test --locked --workspace --all-targets

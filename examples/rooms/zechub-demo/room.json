@@ -1,0 +1,37 @@
+{
+  "version": "0",
+  "title": "ZecHub demo payout room",
+  "purpose": "A Glasspane Rooms demo showing how selected shielded Zcash payouts can be proven without exposing the rest of the wallet.",
+  "privacy_boundary": "Only the listed receipt outputs are disclosed. No seed, spending key, outgoing viewing key, or wallet-wide viewing key is published.",
+  "network": "mainnet",
+  "expected": {
+    "memo_labels": [
+      "glasspane first receipt"
+    ],
+    "min_total_zatoshis": 100000,
+    "total_zatoshis": 100000
+  },
+  "receipts": [
+    {
+      "id": "mainnet-first-receipt",
+      "label": "First verified payout",
+      "role": "Demo recipient",
+      "receipt_path": "../../mainnet-receipt.json",
+      "raw_tx_path": "../../mainnet-tx.hex",
+      "expected_memo": "glasspane first receipt",
+      "expected_zatoshis": 100000,
+      "expected_outcome": "verified",
+      "tx_url": "https://mainnet.zcashexplorer.app/transactions/66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0"
+    },
+    {
+      "id": "tampered-ock",
+      "label": "Tampered receipt copy",
+      "role": "Tamper check",
+      "receipt_path": "receipts/mainnet-receipt-tampered.json",
+      "raw_tx_path": "../../mainnet-tx.hex",
+      "expected_outcome": "rejected",
+      "tamper": true,
+      "tx_url": "https://mainnet.zcashexplorer.app/transactions/66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0"
+    }
+  ]
+}

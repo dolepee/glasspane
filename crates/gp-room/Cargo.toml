@@ -1,0 +1,28 @@
+[package]
+name = "gp-room"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Glasspane room verifier"
+
+[[bin]]
+name = "gp-room"
+path = "src/main.rs"
+
+[dependencies]
+gp-types = { path = "../gp-types" }
+gp-core = { path = "../gp-core" }
+
+orchard = { workspace = true }
+sapling-crypto = { workspace = true }
+zcash_address = { workspace = true }
+zcash_primitives = { workspace = true }
+zcash_protocol = { workspace = true }
+zcash_note_encryption = { workspace = true }
+
+clap = { workspace = true }
+anyhow = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+hex = { workspace = true }
+chrono = { workspace = true }

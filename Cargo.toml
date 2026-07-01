@@ -6,6 +6,7 @@ members = [
     "crates/gp-issuer",
     "crates/gp-verifier",
     "crates/gp-keygen",
+    "crates/gp-room",
 ]
 
 [workspace.package]

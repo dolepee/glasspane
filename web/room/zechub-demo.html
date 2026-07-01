@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Glasspane Rooms — private Zcash payout proof board</title>
+<meta name="description" content="A private payout proof board for Zcash teams: prove selected shielded payouts, totals, and memos without handing over a viewing key." />
+<meta property="og:title" content="Glasspane Rooms" />
+<meta property="og:description" content="Prove selected shielded Zcash payouts while the rest of the treasury stays opaque." />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="/room/og-glasspane-rooms.svg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Glasspane Rooms" />
+<meta name="twitter:description" content="Private payout proof boards for Zcash teams." />
+<meta name="twitter:image" content="/room/og-glasspane-rooms.svg" />
+<link rel="icon" href="data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22&gt;&lt;rect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%23f4b323%22/&gt;&lt;path d=%22M8 10h16v12H8z%22 fill=%22%23111111%22/&gt;&lt;path d=%22M11 13h10v6H11z%22 fill=%22%23f4b323%22/&gt;&lt;/svg&gt;">
+<style>
+  :root {
+    --bg: #edf3f1;
+    --paper: #ffffff;
+    --ink: #121614;
+    --muted: #5d6864;
+    --line: #cbd7d2;
+    --gold: #f4b323;
+    --green: #167a43;
+    --green-soft: #e6f4eb;
+    --red: #b63324;
+    --red-soft: #fae7e3;
+    --blue: #245b8f;
+    --blue-soft: #e8f0f7;
+    --shadow: 0 20px 60px rgba(9, 39, 31, 0.12);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:
+      linear-gradient(90deg, rgba(23, 23, 19, 0.045) 1px, transparent 1px),
+      linear-gradient(180deg, rgba(23, 23, 19, 0.035) 1px, transparent 1px),
+      var(--bg);
+    background-size: 64px 64px;
+    color: var(--ink);
+  }
+  a { color: inherit; }
+  .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 22px 0 18px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .mark {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: var(--gold);
+    border: 2px solid var(--ink);
+    box-shadow: 5px 5px 0 var(--ink);
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+  }
+  .mark span {
+    width: 21px;
+    height: 15px;
+    border: 3px solid var(--ink);
+    display: block;
+    position: relative;
+  }
+  .mark span::after {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    background: rgba(23, 23, 19, 0.22);
+  }
+  .brand strong { display: block; font-size: 18px; line-height: 1.1; }
+  .brand small { color: var(--muted); font-weight: 650; }
+  nav { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+  .nav-link, .button {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--ink);
+    padding: 9px 12px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 750;
+  }
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+  .nav-link:focus-visible, .button:focus-visible, .tx-link:focus-visible {
+    outline: 3px solid var(--gold);
+    outline-offset: 3px;
+  }
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 24px;
+    align-items: stretch;
+    padding: 28px 0 16px;
+  }
+  .hero-copy {
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: var(--shadow);
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(22, 122, 67, 0.28);
+    background: var(--green-soft);
+    color: var(--green);
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0;
+  }
+  .proof-mode {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(36, 91, 143, 0.24);
+    background: var(--blue-soft);
+    color: var(--blue);
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    margin-left: 8px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  h1 {
+    max-width: 780px;
+    margin: 22px 0 14px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(46px, 7vw, 84px);
+    line-height: 0.94;
+    letter-spacing: 0;
+  }
+  .lede {
+    max-width: 760px;
+    color: #3d392f;
+    font-size: 20px;
+    line-height: 1.55;
+    margin: 0 0 22px;
+  }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+  .button.secondary { background: var(--paper); color: var(--ink); border-color: var(--line); }
+  .status-panel {
+    background: var(--ink);
+    color: #fff;
+    border-radius: 8px;
+    padding: 22px;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: var(--shadow);
+  }
+  .status-panel .label { color: #b9c9c3; font-size: 12px; text-transform: uppercase; font-weight: 850; }
+  .status-value { font-size: 54px; line-height: 1; font-weight: 900; margin: 10px 0; }
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 22px;
+  }
+  .status-grid div { padding: 14px; border-right: 1px solid rgba(255, 255, 255, 0.12); border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
+  .status-grid div:nth-child(2n) { border-right: 0; }
+  .status-grid div:nth-last-child(-n+2) { border-bottom: 0; }
+  .status-grid strong { display: block; font-size: 24px; }
+  .status-grid span { color: #b9c9c3; font-size: 12px; font-weight: 750; text-transform: uppercase; }
+  .section { padding: 28px 0; }
+  .section-title {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 16px;
+  }
+  h2 {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 32px;
+    line-height: 1.05;
+    letter-spacing: 0;
+  }
+  .section-title p { margin: 0; color: var(--muted); max-width: 480px; line-height: 1.45; }
+  .board {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 130px minmax(180px, 1.2fr) minmax(160px, 1fr) 130px 140px;
+    gap: 0;
+    align-items: stretch;
+    border-top: 1px solid var(--line);
+  }
+  .row:first-child { border-top: 0; }
+  .cell { padding: 16px; border-left: 1px solid var(--line); min-width: 0; }
+  .cell:first-child { border-left: 0; }
+  .head {
+    background: #e4ece8;
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 900;
+  }
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 9px;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+  .status.verified { color: var(--green); background: var(--green-soft); }
+  .status.rejected { color: var(--red); background: var(--red-soft); }
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+  .muted { color: var(--muted); }
+  .tx-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    background: var(--blue-soft);
+    color: var(--blue);
+    text-decoration: none;
+    font-weight: 850;
+  }
+  .contrast {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .contrast-item {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.86);
+    padding: 20px;
+  }
+  .contrast-item strong { display: block; font-size: 18px; margin-bottom: 8px; }
+  .contrast-item p { margin: 0; color: var(--muted); line-height: 1.5; }
+  .terminal {
+    background: #141411;
+    color: #fff;
+    border-radius: 8px;
+    padding: 18px;
+    overflow-x: auto;
+    border: 1px solid #2f2c24;
+  }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  footer {
+    padding: 36px 0 54px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .load-error {
+    background: var(--red-soft);
+    color: var(--red);
+    border: 1px solid rgba(182, 51, 36, 0.25);
+    border-radius: 8px;
+    padding: 14px;
+    margin-top: 12px;
+    font-weight: 800;
+  }
+  @media (max-width: 920px) {
+    .hero { grid-template-columns: 1fr; }
+    .status-panel { min-height: 260px; }
+    .row { grid-template-columns: 1fr; }
+    .cell { border-left: 0; border-top: 1px solid var(--line); }
+    .cell:first-child { border-top: 0; }
+    .head { display: none; }
+    .cell::before {
+      content: attr(data-label);
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+  }
+  @media (max-width: 640px) {
+    .shell { width: min(100% - 22px, 1180px); }
+    header { align-items: flex-start; flex-direction: column; }
+    nav { justify-content: flex-start; }
+    .hero-copy { padding: 22px; }
+    h1 { font-size: 44px; }
+    .lede { font-size: 17px; }
+    .status-value { font-size: 42px; }
+    .contrast { grid-template-columns: 1fr; }
+    .section-title { display: block; }
+    .section-title p { margin-top: 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <a class="brand" href="/" aria-label="Glasspane home">
+      <span class="mark" aria-hidden="true"><span></span></span>
+      <span>
+        <strong>Glasspane Rooms</strong>
+        <small>ZecHub Accounting track</small>
+      </span>
+    </a>
+    <nav aria-label="Primary">
+      <a class="nav-link" href="#payouts">Payouts</a>
+      <a class="nav-link" href="#reproduce">Reproduce</a>
+      <a class="nav-link" href="/room/create">Create</a>
+      <a class="nav-link" href="https://github.com/dolepee/glasspane">GitHub</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="title">
+      <div class="hero-copy">
+        <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Mainnet room</span>
+        <span class="proof-mode"><span class="dot" aria-hidden="true"></span>Rust verified</span>
+        <h1 id="title">Private payout proof board</h1>
+        <p class="lede" id="summary">Loading room proof...</p>
+        <div class="hero-actions">
+          <a class="button" href="#payouts">View payout board</a>
+          <a class="button secondary" href="#reproduce">Verify locally</a>
+        </div>
+        <div id="load-error" class="load-error" hidden></div>
+      </div>
+
+      <aside class="status-panel" aria-label="Room status">
+        <div>
+          <div class="label">Disclosed total</div>
+          <div class="status-value" id="total-zec">...</div>
+          <div class="muted">Only selected outputs are opened.</div>
+        </div>
+        <div class="status-grid">
+          <div><strong id="verified-count">...</strong><span>verified</span></div>
+          <div><strong id="rejected-count">...</strong><span>rejected</span></div>
+          <div><strong id="network">...</strong><span>network</span></div>
+          <div><strong>opaque</strong><span>wallet rest</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="payouts" aria-labelledby="payouts-title">
+      <div class="section-title">
+        <h2 id="payouts-title">Selected payouts</h2>
+        <p id="privacy-boundary">Only the selected receipts are disclosed.</p>
+      </div>
+      <div class="board" id="board" aria-live="polite">
+        <div class="row head" aria-hidden="true">
+          <div class="cell">Status</div>
+          <div class="cell">Recipient role</div>
+          <div class="cell">Recovered memo</div>
+          <div class="cell">Amount</div>
+          <div class="cell">Mainnet tx</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="contrast-title">
+      <div class="section-title">
+        <h2 id="contrast-title">The privacy boundary</h2>
+        <p>Glasspane uses the per-output OCK already in Zcash, so the disclosure unit is one selected output.</p>
+      </div>
+      <div class="contrast">
+        <div class="contrast-item">
+          <strong>Viewing key</strong>
+          <p>Useful for audits, but it can expose wallet-wide transaction history to the reviewer.</p>
+        </div>
+        <div class="contrast-item">
+          <strong>Glasspane room</strong>
+          <p>Shows only the chosen payouts, recovered amounts, memos, and tamper result. Everything else remains opaque.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="reproduce" aria-labelledby="reproduce-title">
+      <div class="section-title">
+        <h2 id="reproduce-title">Reproduce locally</h2>
+        <p>This fallback build is verified by the Rust verifier and reproducible locally. Browser WASM verification will only be labeled when it actually lands.</p>
+      </div>
+      <pre class="terminal"><code>cargo run -p gp-room -- examples/rooms/zechub-demo/room.json --out verified-room.json</code></pre>
+    </section>
+  </main>
+
+  <footer>
+    <span id="generated-at">Room report loading...</span>
+  </footer>
+</div>
+
+<script>
+  const roomUrl = "/room/zechub-demo.json";
+  const board = document.getElementById("board");
+  const summary = document.getElementById("summary");
+  const errorBox = document.getElementById("load-error");
+
+  function statusLabel(status) {
+    return status === "verified" ? "verified" : "rejected";
+  }
+
+  function shortTx(tx) {
+    if (!tx) return "tx";
+    return tx.slice(0, 8) + "..." + tx.slice(-6);
+  }
+
+  function renderRow(item) {
+    const row = document.createElement("div");
+    row.className = "row";
+
+    const status = document.createElement("div");
+    status.className = "cell";
+    status.setAttribute("data-label", "Status");
+    status.innerHTML = `<span class="status ${item.status}"><span class="dot" aria-hidden="true"></span>${statusLabel(item.status)}</span>`;
+
+    const role = document.createElement("div");
+    role.className = "cell";
+    role.setAttribute("data-label", "Recipient role");
+    role.innerHTML = `<strong>${item.role}</strong><br><span class="muted">${item.label}</span>`;
+
+    const memo = document.createElement("div");
+    memo.className = "cell mono";
+    memo.setAttribute("data-label", "Recovered memo");
+    memo.textContent = item.memo || item.error || "No memo disclosed";
+
+    const amount = document.createElement("div");
+    amount.className = "cell mono";
+    amount.setAttribute("data-label", "Amount");
+    amount.textContent = item.amount_zec ? `${item.amount_zec} ZEC` : "not opened";
+
+    const tx = document.createElement("div");
+    tx.className = "cell";
+    tx.setAttribute("data-label", "Mainnet tx");
+    if (item.tx_url) {
+      const link = document.createElement("a");
+      link.className = "tx-link";
+      link.href = item.tx_url;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = shortTx(item.tx_id);
+      tx.appendChild(link);
+    } else {
+      tx.textContent = "not linked";
+    }
+
+    row.append(status, role, memo, amount, tx);
+    return row;
+  }
+
+  function render(data) {
+    document.title = `${data.title} - Glasspane Rooms`;
+    const selected = data.verified_count === 1 ? "selected shielded payout" : "selected shielded payouts";
+    const rejected = data.rejected_count === 1 ? "tampered receipt" : "tampered receipts";
+    summary.textContent = `${data.verified_count} ${selected} verified, ${data.rejected_count} ${rejected} rejected, rest of treasury opaque.`;
+    document.getElementById("total-zec").textContent = `${data.total_zec} ZEC`;
+    document.getElementById("verified-count").textContent = data.verified_count;
+    document.getElementById("rejected-count").textContent = data.rejected_count;
+    document.getElementById("network").textContent = data.network;
+    document.getElementById("privacy-boundary").textContent = data.privacy_boundary;
+    document.getElementById("generated-at").textContent = `Generated from verified-room.json at ${new Date(data.generated_at).toLocaleString()}.`;
+    data.results.forEach(item => board.appendChild(renderRow(item)));
+  }
+
+  fetch(roomUrl)
+    .then(response => {
+      if (!response.ok) throw new Error(`could not load ${roomUrl}`);
+      return response.json();
+    })
+    .then(render)
+    .catch(err => {
+      summary.textContent = "Room proof could not be loaded.";
+      errorBox.hidden = false;
+      errorBox.textContent = err.message;
+    });
+</script>
+</body>
+</html>

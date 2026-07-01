@@ -1,0 +1,10 @@
+{
+  "version": "0",
+  "network": "mainnet",
+  "pool": "orchard",
+  "tx_id": "66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0",
+  "output_index": 1,
+  "ock": "qNVZw22HvhbkKcYDNV_bo6eMjukjcfaxMDQYOEF1mkI",
+  "label": "glasspane first receipt - tampered ock",
+  "issued_at": "2026-05-31T12:07:31.888692288Z"
+}

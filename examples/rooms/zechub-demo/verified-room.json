@@ -1,0 +1,55 @@
+{
+  "version": "0",
+  "title": "ZecHub demo payout room",
+  "purpose": "A Glasspane Rooms demo showing how selected shielded Zcash payouts can be proven without exposing the rest of the wallet.",
+  "privacy_boundary": "Only the listed receipt outputs are disclosed. No seed, spending key, outgoing viewing key, or wallet-wide viewing key is published.",
+  "network": "mainnet",
+  "generated_at": "2026-07-01T17:55:43.226035Z",
+  "overall_pass": true,
+  "verified_count": 1,
+  "rejected_count": 1,
+  "total_zatoshis": 100000,
+  "total_zec": "0.00100000",
+  "expected_memo_labels": [
+    "glasspane first receipt"
+  ],
+  "results": [
+    {
+      "id": "mainnet-first-receipt",
+      "label": "First verified payout",
+      "role": "Demo recipient",
+      "expected_outcome": "verified",
+      "status": "verified",
+      "expected_result_observed": true,
+      "tamper": false,
+      "tx_id": "66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0",
+      "tx_url": "https://mainnet.zcashexplorer.app/transactions/66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0",
+      "pool": "orchard",
+      "output_index": 1,
+      "amount_zatoshis": 100000,
+      "amount_zec": "0.00100000",
+      "memo": "glasspane first receipt",
+      "recipient": "u1ug9ltzk9y74pgqtc7mtwnc8vsnlqlsalhamkfd4lyhegrfv6ff5znwr4syzylrpta36ehs3jjm3c4ssvpfar8zq2hamg35wwzqxqemeu",
+      "error": null
+    },
+    {
+      "id": "tampered-ock",
+      "label": "Tampered receipt copy",
+      "role": "Tamper check",
+      "expected_outcome": "rejected",
+      "status": "rejected",
+      "expected_result_observed": true,
+      "tamper": true,
+      "tx_id": "66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0",
+      "tx_url": "https://mainnet.zcashexplorer.app/transactions/66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0",
+      "pool": "orchard",
+      "output_index": 1,
+      "amount_zatoshis": null,
+      "amount_zec": null,
+      "memo": null,
+      "recipient": null,
+      "error": "OCK does not match this Orchard action; the receipt is wrong, tampered, or forged"
+    }
+  ],
+  "failures": []
+}

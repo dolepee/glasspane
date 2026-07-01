@@ -10,3 +10,4 @@ Cargo.lock
 # wallet secrets — never commit
 wallet*.json
 *.local.json
+.vercel

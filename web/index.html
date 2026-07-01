@@ -18,371 +18,561 @@
 <link rel="icon" href="data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22&gt;&lt;rect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%23f4b323%22/&gt;&lt;path d=%22M8 10h16v12H8z%22 fill=%22%23111111%22/&gt;&lt;path d=%22M11 13h10v6H11z%22 fill=%22%23f4b323%22/&gt;&lt;/svg&gt;">
 <style>
   :root {
-    --bg: #edf3f1;
-    --paper: #ffffff;
-    --ink: #121614;
-    --muted: #5d6864;
-    --line: #cbd7d2;
+    --bg: #eef3f4;
+    --panel: #ffffff;
+    --ink: #101614;
+    --muted: #5d6964;
+    --line: #d6e0dc;
+    --line-strong: #b8c8c1;
     --gold: #f4b323;
-    --green: #167a43;
-    --green-soft: #e6f4eb;
-    --red: #b63324;
-    --red-soft: #fae7e3;
+    --green: #147a43;
+    --green-soft: #e7f6ed;
+    --red: #ba3828;
+    --red-soft: #fbe8e5;
     --blue: #245b8f;
     --blue-soft: #e8f0f7;
-    --shadow: 0 20px 60px rgba(9, 39, 31, 0.12);
+    --sidebar: #0e1512;
   }
+
   * { box-sizing: border-box; }
   html, body { margin: 0; min-height: 100%; }
   body {
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background:
-      linear-gradient(90deg, rgba(23, 23, 19, 0.045) 1px, transparent 1px),
-      linear-gradient(180deg, rgba(23, 23, 19, 0.035) 1px, transparent 1px),
-      var(--bg);
-    background-size: 64px 64px;
+    background: var(--bg);
     color: var(--ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    letter-spacing: 0;
   }
   a { color: inherit; }
-  .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
-  header {
+
+  .app {
+    display: grid;
+    grid-template-columns: 264px minmax(0, 1fr);
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    background:
+      linear-gradient(180deg, rgba(244, 179, 35, 0.12), transparent 240px),
+      var(--sidebar);
+    color: #fff;
+    padding: 22px 18px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+
+  .brand {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-    padding: 22px 0 18px;
+    gap: 12px;
+    text-decoration: none;
+    margin-bottom: 28px;
   }
-  .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+
   .mark {
     width: 42px;
     height: 42px;
     border-radius: 10px;
     background: var(--gold);
-    border: 2px solid var(--ink);
-    box-shadow: 5px 5px 0 var(--ink);
+    border: 1px solid rgba(255, 255, 255, 0.24);
     display: grid;
     place-items: center;
     flex: 0 0 auto;
   }
+
   .mark span {
-    width: 21px;
-    height: 15px;
-    border: 3px solid var(--ink);
+    width: 20px;
+    height: 14px;
     display: block;
-    position: relative;
+    border: 3px solid var(--sidebar);
   }
-  .mark span::after {
-    content: "";
-    position: absolute;
-    inset: 3px;
-    background: rgba(23, 23, 19, 0.22);
+
+  .brand strong { display: block; font-size: 17px; line-height: 1.1; }
+  .brand small { display: block; color: #b7c4bf; font-size: 12px; font-weight: 700; margin-top: 2px; }
+
+  .side-group {
+    margin: 20px 0;
   }
-  .brand strong { display: block; font-size: 18px; line-height: 1.1; }
-  .brand small { color: var(--muted); font-weight: 650; }
-  nav { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
-  .nav-link, .button {
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.92);
-    color: var(--ink);
-    padding: 9px 12px;
+
+  .side-label {
+    color: #84948e;
+    font-size: 11px;
+    font-weight: 850;
+    text-transform: uppercase;
+    margin: 0 0 8px;
+  }
+
+  .side-link {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 38px;
+    color: #e8eeeb;
     text-decoration: none;
+    border-radius: 8px;
+    padding: 8px 10px;
     font-size: 14px;
-    font-weight: 750;
+    font-weight: 760;
   }
+
+  .side-link:hover,
+  .side-link.active {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .side-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: currentColor;
+    color: var(--gold);
+    flex: 0 0 auto;
+  }
+
+  .room-card {
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 14px;
+    margin-top: 28px;
+  }
+
+  .room-card strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .room-card span {
+    color: #b7c4bf;
+    display: block;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .main {
+    min-width: 0;
+    padding: 22px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 18px;
+  }
+
+  .crumb {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 760;
+  }
+
+  .topbar h1 {
+    margin: 4px 0 0;
+    font-size: clamp(30px, 4vw, 52px);
+    line-height: 1.02;
+    letter-spacing: 0;
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
   .button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 42px;
-    background: var(--ink);
-    color: #fff;
-    border-color: var(--ink);
+    min-height: 39px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    padding: 9px 12px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 780;
   }
-  .nav-link:focus-visible, .button:focus-visible, .tx-link:focus-visible {
-    outline: 3px solid var(--gold);
+
+  .button.primary {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: #fff;
+  }
+
+  .button:focus-visible,
+  .side-link:focus-visible,
+  .tx-link:focus-visible {
+    outline: 3px solid rgba(244, 179, 35, 0.6);
     outline-offset: 3px;
   }
-  .hero {
+
+  .notice {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 360px;
-    gap: 24px;
-    align-items: stretch;
-    padding: 28px 0 16px;
-  }
-  .hero-copy {
-    background: rgba(255, 255, 255, 0.82);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 30px;
-    box-shadow: var(--shadow);
-  }
-  .eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: 1px solid rgba(22, 122, 67, 0.28);
-    background: var(--green-soft);
-    color: var(--green);
-    border-radius: 999px;
-    padding: 6px 10px;
-    font-size: 12px;
-    font-weight: 850;
-    text-transform: uppercase;
-    letter-spacing: 0;
-  }
-  .proof-mode {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: 1px solid rgba(36, 91, 143, 0.24);
-    background: var(--blue-soft);
-    color: var(--blue);
-    border-radius: 999px;
-    padding: 6px 10px;
-    font-size: 12px;
-    font-weight: 850;
-    text-transform: uppercase;
-    letter-spacing: 0;
-    margin-left: 8px;
-  }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
-  h1 {
-    max-width: 780px;
-    margin: 22px 0 14px;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(46px, 7vw, 84px);
-    line-height: 0.94;
-    letter-spacing: 0;
-  }
-  .lede {
-    max-width: 760px;
-    color: #3d392f;
-    font-size: 20px;
-    line-height: 1.55;
-    margin: 0 0 22px;
-  }
-  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
-  .button.secondary { background: var(--paper); color: var(--ink); border-color: var(--line); }
-  .status-panel {
-    background: var(--ink);
-    color: #fff;
-    border-radius: 8px;
-    padding: 22px;
-    min-height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-shadow: var(--shadow);
-  }
-  .status-panel .label { color: #b9c9c3; font-size: 12px; text-transform: uppercase; font-weight: 850; }
-  .status-value { font-size: 54px; line-height: 1; font-weight: 900; margin: 10px 0; }
-  .status-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 8px;
-    overflow: hidden;
-    margin-top: 22px;
-  }
-  .status-grid div { padding: 14px; border-right: 1px solid rgba(255, 255, 255, 0.12); border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
-  .status-grid div:nth-child(2n) { border-right: 0; }
-  .status-grid div:nth-last-child(-n+2) { border-bottom: 0; }
-  .status-grid strong { display: block; font-size: 24px; }
-  .status-grid span { color: #b9c9c3; font-size: 12px; font-weight: 750; text-transform: uppercase; }
-  .section { padding: 28px 0; }
-  .section-title {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 18px;
+    align-items: center;
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+  }
+
+  .notice p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    padding: 6px 9px;
+    font-size: 11px;
+    font-weight: 850;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .badge.green { background: var(--green-soft); color: var(--green); border-color: rgba(20, 122, 67, 0.24); }
+  .badge.blue { background: var(--blue-soft); color: var(--blue); border-color: rgba(36, 91, 143, 0.22); }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: 1.25fr repeat(3, 1fr);
+    gap: 12px;
     margin-bottom: 16px;
   }
-  h2 {
-    margin: 0;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 32px;
-    line-height: 1.05;
-    letter-spacing: 0;
-  }
-  .section-title p { margin: 0; color: var(--muted); max-width: 480px; line-height: 1.45; }
-  .board {
-    background: var(--paper);
+
+  .metric {
     border: 1px solid var(--line);
-    border-radius: 8px;
-    box-shadow: var(--shadow);
+    background: var(--panel);
+    border-radius: 10px;
+    padding: 16px;
+    min-width: 0;
+  }
+
+  .metric.primary {
+    background: linear-gradient(180deg, #141b18, #0f1512);
+    color: #fff;
+    border-color: #141b18;
+  }
+
+  .metric span {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 850;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .metric.primary span { color: #b9c6c0; }
+  .metric strong {
+    display: block;
+    font-size: 30px;
+    line-height: 1;
+    overflow-wrap: anywhere;
+  }
+  .metric.primary strong { font-size: clamp(34px, 4.2vw, 54px); }
+  .metric small { display: block; color: var(--muted); margin-top: 8px; font-weight: 700; }
+  .metric.primary small { color: #b9c6c0; }
+
+  .board {
+    border: 1px solid var(--line-strong);
+    background: var(--panel);
+    border-radius: 10px;
     overflow: hidden;
   }
-  .row {
+
+  .board-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid var(--line);
+    background: #f7faf8;
+    padding: 14px 16px;
+  }
+
+  .board-header strong {
+    display: block;
+    font-size: 14px;
+  }
+
+  .board-header span {
+    display: block;
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 2px;
+  }
+
+  .table {
+    width: 100%;
+  }
+
+  .table-row {
     display: grid;
-    grid-template-columns: 130px minmax(180px, 1.2fr) minmax(160px, 1fr) 130px 140px;
-    gap: 0;
-    align-items: stretch;
+    grid-template-columns: 128px minmax(190px, 1.2fr) minmax(240px, 1fr) 128px 118px;
+    min-height: 70px;
     border-top: 1px solid var(--line);
   }
-  .row:first-child { border-top: 0; }
-  .cell { padding: 16px; border-left: 1px solid var(--line); min-width: 0; }
-  .cell:first-child { border-left: 0; }
-  .head {
-    background: #e4ece8;
+
+  .table-row:first-child { border-top: 0; }
+
+  .table-head {
+    min-height: 46px;
+    background: #eef4f1;
     color: var(--muted);
-    font-size: 12px;
-    text-transform: uppercase;
+    font-size: 11px;
     font-weight: 900;
+    text-transform: uppercase;
   }
+
+  .cell {
+    min-width: 0;
+    padding: 14px 16px;
+    border-left: 1px solid var(--line);
+  }
+
+  .cell:first-child { border-left: 0; }
+
   .status {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 9px;
+    gap: 7px;
     border-radius: 999px;
+    padding: 5px 8px;
+    font-size: 11px;
     font-weight: 900;
-    font-size: 12px;
     text-transform: uppercase;
   }
-  .status.verified { color: var(--green); background: var(--green-soft); }
-  .status.rejected { color: var(--red); background: var(--red-soft); }
+
+  .status.verified { background: var(--green-soft); color: var(--green); }
+  .status.rejected { background: var(--red-soft); color: var(--red); }
+
+  .muted { color: var(--muted); }
   .mono {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 13px;
+    font-size: 12.5px;
     overflow-wrap: anywhere;
   }
-  .muted { color: var(--muted); }
+
   .tx-link {
     display: inline-flex;
-    align-items: center;
     justify-content: center;
-    min-height: 34px;
-    padding: 7px 10px;
+    align-items: center;
+    min-height: 32px;
     border-radius: 8px;
+    border: 1px solid rgba(36, 91, 143, 0.16);
     background: var(--blue-soft);
     color: var(--blue);
+    padding: 6px 8px;
     text-decoration: none;
     font-weight: 850;
   }
-  .contrast {
+
+  .lower-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
+    gap: 12px;
+    margin-top: 16px;
   }
-  .contrast-item {
+
+  .panel {
     border: 1px solid var(--line);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.86);
-    padding: 20px;
+    background: var(--panel);
+    border-radius: 10px;
+    padding: 16px;
   }
-  .contrast-item strong { display: block; font-size: 18px; margin-bottom: 8px; }
-  .contrast-item p { margin: 0; color: var(--muted); line-height: 1.5; }
+
+  .panel h2 {
+    margin: 0 0 8px;
+    font-size: 20px;
+    line-height: 1.15;
+  }
+
+  .panel p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
   .terminal {
-    background: #141411;
+    margin-top: 12px;
+    background: #0f1512;
     color: #fff;
     border-radius: 8px;
-    padding: 18px;
+    padding: 13px;
     overflow-x: auto;
-    border: 1px solid #2f2c24;
+    font: 12.5px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   }
-  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
   footer {
-    padding: 36px 0 54px;
     color: var(--muted);
-    font-size: 14px;
+    font-size: 12px;
+    padding: 16px 2px 0;
   }
+
   .load-error {
+    border: 1px solid rgba(186, 56, 40, 0.2);
     background: var(--red-soft);
     color: var(--red);
-    border: 1px solid rgba(182, 51, 36, 0.25);
     border-radius: 8px;
-    padding: 14px;
-    margin-top: 12px;
+    padding: 12px;
     font-weight: 800;
+    margin-bottom: 12px;
   }
-  @media (max-width: 920px) {
-    .hero { grid-template-columns: 1fr; }
-    .status-panel { min-height: 260px; }
-    .row { grid-template-columns: 1fr; }
-    .cell { border-left: 0; border-top: 1px solid var(--line); }
+
+  @media (max-width: 980px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar {
+      position: static;
+      height: auto;
+      padding: 18px;
+    }
+    .brand { margin-bottom: 16px; }
+    .side-group { display: flex; gap: 8px; flex-wrap: wrap; margin: 0; }
+    .side-label, .room-card { display: none; }
+    .side-link {
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .main { padding: 18px; }
+    .topbar { align-items: flex-start; flex-direction: column; }
+    .actions { justify-content: flex-start; }
+    .notice { grid-template-columns: 1fr; }
+    .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .table-row { grid-template-columns: 1fr; }
+    .table-head { display: none; }
+    .cell {
+      border-left: 0;
+      border-top: 1px solid var(--line);
+    }
     .cell:first-child { border-top: 0; }
-    .head { display: none; }
     .cell::before {
       content: attr(data-label);
       display: block;
-      margin-bottom: 6px;
       color: var(--muted);
       font-size: 11px;
-      text-transform: uppercase;
       font-weight: 900;
+      text-transform: uppercase;
+      margin-bottom: 6px;
     }
+    .lower-grid { grid-template-columns: 1fr; }
   }
-  @media (max-width: 640px) {
-    .shell { width: min(100% - 22px, 1180px); }
-    header { align-items: flex-start; flex-direction: column; }
-    nav { justify-content: flex-start; }
-    .hero-copy { padding: 22px; }
-    h1 { font-size: 44px; }
-    .lede { font-size: 17px; }
-    .status-value { font-size: 42px; }
-    .contrast { grid-template-columns: 1fr; }
-    .section-title { display: block; }
-    .section-title p { margin-top: 8px; }
+
+  @media (max-width: 560px) {
+    .sidebar { padding: 16px 14px; }
+    .main { padding: 14px; }
+    .topbar h1 { font-size: 32px; }
+    .metrics { grid-template-columns: 1fr; }
+    .metric.primary strong { font-size: 40px; }
   }
 </style>
-<link rel="stylesheet" href="/app.css?v=2" />
 </head>
-<body class="site page-home">
-<div class="shell">
-  <header>
+<body>
+<div class="app">
+  <aside class="sidebar">
     <a class="brand" href="/" aria-label="Glasspane home">
       <span class="mark" aria-hidden="true"><span></span></span>
       <span>
         <strong>Glasspane Rooms</strong>
-        <small>Private Zcash payout boards</small>
+        <small>Private payout boards</small>
       </span>
     </a>
-    <nav aria-label="Primary">
-      <a class="nav-link" href="/room/zechub-demo">Live board</a>
-      <a class="nav-link" href="/room/create">Create</a>
-      <a class="nav-link" href="/receipt.html">Receipt utility</a>
-      <a class="nav-link" href="https://github.com/dolepee/glasspane">GitHub</a>
-    </nav>
-  </header>
 
-  <main>
-    <section class="hero" aria-labelledby="title">
-      <div class="hero-copy">
-        <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Accounting track</span>
-        <span class="proof-mode"><span class="dot" aria-hidden="true"></span>Rust verified fallback</span>
-        <h1 id="title">Private payout boards for Zcash teams</h1>
-        <p class="lede" id="summary">Loading payout board...</p>
-        <div class="hero-actions">
-          <a class="button" href="/room/zechub-demo">Open live board</a>
-          <a class="button secondary" href="/room/create">Create a room</a>
-        </div>
-        <div id="load-error" class="load-error" hidden></div>
+    <div class="side-group" aria-label="Primary navigation">
+      <p class="side-label">Workspace</p>
+      <a class="side-link active" href="/"><span class="side-dot" aria-hidden="true"></span>Dashboard</a>
+      <a class="side-link" href="/room/zechub-demo"><span class="side-dot" aria-hidden="true"></span>Live board</a>
+      <a class="side-link" href="/room/create"><span class="side-dot" aria-hidden="true"></span>Create room</a>
+      <a class="side-link" href="/receipt"><span class="side-dot" aria-hidden="true"></span>Receipt utility</a>
+      <a class="side-link" href="https://github.com/dolepee/glasspane"><span class="side-dot" aria-hidden="true"></span>GitHub</a>
+    </div>
+
+    <div class="room-card">
+      <strong>ZecHub Accounting track</strong>
+      <span>Selected shielded payouts are opened. The rest of the treasury stays opaque.</span>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="crumb">Rooms / ZecHub demo payout room</div>
+        <h1>Private payout board</h1>
       </div>
+      <div class="actions">
+        <a class="button primary" href="/room/zechub-demo">Open live board</a>
+        <a class="button" href="/room/create">Create a room</a>
+      </div>
+    </div>
 
-      <aside class="status-panel" aria-label="Room status">
-        <div>
-          <div class="label">Selected disclosed</div>
-          <div class="status-value" id="total-zec">...</div>
-          <div class="muted">Only selected outputs are opened.</div>
-        </div>
-        <div class="status-grid">
-          <div><strong id="verified-count">...</strong><span>verified</span></div>
-          <div><strong id="rejected-count">...</strong><span>rejected</span></div>
-          <div><strong id="network">...</strong><span>network</span></div>
-          <div><strong>opaque</strong><span>wallet rest</span></div>
-        </div>
-      </aside>
+    <section class="notice" aria-label="Room summary">
+      <p id="summary">Loading payout board...</p>
+      <div class="badges">
+        <span class="badge green"><span class="dot" aria-hidden="true"></span>Accounting track</span>
+        <span class="badge blue"><span class="dot" aria-hidden="true"></span>Rust verified fallback</span>
+      </div>
     </section>
 
-    <section class="section" id="payouts" aria-labelledby="payouts-title">
-      <div class="section-title">
-        <h2 id="payouts-title">Live payout board</h2>
-        <p id="privacy-boundary">Only the selected receipts are disclosed. The rest of the wallet remains opaque.</p>
+    <div id="load-error" class="load-error" hidden></div>
+
+    <section class="metrics" aria-label="Room metrics">
+      <div class="metric primary">
+        <span>Selected disclosed</span>
+        <strong id="total-zec">...</strong>
+        <small>Only selected outputs are opened.</small>
       </div>
-      <div class="board" id="board" aria-live="polite">
-        <div class="board-title">Verified room report</div>
-        <div class="row head" aria-hidden="true">
+      <div class="metric">
+        <span>Verified</span>
+        <strong id="verified-count">...</strong>
+        <small>Recovered payout rows</small>
+      </div>
+      <div class="metric">
+        <span>Rejected</span>
+        <strong id="rejected-count">...</strong>
+        <small>Tamper check row</small>
+      </div>
+      <div class="metric">
+        <span>Network</span>
+        <strong id="network">...</strong>
+        <small>Wallet rest: opaque</small>
+      </div>
+    </section>
+
+    <section class="board" aria-labelledby="payouts-title">
+      <div class="board-header">
+        <div>
+          <strong id="payouts-title">Verified room report</strong>
+          <span id="privacy-boundary">Only the selected receipts are disclosed.</span>
+        </div>
+      </div>
+      <div class="table" id="board" aria-live="polite">
+        <div class="table-row table-head" aria-hidden="true">
           <div class="cell">Status</div>
           <div class="cell">Recipient role</div>
           <div class="cell">Recovered memo</div>
@@ -392,35 +582,22 @@
       </div>
     </section>
 
-    <section class="section" aria-labelledby="contrast-title">
-      <div class="section-title">
-        <h2 id="contrast-title">Why teams use it</h2>
-        <p>Glasspane uses the per-output OCK already in Zcash, so the disclosure unit is one selected output.</p>
+    <section class="lower-grid" aria-label="Product details">
+      <div class="panel">
+        <h2>Why teams use it</h2>
+        <p>Glasspane shows chosen payouts, recovered amounts, memos, and tamper results without handing reviewers a wallet-wide viewing key.</p>
       </div>
-      <div class="contrast">
-        <div class="contrast-item">
-          <strong>Viewing key</strong>
-          <p>Useful for audits, but it can expose wallet-wide transaction history to the reviewer.</p>
-        </div>
-        <div class="contrast-item">
-          <strong>Glasspane Rooms</strong>
-          <p>Shows only the chosen payouts, recovered amounts, memos, and tamper result. Everything else remains opaque.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="reproduce" aria-labelledby="reproduce-title">
-      <div class="section-title">
-        <h2 id="reproduce-title">Local verification</h2>
+      <div class="panel">
+        <h2>Local verification</h2>
         <p>The current build is verified by the Rust verifier and reproducible locally. Browser WASM verification will only be labeled when it actually lands.</p>
+        <pre class="terminal"><code>cargo run -p gp-room -- examples/rooms/zechub-demo/room.json --out verified-room.json</code></pre>
       </div>
-      <pre class="terminal"><code>cargo run -p gp-room -- examples/rooms/zechub-demo/room.json --out verified-room.json</code></pre>
     </section>
-  </main>
 
-  <footer>
-    <span id="generated-at">Room report loading...</span>
-  </footer>
+    <footer>
+      <span id="generated-at">Room report loading...</span>
+    </footer>
+  </main>
 </div>
 
 <script>
@@ -440,17 +617,29 @@
 
   function renderRow(item) {
     const row = document.createElement("div");
-    row.className = "row";
+    row.className = "table-row";
 
-    const status = document.createElement("div");
-    status.className = "cell";
-    status.setAttribute("data-label", "Status");
-    status.innerHTML = `<span class="status ${item.status}"><span class="dot" aria-hidden="true"></span>${statusLabel(item.status)}</span>`;
+    const statusCell = document.createElement("div");
+    statusCell.className = "cell";
+    statusCell.setAttribute("data-label", "Status");
+    const status = document.createElement("span");
+    const normalizedStatus = statusLabel(item.status);
+    status.className = `status ${normalizedStatus}`;
+    const dot = document.createElement("span");
+    dot.className = "dot";
+    dot.setAttribute("aria-hidden", "true");
+    status.append(dot, normalizedStatus);
+    statusCell.appendChild(status);
 
     const role = document.createElement("div");
     role.className = "cell";
     role.setAttribute("data-label", "Recipient role");
-    role.innerHTML = `<strong>${item.role}</strong><br><span class="muted">${item.label}</span>`;
+    const roleName = document.createElement("strong");
+    roleName.textContent = item.role || "Recipient";
+    const roleLabel = document.createElement("div");
+    roleLabel.className = "muted";
+    roleLabel.textContent = item.label || item.id || "receipt";
+    role.append(roleName, roleLabel);
 
     const memo = document.createElement("div");
     memo.className = "cell mono";
@@ -477,12 +666,11 @@
       tx.textContent = "not linked";
     }
 
-    row.append(status, role, memo, amount, tx);
+    row.append(statusCell, role, memo, amount, tx);
     return row;
   }
 
   function render(data) {
-    document.title = "Glasspane Rooms - private payout boards for Zcash teams";
     const selected = data.verified_count === 1 ? "selected shielded payout" : "selected shielded payouts";
     const rejected = data.rejected_count === 1 ? "tampered receipt" : "tampered receipts";
     summary.textContent = `${data.verified_count} ${selected} verified, ${data.rejected_count} ${rejected} rejected, rest of treasury opaque.`;

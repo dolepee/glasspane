@@ -357,7 +357,7 @@
       <div class="intro">
         <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Browser verifier + room renderer</span>
         <h1>Create a payout room</h1>
-        <p class="lede">Run `gp-room` on your receipts and raw Zcash transactions, then render the verified report as a shareable payout board. For a single receipt, the browser can also verify receipt + raw tx locally with Glasspane WASM.</p>
+        <p class="lede">Run `gp-room` on your receipts and raw Zcash transactions, then render the verified report as a shareable payout board. For a single receipt, the browser can fetch the public raw tx and verify locally with Glasspane WASM.</p>
         <pre class="command"><code>cargo run -p gp-room -- path/to/room.json --out verified-room.json</code></pre>
       </div>
 
@@ -382,10 +382,10 @@
       <div class="intro browser-copy">
         <span class="eyebrow"><span class="dot" aria-hidden="true"></span>WASM recovery path</span>
         <h2 id="browser-verify-title">Verify in this browser</h2>
-        <p class="lede">The browser path recovers the disclosed Orchard or Sapling output from a Glasspane receipt and raw Zcash transaction hex. It does not ask for a seed, spending key, outgoing viewing key, or wallet-wide viewing key.</p>
+        <p class="lede">The browser path recovers the disclosed Orchard or Sapling output from a Glasspane receipt and raw Zcash transaction hex. It can fetch the public raw tx for you, and it never asks for a seed, spending key, outgoing viewing key, or wallet-wide viewing key.</p>
         <div class="trust-list" aria-label="Browser verification boundaries">
           <div class="trust-item"><span>Verifier</span><strong>gp-core via WASM</strong></div>
-          <div class="trust-item"><span>Network fetch</span><strong>user supplied raw tx</strong></div>
+          <div class="trust-item"><span>Raw tx source</span><strong>Glasspane API or paste fallback</strong></div>
           <div class="trust-item"><span>Room publishing</span><strong>Rust gp-room report</strong></div>
         </div>
       </div>
@@ -394,18 +394,19 @@
         <div class="verify-inputs">
           <div>
             <label for="wasm-receipt">receipt JSON or /r/ URL</label>
-            <textarea id="wasm-receipt" spellcheck="false" autocomplete="off" placeholder="{ &quot;version&quot;: &quot;0&quot;, &quot;network&quot;: &quot;mainnet&quot;, ... }"></textarea>
+            <textarea id="wasm-receipt" spellcheck="false" autocomplete="off" aria-describedby="wasm-message" placeholder="{ &quot;version&quot;: &quot;0&quot;, &quot;network&quot;: &quot;mainnet&quot;, ... }"></textarea>
           </div>
           <div>
             <label for="wasm-rawtx">raw transaction hex</label>
-            <textarea id="wasm-rawtx" spellcheck="false" autocomplete="off" placeholder="050000800a27a726..."></textarea>
+            <textarea id="wasm-rawtx" spellcheck="false" autocomplete="off" aria-describedby="wasm-message" placeholder="Click Fetch raw tx, or paste 050000800a27a726..."></textarea>
           </div>
         </div>
         <div class="actions">
+          <button type="button" id="fetch-rawtx">Fetch raw tx</button>
           <button class="primary" type="submit">Verify in browser</button>
           <button type="button" id="load-wasm-demo">Load demo inputs</button>
         </div>
-        <div class="message" id="wasm-message">Ready for receipt + raw transaction verification.</div>
+        <div class="message" id="wasm-message" role="status" aria-live="polite">Ready for receipt + raw transaction verification.</div>
         <div class="wasm-result" id="wasm-result" hidden></div>
       </form>
     </section>
@@ -441,6 +442,7 @@
   const wasmRawTx = document.getElementById("wasm-rawtx");
   const wasmMessage = document.getElementById("wasm-message");
   const wasmResult = document.getElementById("wasm-result");
+  const fetchRawTxButton = document.getElementById("fetch-rawtx");
   let wasmModulePromise;
 
   function setMessage(text, isError = false) {
@@ -448,9 +450,12 @@
     message.className = isError ? "message err" : "message";
   }
 
-  function setWasmMessage(text, state = "") {
+  function setWasmMessage(text, state = "", invalidFields = []) {
     wasmMessage.textContent = text;
     wasmMessage.className = state ? `message ${state}` : "message";
+    wasmReceipt.removeAttribute("aria-invalid");
+    wasmRawTx.removeAttribute("aria-invalid");
+    for (const field of invalidFields) field.setAttribute("aria-invalid", "true");
   }
 
   function toBase64Url(text) {
@@ -475,6 +480,18 @@
       throw new Error("not a Glasspane verified-room.json report");
     }
     return data;
+  }
+
+  function parseReceiptInput(text) {
+    const trimmed = text.trim();
+    if (!trimmed) throw new Error("receipt input is empty");
+    const rawJson = trimmed.startsWith("{")
+      ? trimmed
+      : fromBase64Url((trimmed.includes("/r/") ? trimmed.split("/r/").pop() : trimmed).split(/[?#]/)[0]);
+    const receipt = JSON.parse(rawJson);
+    if (!receipt || receipt.version !== "0") throw new Error("not a Glasspane v0 receipt");
+    if (!/^[0-9a-f]{64}$/i.test(receipt.tx_id || "")) throw new Error("receipt tx_id must be 64 hex characters");
+    return receipt;
   }
 
   function loadRoomText(text, successMessage) {
@@ -624,7 +641,25 @@
       renderWasmResult(result);
       setWasmMessage("Receipt verified locally in the browser.", "ok");
     } catch (err) {
-      setWasmMessage(err.message || String(err), "err");
+      setWasmMessage(err.message || String(err), "err", [wasmReceipt, wasmRawTx]);
+    }
+  });
+
+  fetchRawTxButton.addEventListener("click", async () => {
+    wasmResult.hidden = true;
+    setWasmMessage("Fetching public raw transaction...");
+    try {
+      const receipt = parseReceiptInput(wasmReceipt.value);
+      if (receipt.network !== "mainnet") {
+        throw new Error("raw tx fetch currently supports mainnet receipts only");
+      }
+      const response = await fetch(`/api/raw-tx?network=${encodeURIComponent(receipt.network)}&txid=${encodeURIComponent(receipt.tx_id)}`);
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(body.error || "raw tx fetch failed");
+      wasmRawTx.value = body.raw_tx_hex;
+      setWasmMessage(`Raw transaction fetched from ${body.source}. Verify locally when ready.`, "ok");
+    } catch (err) {
+      setWasmMessage(err.message || String(err), "err", [wasmReceipt]);
     }
   });
 

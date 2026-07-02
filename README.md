@@ -93,7 +93,7 @@ Production-shape v0 across the receipt primitive and room verifier.
 | Protocol-correctness tests against published Zcash test vectors | Orchard TV0 + TV1, Sapling TV0 |
 | Input-sensitivity tests (bit flips must change the OCK) | shipped |
 | CI (cargo fmt + clippy `-D warnings` + tests on every push) | shipped |
-| WASM in-browser cryptographic recovery | shipped for receipt + raw tx inputs on `/room/create` |
+| WASM in-browser cryptographic recovery | shipped with raw tx fetch + paste fallback on `/room/create` |
 | ZSA-aware receipts | roadmap |
 
 20 tests passing across 6 crates.
@@ -152,7 +152,7 @@ Add `--sign-with-key <32-hex>` to sign the envelope.
 
 ### 5. Verify one receipt in the browser
 
-Open [`/room/create`](https://glasspane-iota.vercel.app/room/create), load or paste a receipt JSON or `/r/` URL, then provide the raw Zcash transaction hex. The browser runs `gp-wasm`, which reuses `gp-core` recovery and `gp-types` receipt validation. Browser transaction fetching is not claimed yet; the raw tx is still supplied by the user.
+Open [`/room/create`](https://glasspane-iota.vercel.app/room/create), load or paste a receipt JSON or `/r/` URL, then click **Fetch raw tx** or paste raw transaction hex manually. The same-origin API fetches public raw tx hex from Blockchair; the browser still runs `gp-wasm` locally and rejects txid mismatches before recovery.
 
 To rebuild the committed browser bundle:
 
@@ -262,7 +262,7 @@ All versions are pinned to released-on-crates.io releases for reproducibility.
 
 ## Roadmap (post v0)
 
-* Browser-side raw transaction fetching for receipts, so users do not have to paste raw tx hex.
+* Multiple raw transaction sources for the browser fetch path, so Blockchair is not the only upstream.
 * ZSA-aware receipts (when Zcash Shielded Assets ship a stable application surface).
 * Batched receipts (multiple outputs in one envelope, each with its own OCK).
 

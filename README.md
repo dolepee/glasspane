@@ -86,6 +86,8 @@ Production-shape v0 across the receipt primitive and room verifier.
 | Room schema and example mainnet room | shipped |
 | Live Rooms board `/room/zechub-demo` | shipped |
 | Self-serve room renderer `/room/create` | shipped |
+| CSV export for accounting tools | shipped in room UI and `gp-room --csv` |
+| Embeddable verified-payout badge | shipped on room pages |
 | Receipt URL form (`https://host/r/<base64url>`) | shipped |
 | Bech32m UA encoding for recovered recipients (`u1...`) | shipped |
 | Optional ed25519 receipt signing | shipped |
@@ -96,7 +98,7 @@ Production-shape v0 across the receipt primitive and room verifier.
 | WASM in-browser cryptographic recovery | shipped with raw tx fetch + paste fallback on `/room/create` |
 | ZSA-aware receipts | roadmap |
 
-20 tests passing across 6 crates.
+21 tests passing across 6 crates.
 
 ## Quickstart
 
@@ -118,6 +120,12 @@ The main binaries are:
 
 ```bash
 ./target/release/gp-room examples/rooms/zechub-demo/room.json --out verified-room.json
+```
+
+For accounting tools, export the same verified report as CSV:
+
+```bash
+./target/release/gp-room examples/rooms/zechub-demo/room.json --csv payouts.csv --out verified-room.json
 ```
 
 Open the live board at
@@ -236,11 +244,11 @@ The web app (`web/`) deploys to Vercel automatically on every push to `main` (Ve
 cargo test --workspace
 ```
 
-20 tests across:
+21 tests across:
 
 * Receipt format (envelope validate, version reject, label length, JSON round trip, URL round trip, bare-payload URL parse, garbage URL reject, ed25519 signature round trip, ed25519 tampering reject).
 * OCK derivation (byte helper round trip, Orchard test vectors 0 and 1 bit-exact, Sapling test vector 0 bit-exact, input sensitivity: any bit flip in OVK / epk / cmx must change the OCK).
-* Room verification (example room verifies with expected tamper rejection; unexpected tamper fails the room).
+* Room verification and export (example room verifies with expected tamper rejection; unexpected tamper fails the room; CSV contains accounting rows).
 * Browser WASM verification (example receipt recovers from raw tx; tampered OCK fails loudly; raw txid mismatch fails before recovery).
 * API surface (Orchard `derive_ock` and `try_output_recovery_with_ock` reachable through the published `Domain` trait at expected signatures).
 

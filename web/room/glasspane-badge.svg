@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="258" height="40" viewBox="0 0 258 40" role="img" aria-labelledby="title desc">
+  <title id="title">payouts verified - Glasspane</title>
+  <desc id="desc">A Glasspane badge for verified private Zcash payout rooms.</desc>
+  <rect width="258" height="40" rx="8" fill="#101614"/>
+  <rect x="1" y="1" width="256" height="38" rx="7" fill="none" stroke="#2d3833"/>
+  <rect x="10" y="10" width="20" height="20" rx="5" fill="#f4b323"/>
+  <path d="M15 16h10v8H15z" fill="#101614"/>
+  <path d="M17 18h6v4h-6z" fill="#f4b323"/>
+  <circle cx="47" cy="20" r="5" fill="#27b263"/>
+  <text x="60" y="25" fill="#ffffff" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="15" font-weight="800">payouts verified</text>
+  <text x="180" y="25" fill="#b8c6c0" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="700">Glasspane</text>
+</svg>

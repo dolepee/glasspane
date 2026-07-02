@@ -373,6 +373,7 @@
           <button type="button" id="load-example">Load example</button>
           <button type="button" id="copy-link">Copy share link</button>
           <button type="button" id="download-json">Download JSON</button>
+          <button type="button" id="download-csv">Export CSV</button>
         </div>
         <div class="message" id="message">Paste, upload, or load the ZecHub demo report.</div>
       </form>
@@ -444,6 +445,7 @@
   const wasmResult = document.getElementById("wasm-result");
   const fetchRawTxButton = document.getElementById("fetch-rawtx");
   let wasmModulePromise;
+  let currentRoom;
 
   function setMessage(text, isError = false) {
     message.textContent = text;
@@ -526,6 +528,38 @@
     return item;
   }
 
+  function csvEscape(value) {
+    const text = value == null ? "" : String(value);
+    return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  }
+
+  function roomToCsv(data) {
+    const header = ["status", "recipient", "memo", "amount ZEC", "tx id", "verified-at"];
+    const rows = data.results.map(item => [
+      item.status || "",
+      item.recipient || "",
+      item.memo || item.error || "",
+      item.amount_zec || "",
+      item.tx_id || "",
+      data.generated_at || "",
+    ]);
+    return [header, ...rows].map(row => row.map(csvEscape).join(",")).join("\n") + "\n";
+  }
+
+  function slugify(value) {
+    return String(value || "glasspane-room").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "glasspane-room";
+  }
+
+  function downloadText(filename, text, type) {
+    const blob = new Blob([text], { type });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
   function resultItem(label, value) {
     const item = document.createElement("div");
     item.className = "result-kv";
@@ -577,6 +611,7 @@
 
   function render(data) {
     parseRoomJson(JSON.stringify(data));
+    currentRoom = data;
 
     stats.hidden = false;
     stats.replaceChildren(
@@ -590,7 +625,7 @@
     board.querySelectorAll(".row:not(.head)").forEach(row => row.remove());
     for (const item of data.results) {
       const row = document.createElement("div");
-      row.className = "row";
+      row.className = "row room-data-row";
 
       const itemStatus = item.status === "verified" ? "verified" : "rejected";
       const status = document.createElement("span");
@@ -751,14 +786,18 @@
   document.getElementById("download-json").addEventListener("click", () => {
     try {
       const parsed = JSON.parse(input.value);
-      const blob = new Blob([JSON.stringify(parsed, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "verified-room.json";
-      link.click();
-      URL.revokeObjectURL(url);
+      downloadText("verified-room.json", JSON.stringify(parsed, null, 2), "application/json");
       setMessage("verified-room.json download prepared.");
+    } catch (err) {
+      setMessage(err.message, true);
+    }
+  });
+
+  document.getElementById("download-csv").addEventListener("click", () => {
+    try {
+      const data = parseRoomJson(input.value);
+      downloadText(`${slugify(data.title)}.csv`, roomToCsv(data), "text/csv;charset=utf-8");
+      setMessage("CSV export prepared.");
     } catch (err) {
       setMessage(err.message, true);
     }

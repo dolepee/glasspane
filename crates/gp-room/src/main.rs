@@ -32,6 +32,10 @@ struct Args {
     /// Where to write verified-room.json. If omitted, JSON is printed.
     #[arg(long)]
     out: Option<PathBuf>,
+
+    /// Optional CSV export path for accounting tools.
+    #[arg(long)]
+    csv: Option<PathBuf>,
 }
 
 fn main() -> Result<()> {
@@ -43,6 +47,11 @@ fn main() -> Result<()> {
         std::fs::write(&out, json).with_context(|| format!("write {}", out.display()))?;
     } else {
         println!("{json}");
+    }
+
+    if let Some(csv) = args.csv {
+        std::fs::write(&csv, room_to_csv(&report))
+            .with_context(|| format!("write {}", csv.display()))?;
     }
 
     if !report.overall_pass {
@@ -492,6 +501,40 @@ fn zec_string(zatoshis: u64) -> String {
     format!("{:.8}", zatoshis as f64 / 100_000_000.0)
 }
 
+fn room_to_csv(report: &VerifiedRoom) -> String {
+    let mut out = String::from("status,recipient,memo,amount ZEC,tx id,verified-at\n");
+    for row in &report.results {
+        let fields = [
+            format!("{:?}", row.status).to_lowercase(),
+            row.recipient.clone().unwrap_or_default(),
+            row.memo
+                .clone()
+                .or_else(|| row.error.clone())
+                .unwrap_or_default(),
+            row.amount_zec.clone().unwrap_or_default(),
+            row.tx_id.clone().unwrap_or_default(),
+            report.generated_at.to_rfc3339(),
+        ];
+        out.push_str(
+            &fields
+                .iter()
+                .map(|value| csv_escape(value))
+                .collect::<Vec<_>>()
+                .join(","),
+        );
+        out.push('\n');
+    }
+    out
+}
+
+fn csv_escape(value: &str) -> String {
+    if value.contains([',', '"', '\n', '\r']) {
+        format!("\"{}\"", value.replace('"', "\"\""))
+    } else {
+        value.to_string()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -532,5 +575,17 @@ mod tests {
             .failures
             .iter()
             .any(|f| f.contains("tampered-ock expected Verified but got Rejected")));
+    }
+
+    #[test]
+    fn csv_export_contains_accounting_rows() {
+        let report = verify_room_file(&fixture_room()).expect("room should verify");
+        let csv = room_to_csv(&report);
+        assert!(csv.starts_with("status,recipient,memo,amount ZEC,tx id,verified-at\n"));
+        assert!(csv.contains("verified,u1"));
+        assert!(csv.contains("glasspane first receipt,0.00100000,66167cd3020eb329"));
+        assert!(csv.contains(
+            "\"OCK does not match this Orchard action; the receipt is wrong, tampered, or forged\""
+        ));
     }
 }

@@ -11,7 +11,7 @@
         { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'unsafe-inline' 'self'; style-src 'unsafe-inline' 'self'; img-src data: 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'"
+          "value": "default-src 'self'; script-src 'unsafe-inline' 'self' 'wasm-unsafe-eval'; style-src 'unsafe-inline' 'self'; img-src data: 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'"
         }
       ]
     },

@@ -93,10 +93,10 @@ Production-shape v0 across the receipt primitive and room verifier.
 | Protocol-correctness tests against published Zcash test vectors | Orchard TV0 + TV1, Sapling TV0 |
 | Input-sensitivity tests (bit flips must change the OCK) | shipped |
 | CI (cargo fmt + clippy `-D warnings` + tests on every push) | shipped |
-| WASM in-browser cryptographic recovery | honest fallback: Rust verifier output, reproducible locally |
+| WASM in-browser cryptographic recovery | shipped for receipt + raw tx inputs on `/room/create` |
 | ZSA-aware receipts | roadmap |
 
-17 tests passing across 5 crates.
+20 tests passing across 6 crates.
 
 ## Quickstart
 
@@ -150,9 +150,22 @@ Add `--sign-with-key <32-hex>` to sign the envelope.
 
 `gp-verify` also accepts a Glasspane URL (`https://host/r/<base64url>`), a bare base64url payload, or stdin. On success you see the recovered recipient UA, the value in zatoshis and ZEC, the memo, and (if signed) `signature : ed25519 OK`. On a wrong OCK, output index, or tampered receipt, you see a clear failure.
 
-### 5. Or share the URL form
+### 5. Verify one receipt in the browser
 
-Hand the contents of `receipt.json` to anyone with `gp-verify` installed, or share the URL emitted on stderr by `gp-issue --url`. Anyone with the URL can paste it into the **[web verifier](https://glasspane-iota.vercel.app)** to see the envelope, or into `gp-verify` to do the full cryptographic recovery.
+Open [`/room/create`](https://glasspane-iota.vercel.app/room/create), load or paste a receipt JSON or `/r/` URL, then provide the raw Zcash transaction hex. The browser runs `gp-wasm`, which reuses `gp-core` recovery and `gp-types` receipt validation. Browser transaction fetching is not claimed yet; the raw tx is still supplied by the user.
+
+To rebuild the committed browser bundle:
+
+```bash
+rustup target add wasm32-unknown-unknown
+cargo install wasm-bindgen-cli --version 0.2.122
+CC_wasm32_unknown_unknown=/path/to/clang cargo build -p gp-wasm --release --target wasm32-unknown-unknown
+wasm-bindgen --target web --out-dir web/wasm target/wasm32-unknown-unknown/release/gp_wasm.wasm
+```
+
+### 6. Or share the URL form
+
+Hand the contents of `receipt.json` to anyone with `gp-verify` installed, or share the URL emitted on stderr by `gp-issue --url`. Anyone with the URL can paste it into the browser verifier on `/room/create`, or into `gp-verify` to do the full cryptographic recovery from a raw or fetched transaction.
 
 ## Why this needs Zcash specifically
 
@@ -191,6 +204,7 @@ glasspane/
 │   ├── gp-issuer/    # gp-issue binary
 │   ├── gp-verifier/  # gp-verify binary
 │   ├── gp-room/      # gp-room payout room verifier
+│   ├── gp-wasm/      # browser receipt + raw tx verifier
 │   └── gp-keygen/    # test wallet + OVK helper tooling
 ├── examples/
 │   └── rooms/
@@ -202,16 +216,17 @@ glasspane/
 ├── docs/
 │   └── run-a-real-receipt.md   # End-to-end mainnet tutorial
 ├── web/
-│   ├── index.html             # Static receipt envelope decoder
-│   └── room/
-│       ├── zechub-demo.html   # Rooms board
-│       ├── zechub-demo.json   # Public room report
-│       └── create.html        # Self-serve room renderer
+│   ├── index.html             # Dashboard workspace
+│   ├── room/
+│   │   ├── zechub-demo.html   # Rooms board
+│   │   ├── zechub-demo.json   # Public room report
+│   │   └── create.html        # Self-serve room renderer
+│   └── wasm/                  # Browser verifier bundle generated from gp-wasm
 └── .github/workflows/
     └── ci.yml        # fmt + clippy + tests on every push
 ```
 
-The web verifier (`web/`) deploys to Vercel automatically on every push to `main` (Vercel's GitHub integration, project root set to `web/`).
+The web app (`web/`) deploys to Vercel automatically on every push to `main` (Vercel's GitHub integration, project root set to `web/`).
 
 `gp-types` and `gp-core` are pure libraries with no network dependencies. They can be embedded in other Rust tooling without pulling tonic, lightwalletd, or async runtimes.
 
@@ -221,11 +236,12 @@ The web verifier (`web/`) deploys to Vercel automatically on every push to `main
 cargo test --workspace
 ```
 
-17 tests across:
+20 tests across:
 
 * Receipt format (envelope validate, version reject, label length, JSON round trip, URL round trip, bare-payload URL parse, garbage URL reject, ed25519 signature round trip, ed25519 tampering reject).
 * OCK derivation (byte helper round trip, Orchard test vectors 0 and 1 bit-exact, Sapling test vector 0 bit-exact, input sensitivity: any bit flip in OVK / epk / cmx must change the OCK).
 * Room verification (example room verifies with expected tamper rejection; unexpected tamper fails the room).
+* Browser WASM verification (example receipt recovers from raw tx; tampered OCK fails loudly; raw txid mismatch fails before recovery).
 * API surface (Orchard `derive_ock` and `try_output_recovery_with_ock` reachable through the published `Domain` trait at expected signatures).
 
 `cargo clippy --workspace --all-targets -- -D warnings` is clean. CI runs all three checks (fmt, clippy, tests) on every push to `main`.
@@ -246,7 +262,7 @@ All versions are pinned to released-on-crates.io releases for reproducibility.
 
 ## Roadmap (post v0)
 
-* WASM-compile `gp-core` and ship full cryptographic recovery in the browser. Until that lands, Rooms are labeled as Rust-verifier output and are reproducible locally.
+* Browser-side raw transaction fetching for receipts, so users do not have to paste raw tx hex.
 * ZSA-aware receipts (when Zcash Shielded Assets ship a stable application surface).
 * Batched receipts (multiple outputs in one envelope, each with its own OCK).
 

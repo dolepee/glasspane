@@ -1,0 +1,25 @@
+[package]
+name = "gp-wasm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Glasspane browser verifier for receipt + raw Zcash transaction recovery"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+gp-types = { path = "../gp-types" }
+gp-core = { path = "../gp-core" }
+
+sapling-crypto = { workspace = true }
+zcash_address = { workspace = true, default-features = false }
+zcash_primitives = { workspace = true, default-features = false }
+zcash_protocol = { workspace = true, default-features = false }
+zcash_note_encryption = { workspace = true }
+
+serde = { workspace = true }
+serde_json = { workspace = true }
+hex = { workspace = true }
+wasm-bindgen = { workspace = true }
+getrandom = { version = "0.2", features = ["js"] }

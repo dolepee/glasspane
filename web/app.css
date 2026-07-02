@@ -700,3 +700,48 @@ body.site {
     padding: 18px !important;
   }
 }
+
+.page-create.site .hero,
+.page-create.site .verification-grid,
+.page-create.site .verify-inputs,
+.page-create.site .result-grid {
+  max-width: 100%;
+}
+
+.page-create.site .hero > *,
+.page-create.site .verification-grid > *,
+.page-create.site .verify-inputs > *,
+.page-create.site .intro,
+.page-create.site .tool,
+.page-create.site .board,
+.page-create.site .stat,
+.page-create.site .result-kv {
+  min-width: 0 !important;
+}
+
+.page-create.site textarea,
+.page-create.site .command,
+.page-create.site .wasm-result {
+  max-width: 100%;
+}
+
+.page-create.site .command {
+  overflow-x: auto;
+}
+
+.page-create.site .result-kv strong {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .page-create.site .verification-grid,
+  .page-create.site .verify-inputs,
+  .page-create.site .result-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .page-create.site main {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}

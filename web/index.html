@@ -4,8 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Glasspane Rooms - private payout boards for Zcash teams</title>
-<meta name="description" content="A private payout board for Zcash teams: verify selected shielded payouts, totals, and memos without handing over a viewing key." />
+<meta name="description" content="Glasspane Rooms lets Zcash teams publish private payout boards: selected shielded payouts, memos, totals, tamper checks, and CSV exports without sharing a viewing key." />
 <link rel="canonical" href="https://glasspane-iota.vercel.app/" />
+<meta name="theme-color" content="#111713" />
 <meta property="og:title" content="Glasspane Rooms" />
 <meta property="og:description" content="Private payout boards for Zcash teams. Selected shielded payouts are verified while the rest of the treasury stays opaque." />
 <meta property="og:type" content="website" />
@@ -15,607 +16,183 @@
 <meta name="twitter:title" content="Glasspane Rooms" />
 <meta name="twitter:description" content="Private payout boards for Zcash teams." />
 <meta name="twitter:image" content="https://glasspane-iota.vercel.app/room/og-glasspane-rooms.svg" />
-<link rel="icon" href="data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22&gt;&lt;rect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%23f4b323%22/&gt;&lt;path d=%22M8 10h16v12H8z%22 fill=%22%23111111%22/&gt;&lt;path d=%22M11 13h10v6H11z%22 fill=%22%23f4b323%22/&gt;&lt;/svg&gt;">
-<style>
-  :root {
-    --bg: #eef3f4;
-    --panel: #ffffff;
-    --ink: #101614;
-    --muted: #5d6964;
-    --line: #d6e0dc;
-    --line-strong: #b8c8c1;
-    --gold: #f4b323;
-    --green: #147a43;
-    --green-soft: #e7f6ed;
-    --red: #ba3828;
-    --red-soft: #fbe8e5;
-    --blue: #245b8f;
-    --blue-soft: #e8f0f7;
-    --sidebar: #0e1512;
-  }
-
-  * { box-sizing: border-box; }
-  html, body { margin: 0; min-height: 100%; }
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    letter-spacing: 0;
-  }
-  a { color: inherit; }
-
-  .app {
-    display: grid;
-    grid-template-columns: 264px minmax(0, 1fr);
-    min-height: 100vh;
-  }
-
-  .sidebar {
-    background:
-      linear-gradient(180deg, rgba(244, 179, 35, 0.12), transparent 240px),
-      var(--sidebar);
-    color: #fff;
-    padding: 22px 18px;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-  }
-
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-decoration: none;
-    margin-bottom: 28px;
-  }
-
-  .mark {
-    width: 42px;
-    height: 42px;
-    border-radius: 10px;
-    background: var(--gold);
-    border: 1px solid rgba(255, 255, 255, 0.24);
-    display: grid;
-    place-items: center;
-    flex: 0 0 auto;
-  }
-
-  .mark span {
-    width: 20px;
-    height: 14px;
-    display: block;
-    border: 3px solid var(--sidebar);
-  }
-
-  .brand strong { display: block; font-size: 17px; line-height: 1.1; }
-  .brand small { display: block; color: #b7c4bf; font-size: 12px; font-weight: 700; margin-top: 2px; }
-
-  .side-group {
-    margin: 20px 0;
-  }
-
-  .side-label {
-    color: #84948e;
-    font-size: 11px;
-    font-weight: 850;
-    text-transform: uppercase;
-    margin: 0 0 8px;
-  }
-
-  .side-link {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    min-height: 38px;
-    color: #e8eeeb;
-    text-decoration: none;
-    border-radius: 8px;
-    padding: 8px 10px;
-    font-size: 14px;
-    font-weight: 760;
-  }
-
-  .side-link:hover,
-  .side-link.active {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .side-dot {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: currentColor;
-    color: var(--gold);
-    flex: 0 0 auto;
-  }
-
-  .room-card {
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: 8px;
-    padding: 14px;
-    margin-top: 28px;
-  }
-
-  .room-card strong {
-    display: block;
-    font-size: 14px;
-    margin-bottom: 6px;
-  }
-
-  .room-card span {
-    color: #b7c4bf;
-    display: block;
-    font-size: 13px;
-    line-height: 1.45;
-  }
-
-  .main {
-    min-width: 0;
-    padding: 22px;
-  }
-
-  .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-    margin-bottom: 18px;
-  }
-
-  .crumb {
-    color: var(--muted);
-    font-size: 13px;
-    font-weight: 760;
-  }
-
-  .topbar h1 {
-    margin: 4px 0 0;
-    font-size: clamp(30px, 4vw, 52px);
-    line-height: 1.02;
-    letter-spacing: 0;
-  }
-
-  .actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
-
-  .button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 39px;
-    border-radius: 8px;
-    border: 1px solid var(--line);
-    background: #fff;
-    color: var(--ink);
-    padding: 9px 12px;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 780;
-  }
-
-  .button.primary {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: #fff;
-  }
-
-  .button:focus-visible,
-  .side-link:focus-visible,
-  .tx-link:focus-visible {
-    outline: 3px solid rgba(244, 179, 35, 0.6);
-    outline-offset: 3px;
-  }
-
-  .notice {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 18px;
-    align-items: center;
-    border: 1px solid var(--line);
-    background: #fff;
-    border-radius: 10px;
-    padding: 16px 18px;
-    margin-bottom: 14px;
-  }
-
-  .notice p {
-    margin: 0;
-    color: var(--muted);
-    font-size: 15px;
-    line-height: 1.5;
-  }
-
-  .badges {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    border-radius: 999px;
-    border: 1px solid var(--line);
-    padding: 6px 9px;
-    font-size: 11px;
-    font-weight: 850;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-
-  .badge.green { background: var(--green-soft); color: var(--green); border-color: rgba(20, 122, 67, 0.24); }
-  .badge.blue { background: var(--blue-soft); color: var(--blue); border-color: rgba(36, 91, 143, 0.22); }
-
-  .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: currentColor;
-  }
-
-  .metrics {
-    display: grid;
-    grid-template-columns: 1.25fr repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .metric {
-    border: 1px solid var(--line);
-    background: var(--panel);
-    border-radius: 10px;
-    padding: 16px;
-    min-width: 0;
-  }
-
-  .metric.primary {
-    background: linear-gradient(180deg, #141b18, #0f1512);
-    color: #fff;
-    border-color: #141b18;
-  }
-
-  .metric span {
-    display: block;
-    color: var(--muted);
-    font-size: 11px;
-    font-weight: 850;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-
-  .metric.primary span { color: #b9c6c0; }
-  .metric strong {
-    display: block;
-    font-size: 30px;
-    line-height: 1;
-    overflow-wrap: anywhere;
-  }
-  .metric.primary strong { font-size: clamp(34px, 4.2vw, 54px); }
-  .metric small { display: block; color: var(--muted); margin-top: 8px; font-weight: 700; }
-  .metric.primary small { color: #b9c6c0; }
-
-  .board {
-    border: 1px solid var(--line-strong);
-    background: var(--panel);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .board-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    border-bottom: 1px solid var(--line);
-    background: #f7faf8;
-    padding: 14px 16px;
-  }
-
-  .board-header strong {
-    display: block;
-    font-size: 14px;
-  }
-
-  .board-header span {
-    display: block;
-    color: var(--muted);
-    font-size: 13px;
-    margin-top: 2px;
-  }
-
-  .table {
-    width: 100%;
-  }
-
-  .table-row {
-    display: grid;
-    grid-template-columns: 128px minmax(190px, 1.2fr) minmax(240px, 1fr) 128px 118px;
-    min-height: 70px;
-    border-top: 1px solid var(--line);
-  }
-
-  .table-row:first-child { border-top: 0; }
-
-  .table-head {
-    min-height: 46px;
-    background: #eef4f1;
-    color: var(--muted);
-    font-size: 11px;
-    font-weight: 900;
-    text-transform: uppercase;
-  }
-
-  .cell {
-    min-width: 0;
-    padding: 14px 16px;
-    border-left: 1px solid var(--line);
-  }
-
-  .cell:first-child { border-left: 0; }
-
-  .status {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    border-radius: 999px;
-    padding: 5px 8px;
-    font-size: 11px;
-    font-weight: 900;
-    text-transform: uppercase;
-  }
-
-  .status.verified { background: var(--green-soft); color: var(--green); }
-  .status.rejected { background: var(--red-soft); color: var(--red); }
-
-  .muted { color: var(--muted); }
-  .mono {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 12.5px;
-    overflow-wrap: anywhere;
-  }
-
-  .tx-link {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 32px;
-    border-radius: 8px;
-    border: 1px solid rgba(36, 91, 143, 0.16);
-    background: var(--blue-soft);
-    color: var(--blue);
-    padding: 6px 8px;
-    text-decoration: none;
-    font-weight: 850;
-  }
-
-  .lower-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    margin-top: 16px;
-  }
-
-  .panel {
-    border: 1px solid var(--line);
-    background: var(--panel);
-    border-radius: 10px;
-    padding: 16px;
-    min-width: 0;
-  }
-
-  .panel h2 {
-    margin: 0 0 8px;
-    font-size: 20px;
-    line-height: 1.15;
-  }
-
-  .panel p {
-    margin: 0;
-    color: var(--muted);
-    line-height: 1.5;
-  }
-
-  .terminal {
-    margin-top: 12px;
-    background: #0f1512;
-    color: #fff;
-    border-radius: 8px;
-    padding: 13px;
-    max-width: 100%;
-    min-width: 0;
-    overflow-x: auto;
-    font: 12.5px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  }
-
-  footer {
-    color: var(--muted);
-    font-size: 12px;
-    padding: 16px 2px 0;
-  }
-
-  .load-error {
-    border: 1px solid rgba(186, 56, 40, 0.2);
-    background: var(--red-soft);
-    color: var(--red);
-    border-radius: 8px;
-    padding: 12px;
-    font-weight: 800;
-    margin-bottom: 12px;
-  }
-
-  @media (max-width: 980px) {
-    .app { grid-template-columns: 1fr; }
-    .sidebar {
-      position: static;
-      height: auto;
-      padding: 18px;
-    }
-    .brand { margin-bottom: 16px; }
-    .side-group { display: flex; gap: 8px; flex-wrap: wrap; margin: 0; }
-    .side-label, .room-card { display: none; }
-    .side-link {
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      background: rgba(255, 255, 255, 0.06);
-    }
-    .main { padding: 18px; }
-    .topbar { align-items: flex-start; flex-direction: column; }
-    .actions { justify-content: flex-start; }
-    .notice { grid-template-columns: 1fr; }
-    .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .table-row { grid-template-columns: 1fr; }
-    .table-head { display: none; }
-    .cell {
-      border-left: 0;
-      border-top: 1px solid var(--line);
-    }
-    .cell:first-child { border-top: 0; }
-    .cell::before {
-      content: attr(data-label);
-      display: block;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 900;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-    .lower-grid { grid-template-columns: 1fr; }
-  }
-
-  @media (max-width: 560px) {
-    .sidebar { padding: 16px 14px; }
-    .main { padding: 14px; }
-    .topbar h1 { font-size: 32px; }
-    .metrics { grid-template-columns: 1fr; }
-    .metric.primary strong { font-size: 40px; }
-  }
-</style>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="/app.css?v=3" />
 </head>
-<body>
-<div class="app">
-  <aside class="sidebar">
-    <a class="brand" href="/" aria-label="Glasspane home">
-      <span class="mark" aria-hidden="true"><span></span></span>
+<body class="launch page-home">
+<div class="gp-shell">
+  <header class="gp-topbar">
+    <a class="gp-brand" href="/" aria-label="Glasspane home">
+      <span class="gp-mark" aria-hidden="true"><span></span></span>
       <span>
         <strong>Glasspane Rooms</strong>
-        <small>Private payout boards</small>
+        <small>ZecHub Accounting track</small>
       </span>
     </a>
+    <nav class="gp-nav" aria-label="Primary">
+      <a href="/room/zechub-demo">Live board</a>
+      <a href="/room/create">Create room</a>
+      <a href="/receipt.html">Receipt utility</a>
+      <a href="https://github.com/dolepee/glasspane">GitHub</a>
+    </nav>
+  </header>
 
-    <div class="side-group" aria-label="Primary navigation">
-      <p class="side-label">Workspace</p>
-      <a class="side-link active" href="/"><span class="side-dot" aria-hidden="true"></span>Dashboard</a>
-      <a class="side-link" href="/room/zechub-demo"><span class="side-dot" aria-hidden="true"></span>Live board</a>
-      <a class="side-link" href="/room/create"><span class="side-dot" aria-hidden="true"></span>Create room</a>
-      <a class="side-link" href="/receipt"><span class="side-dot" aria-hidden="true"></span>Receipt utility</a>
-      <a class="side-link" href="https://github.com/dolepee/glasspane"><span class="side-dot" aria-hidden="true"></span>GitHub</a>
-    </div>
+  <main>
+    <section class="gp-hero" aria-labelledby="hero-title">
+      <div class="gp-hero-copy">
+        <div class="gp-kicker">
+          <span><span class="gp-dot" aria-hidden="true"></span>Mainnet payout proof</span>
+          <span><span class="gp-dot blue" aria-hidden="true"></span>Rust + WASM verifier</span>
+        </div>
+        <h1 id="hero-title">Private payout boards for Zcash teams.</h1>
+        <p class="gp-lede">Show the payouts that matter, hide the treasury that does not. Glasspane turns selected shielded Zcash receipts into a clean accounting board with recovered memos, amounts, tamper rejection, CSV export, and local verification.</p>
+        <div class="gp-actions">
+          <a class="gp-button primary" href="/room/zechub-demo">Open live board</a>
+          <a class="gp-button" href="/room/create">Create a room</a>
+          <button class="gp-button" type="button" id="export-csv">Export demo CSV</button>
+        </div>
+        <div class="gp-proof-strip" aria-label="Launch proof">
+          <div><strong>Mainnet</strong><span>real Orchard receipt</span></div>
+          <div><strong>0 keys</strong><span>no viewing key shared</span></div>
+          <div><strong>21 tests</strong><span>fmt, clippy, vectors</span></div>
+          <div><strong>CSV</strong><span>accounting export</span></div>
+        </div>
+      </div>
 
-    <div class="room-card">
-      <strong>ZecHub Accounting track</strong>
-      <span>Selected shielded payouts are opened. The rest of the treasury stays opaque.</span>
-    </div>
-  </aside>
+      <aside class="gp-console" aria-label="ZecHub demo payout room preview">
+        <div class="gp-console-top">
+          <div>
+            <span class="gp-console-label">Room</span>
+            <strong>ZecHub demo payout room</strong>
+          </div>
+          <span class="gp-live-pill"><span class="gp-dot" aria-hidden="true"></span>Verified</span>
+        </div>
 
-  <main class="main">
-    <div class="topbar">
-      <div>
-        <div class="crumb">Rooms / ZecHub demo payout room</div>
-        <h1>Private payout board</h1>
-      </div>
-      <div class="actions">
-        <a class="button primary" href="/room/zechub-demo">Open live board</a>
-        <a class="button" href="/room/create">Create a room</a>
-        <button class="button" type="button" id="export-csv">Export CSV</button>
-      </div>
-    </div>
+        <div class="gp-summary" id="summary">1 selected shielded payout verified, 1 tampered receipt rejected, rest of treasury opaque.</div>
 
-    <section class="notice" aria-label="Room summary">
-      <p id="summary">1 selected shielded payout verified, 1 tampered receipt rejected, rest of treasury opaque.</p>
-      <div class="badges">
-        <span class="badge green"><span class="dot" aria-hidden="true"></span>Accounting track</span>
-        <span class="badge blue"><span class="dot" aria-hidden="true"></span>Rust report + browser verifier</span>
-      </div>
-    </section>
+        <div class="gp-metrics" aria-label="Room metrics">
+          <div class="primary">
+            <span>Selected disclosed</span>
+            <strong id="total-zec">0.00100000 ZEC</strong>
+          </div>
+          <div>
+            <span>Verified</span>
+            <strong id="verified-count">1</strong>
+          </div>
+          <div>
+            <span>Rejected</span>
+            <strong id="rejected-count">1</strong>
+          </div>
+          <div>
+            <span>Network</span>
+            <strong id="network">mainnet</strong>
+          </div>
+        </div>
 
-    <div id="load-error" class="load-error" hidden></div>
+        <div class="gp-table-wrap">
+          <table class="gp-table" aria-label="Selected payout rows">
+            <thead>
+              <tr>
+                <th scope="col">Status</th>
+                <th scope="col">Recipient</th>
+                <th scope="col">Memo</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Tx</th>
+              </tr>
+            </thead>
+            <tbody id="board">
+              <tr class="room-data-row">
+                <td data-label="Status"><span class="gp-status verified"><span class="gp-dot" aria-hidden="true"></span>verified</span></td>
+                <td data-label="Recipient"><strong>Demo recipient</strong><span>First verified payout</span></td>
+                <td data-label="Memo" class="mono">glasspane first receipt</td>
+                <td data-label="Amount" class="mono">0.00100000 ZEC</td>
+                <td data-label="Tx"><a class="gp-tx" href="https://mainnet.zcashexplorer.app/transactions/66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0" target="_blank" rel="noopener">66167c...cfd0</a></td>
+              </tr>
+              <tr class="room-data-row">
+                <td data-label="Status"><span class="gp-status rejected"><span class="gp-dot" aria-hidden="true"></span>rejected</span></td>
+                <td data-label="Recipient"><strong>Tamper check</strong><span>Tampered receipt copy</span></td>
+                <td data-label="Memo" class="mono">OCK does not match this Orchard action; the receipt is wrong, tampered, or forged</td>
+                <td data-label="Amount" class="mono">not opened</td>
+                <td data-label="Tx"><a class="gp-tx" href="https://mainnet.zcashexplorer.app/transactions/66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0" target="_blank" rel="noopener">66167c...cfd0</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-    <section class="metrics" aria-label="Room metrics">
-      <div class="metric primary">
-        <span>Selected disclosed</span>
-        <strong id="total-zec">0.00100000 ZEC</strong>
-        <small>Only selected outputs are opened.</small>
-      </div>
-      <div class="metric">
-        <span>Verified</span>
-        <strong id="verified-count">1</strong>
-        <small>Recovered payout rows</small>
-      </div>
-      <div class="metric">
-        <span>Rejected</span>
-        <strong id="rejected-count">1</strong>
-        <small>Tamper check row</small>
-      </div>
-      <div class="metric">
-        <span>Network</span>
-        <strong id="network">mainnet</strong>
-        <small>Wallet rest: opaque</small>
-      </div>
-    </section>
-
-    <section class="board" aria-labelledby="payouts-title">
-      <div class="board-header">
-        <div>
-          <strong id="payouts-title">Verified room report</strong>
+        <div class="gp-console-foot">
           <span id="privacy-boundary">Only the selected receipts are disclosed.</span>
+          <span id="generated-at">Generated from verified-room.json at 7/1/2026, 6:55:43 PM.</span>
         </div>
+        <div id="load-error" class="gp-error" hidden></div>
+      </aside>
+    </section>
+
+    <section class="gp-section gp-section-grid" aria-labelledby="why-title">
+      <div>
+        <p class="gp-section-label">Why it fits Accounting</p>
+        <h2 id="why-title">The board is the product. The verifier is the spine.</h2>
       </div>
-      <div class="table" id="board" aria-live="polite">
-        <div class="table-row table-head" aria-hidden="true">
-          <div class="cell">Status</div>
-          <div class="cell">Recipient role</div>
-          <div class="cell">Recovered memo</div>
-          <div class="cell">Amount</div>
-          <div class="cell">Mainnet tx</div>
-        </div>
-        <div class="table-row room-data-row">
-          <div class="cell" data-label="Status"><span class="status verified"><span class="dot" aria-hidden="true"></span>verified</span></div>
-          <div class="cell" data-label="Recipient role"><strong>Demo recipient</strong><div class="muted">First verified payout</div></div>
-          <div class="cell mono" data-label="Recovered memo">glasspane first receipt</div>
-          <div class="cell mono" data-label="Amount">0.00100000 ZEC</div>
-          <div class="cell" data-label="Mainnet tx"><a class="tx-link" href="https://mainnet.zcashexplorer.app/transactions/66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0" target="_blank" rel="noopener">66167c...cfd0</a></div>
-        </div>
-        <div class="table-row room-data-row">
-          <div class="cell" data-label="Status"><span class="status rejected"><span class="dot" aria-hidden="true"></span>rejected</span></div>
-          <div class="cell" data-label="Recipient role"><strong>Tamper check</strong><div class="muted">Tampered receipt copy</div></div>
-          <div class="cell mono" data-label="Recovered memo">OCK does not match this Orchard action; the receipt is wrong, tampered, or forged</div>
-          <div class="cell mono" data-label="Amount">not opened</div>
-          <div class="cell" data-label="Mainnet tx"><a class="tx-link" href="https://mainnet.zcashexplorer.app/transactions/66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0" target="_blank" rel="noopener">66167c...cfd0</a></div>
-        </div>
+      <div class="gp-feature-grid">
+        <article>
+          <span>01</span>
+          <h3>Selective disclosure</h3>
+          <p>Teams disclose one payout at a time from shielded Zcash, without handing a reviewer a wallet-wide viewing key.</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>Tamper evidence</h3>
+          <p>A wrong OCK or modified receipt fails loudly. The demo board includes a rejected receipt so reviewers see the boundary.</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>Accounting output</h3>
+          <p>The same verified room exports CSV from the browser or `gp-room --csv`, so payout evidence can move into finance tooling.</p>
+        </article>
       </div>
     </section>
 
-    <section class="lower-grid" aria-label="Product details">
-      <div class="panel">
-        <h2>Why teams use it</h2>
-        <p>Glasspane shows chosen payouts, recovered amounts, memos, and tamper results without handing reviewers a wallet-wide viewing key.</p>
+    <section class="gp-section gp-workflow" aria-labelledby="workflow-title">
+      <div class="gp-section-head">
+        <p class="gp-section-label">Verification path</p>
+        <h2 id="workflow-title">From shielded payment to shareable room.</h2>
       </div>
-      <div class="panel">
-        <h2>Local verification</h2>
-        <p>Room reports are generated by the Rust verifier and reproducible locally. Single receipts can also be verified in-browser from receipt JSON and raw transaction hex on the create page.</p>
-        <pre class="terminal"><code>cargo run -p gp-room -- examples/rooms/zechub-demo/room.json --out verified-room.json</code></pre>
+      <div class="gp-steps">
+        <article>
+          <span>1</span>
+          <strong>Issue receipt</strong>
+          <p>The sender discloses the per-output OCK for the selected Zcash output.</p>
+        </article>
+        <article>
+          <span>2</span>
+          <strong>Recover output</strong>
+          <p>`gp-core` recovers the recipient, value, and memo from the raw transaction.</p>
+        </article>
+        <article>
+          <span>3</span>
+          <strong>Publish room</strong>
+          <p>`gp-room` produces a verified room report that renders as a payout board.</p>
+        </article>
       </div>
+      <pre class="gp-terminal"><code>cargo run -p gp-room -- examples/rooms/zechub-demo/room.json --csv payouts.csv --out verified-room.json</code></pre>
     </section>
 
-    <footer>
-      <span id="generated-at">Generated from verified-room.json at 7/1/2026, 6:55:43 PM.</span>
-    </footer>
+    <section class="gp-section gp-cta-band" aria-labelledby="next-title">
+      <div>
+        <p class="gp-section-label">Try it</p>
+        <h2 id="next-title">Start from the live room, then verify a receipt in-browser.</h2>
+      </div>
+      <div class="gp-actions">
+        <a class="gp-button primary" href="/room/zechub-demo">Inspect demo room</a>
+        <a class="gp-button" href="/room/create">Run browser verifier</a>
+        <a class="gp-button" href="https://github.com/dolepee/glasspane">Read the repo</a>
+      </div>
+    </section>
   </main>
+
+  <footer class="gp-footer">
+    <span>Glasspane Rooms for ZecHub Hackathon 3.0, Accounting track.</span>
+    <span>Selected payouts verified. Treasury stays opaque.</span>
+  </footer>
 </div>
 
 <script id="room-data" type="application/json">
@@ -689,58 +266,50 @@
     return tx.slice(0, 6) + "..." + tx.slice(-4);
   }
 
-  function renderRow(item) {
-    const row = document.createElement("div");
-    row.className = "table-row room-data-row";
+  function cell(label, content, className = "") {
+    const td = document.createElement("td");
+    td.setAttribute("data-label", label);
+    if (className) td.className = className;
+    if (content instanceof Node) td.appendChild(content);
+    else td.textContent = content;
+    return td;
+  }
 
-    const statusCell = document.createElement("div");
-    statusCell.className = "cell";
-    statusCell.setAttribute("data-label", "Status");
-    const status = document.createElement("span");
+  function renderRow(item) {
+    const row = document.createElement("tr");
+    row.className = "room-data-row";
+
     const normalizedStatus = statusLabel(item.status);
-    status.className = `status ${normalizedStatus}`;
+    const status = document.createElement("span");
+    status.className = `gp-status ${normalizedStatus}`;
     const dot = document.createElement("span");
-    dot.className = "dot";
+    dot.className = "gp-dot";
     dot.setAttribute("aria-hidden", "true");
     status.append(dot, normalizedStatus);
-    statusCell.appendChild(status);
 
-    const role = document.createElement("div");
-    role.className = "cell";
-    role.setAttribute("data-label", "Recipient role");
+    const role = document.createElement("span");
     const roleName = document.createElement("strong");
     roleName.textContent = item.role || "Recipient";
-    const roleLabel = document.createElement("div");
-    roleLabel.className = "muted";
+    const roleLabel = document.createElement("span");
     roleLabel.textContent = item.label || item.id || "receipt";
     role.append(roleName, roleLabel);
 
-    const memo = document.createElement("div");
-    memo.className = "cell mono";
-    memo.setAttribute("data-label", "Recovered memo");
-    memo.textContent = item.memo || item.error || "No memo disclosed";
-
-    const amount = document.createElement("div");
-    amount.className = "cell mono";
-    amount.setAttribute("data-label", "Amount");
-    amount.textContent = item.amount_zec ? `${item.amount_zec} ZEC` : "not opened";
-
-    const tx = document.createElement("div");
-    tx.className = "cell";
-    tx.setAttribute("data-label", "Mainnet tx");
+    const tx = document.createElement(item.tx_url ? "a" : "span");
+    tx.className = item.tx_url ? "gp-tx" : "muted";
+    tx.textContent = shortTx(item.tx_id);
     if (item.tx_url) {
-      const link = document.createElement("a");
-      link.className = "tx-link";
-      link.href = item.tx_url;
-      link.target = "_blank";
-      link.rel = "noopener";
-      link.textContent = shortTx(item.tx_id);
-      tx.appendChild(link);
-    } else {
-      tx.textContent = "not linked";
+      tx.href = item.tx_url;
+      tx.target = "_blank";
+      tx.rel = "noopener";
     }
 
-    row.append(statusCell, role, memo, amount, tx);
+    row.append(
+      cell("Status", status),
+      cell("Recipient", role),
+      cell("Memo", item.memo || item.error || "No memo disclosed", "mono"),
+      cell("Amount", item.amount_zec ? `${item.amount_zec} ZEC` : "not opened", "mono"),
+      cell("Tx", tx)
+    );
     return row;
   }
 
@@ -787,8 +356,7 @@
     document.getElementById("network").textContent = data.network;
     document.getElementById("privacy-boundary").textContent = data.privacy_boundary;
     document.getElementById("generated-at").textContent = `Generated from verified-room.json at ${new Date(data.generated_at).toLocaleString()}.`;
-    board.querySelectorAll(".table-row:not(.table-head)").forEach(row => row.remove());
-    data.results.forEach(item => board.appendChild(renderRow(item)));
+    board.replaceChildren(...data.results.map(renderRow));
   }
 
   document.getElementById("export-csv").addEventListener("click", () => downloadCsv(currentRoom));

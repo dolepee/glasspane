@@ -7,6 +7,6 @@
   <path d="M15 16h10v8H15z" fill="#101614"/>
   <path d="M17 18h6v4h-6z" fill="#f4b323"/>
   <circle cx="47" cy="20" r="5" fill="#27b263"/>
-  <text x="60" y="25" fill="#ffffff" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="15" font-weight="800">payouts verified</text>
-  <text x="180" y="25" fill="#b8c6c0" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="700">Glasspane</text>
+  <text x="60" y="25" fill="#ffffff" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="800">payouts verified</text>
+  <text x="190" y="25" fill="#b8c6c0" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" font-weight="700">Glasspane</text>
 </svg>

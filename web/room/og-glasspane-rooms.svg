@@ -1,31 +1,67 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
   <title id="title">Glasspane Rooms</title>
-  <desc id="desc">Private payout boards for Zcash teams.</desc>
-  <rect width="1200" height="675" fill="#f6f8f9"/>
-  <path d="M0 0h1200v675H0z" fill="none"/>
-  <g opacity=".55" stroke="#cbd7d2" stroke-width="1">
-    <path d="M0 100h1200M0 200h1200M0 300h1200M0 400h1200M0 500h1200M0 600h1200"/>
-    <path d="M100 0v675M200 0v675M300 0v675M400 0v675M500 0v675M600 0v675M700 0v675M800 0v675M900 0v675M1000 0v675M1100 0v675"/>
+  <desc id="desc">Private payout boards for Zcash teams with selected payouts verified and treasury remainder opaque.</desc>
+  <rect width="1200" height="675" fill="#eef3f2"/>
+  <path d="M0 0h1200v675H0z" fill="#eef3f2"/>
+  <g stroke="#d8e2de" stroke-width="1" opacity=".8">
+    <path d="M0 96h1200M0 192h1200M0 288h1200M0 384h1200M0 480h1200M0 576h1200"/>
+    <path d="M120 0v675M240 0v675M360 0v675M480 0v675M600 0v675M720 0v675M840 0v675M960 0v675M1080 0v675"/>
   </g>
-  <rect x="72" y="72" width="1056" height="531" rx="14" fill="#ffffff" stroke="#d8e0dc" stroke-width="2"/>
-  <rect x="94" y="94" width="74" height="74" rx="14" fill="#f4b323" stroke="#121614" stroke-width="4"/>
-  <rect x="113" y="117" width="36" height="28" fill="#121614"/>
-  <rect x="121" y="125" width="20" height="12" fill="#f4b323"/>
-  <text x="190" y="127" font-family="Arial, sans-serif" font-size="34" font-weight="800" fill="#121614">Glasspane Rooms</text>
-  <text x="190" y="160" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#666154">Private payout boards for Zcash teams</text>
-  <text x="96" y="282" font-family="Arial, sans-serif" font-size="62" font-weight="900" fill="#121614">Private payout boards</text>
-  <text x="96" y="352" font-family="Arial, sans-serif" font-size="62" font-weight="900" fill="#121614">for Zcash teams</text>
-  <text x="98" y="414" font-family="Arial, sans-serif" font-size="27" fill="#3d392f">Selected payouts verified. Treasury stays opaque.</text>
-  <g transform="translate(782 214)">
-    <rect width="270" height="82" rx="14" fill="#e6f4eb" stroke="#167a43" stroke-width="2"/>
-    <circle cx="38" cy="41" r="10" fill="#167a43"/>
-    <text x="64" y="35" font-family="Arial, sans-serif" font-size="18" font-weight="800" fill="#167a43">verified payouts</text>
-    <text x="64" y="62" font-family="Arial, sans-serif" font-size="28" font-weight="900" fill="#167a43">green</text>
-    <rect y="112" width="270" height="82" rx="14" fill="#fae7e3" stroke="#b63324" stroke-width="2"/>
-    <circle cx="38" cy="153" r="10" fill="#b63324"/>
-    <text x="64" y="147" font-family="Arial, sans-serif" font-size="18" font-weight="800" fill="#b63324">tamper rejected</text>
-    <text x="64" y="174" font-family="Arial, sans-serif" font-size="28" font-weight="900" fill="#b63324">red</text>
+
+  <rect x="64" y="58" width="1072" height="559" rx="22" fill="#ffffff" stroke="#bacac4" stroke-width="2"/>
+  <rect x="64" y="58" width="1072" height="84" rx="22" fill="#111713"/>
+  <rect x="64" y="120" width="1072" height="22" fill="#111713"/>
+
+  <g transform="translate(96 82)">
+    <rect width="46" height="46" rx="10" fill="#f4b323"/>
+    <path d="M14 17h18v13H14z" fill="#111713"/>
+    <path d="M19 21h8v5h-8z" fill="#f4b323"/>
+    <text x="62" y="20" font-family="Arial, sans-serif" font-size="24" font-weight="800" fill="#ffffff">Glasspane Rooms</text>
+    <text x="62" y="44" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#b9c6c0">Private payout boards for Zcash teams</text>
   </g>
-  <rect x="96" y="500" width="456" height="54" rx="8" fill="#121614"/>
-  <text x="124" y="535" font-family="Arial, sans-serif" font-size="20" font-weight="800" fill="#ffffff">Rest of treasury: opaque</text>
+
+  <g transform="translate(96 190)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="54" font-weight="900" fill="#111713">Selected payouts verified.</text>
+    <text x="0" y="62" font-family="Arial, sans-serif" font-size="54" font-weight="900" fill="#111713">Treasury stays opaque.</text>
+    <text x="0" y="118" font-family="Arial, sans-serif" font-size="24" fill="#34403b">Recover recipient, amount, and memo for chosen shielded Zcash outputs.</text>
+  </g>
+
+  <g transform="translate(96 380)">
+    <rect width="202" height="72" rx="12" fill="#111713"/>
+    <text x="22" y="31" font-family="Arial, sans-serif" font-size="14" font-weight="900" fill="#b9c6c0">SELECTED DISCLOSED</text>
+    <text x="22" y="57" font-family="Arial, sans-serif" font-size="23" font-weight="900" fill="#ffffff">0.00100000 ZEC</text>
+    <rect x="218" width="134" height="72" rx="12" fill="#e6f5ec" stroke="#b9d9c7"/>
+    <text x="240" y="31" font-family="Arial, sans-serif" font-size="14" font-weight="900" fill="#147a43">VERIFIED</text>
+    <text x="240" y="57" font-family="Arial, sans-serif" font-size="25" font-weight="900" fill="#147a43">1</text>
+    <rect x="368" width="134" height="72" rx="12" fill="#fbe8e5" stroke="#ecc3bd"/>
+    <text x="390" y="31" font-family="Arial, sans-serif" font-size="14" font-weight="900" fill="#b63828">REJECTED</text>
+    <text x="390" y="57" font-family="Arial, sans-serif" font-size="25" font-weight="900" fill="#b63828">1</text>
+  </g>
+
+  <g transform="translate(670 190)">
+    <rect width="390" height="292" rx="16" fill="#f8faf9" stroke="#d8e2de" stroke-width="2"/>
+    <rect width="390" height="54" rx="16" fill="#111713"/>
+    <rect y="34" width="390" height="20" fill="#111713"/>
+    <text x="22" y="34" font-family="Arial, sans-serif" font-size="18" font-weight="900" fill="#ffffff">ZecHub demo room</text>
+
+    <g transform="translate(18 82)">
+      <rect width="354" height="72" rx="10" fill="#ffffff" stroke="#d8e2de"/>
+      <circle cx="28" cy="36" r="8" fill="#147a43"/>
+      <text x="50" y="31" font-family="Arial, sans-serif" font-size="15" font-weight="900" fill="#147a43">verified</text>
+      <text x="50" y="53" font-family="Arial, sans-serif" font-size="14" fill="#60706a">glasspane first receipt</text>
+      <text x="244" y="44" font-family="Arial, sans-serif" font-size="16" font-weight="900" fill="#111713">0.001 ZEC</text>
+
+      <rect y="90" width="354" height="72" rx="10" fill="#ffffff" stroke="#d8e2de"/>
+      <circle cx="28" cy="126" r="8" fill="#b63828"/>
+      <text x="50" y="121" font-family="Arial, sans-serif" font-size="15" font-weight="900" fill="#b63828">rejected</text>
+      <text x="50" y="143" font-family="Arial, sans-serif" font-size="14" fill="#60706a">tamper check failed loudly</text>
+      <text x="244" y="134" font-family="Arial, sans-serif" font-size="16" font-weight="900" fill="#111713">opaque</text>
+
+      <rect y="182" width="354" height="46" rx="10" fill="#e8f0f7" stroke="#bdd0e0"/>
+      <text x="18" y="211" font-family="Arial, sans-serif" font-size="15" font-weight="900" fill="#235d92">CSV export + local Rust verifier</text>
+    </g>
+  </g>
+
+  <rect x="96" y="532" width="392" height="44" rx="8" fill="#111713"/>
+  <text x="119" y="561" font-family="Arial, sans-serif" font-size="18" font-weight="900" fill="#ffffff">No viewing key. No wallet-wide leak.</text>
 </svg>

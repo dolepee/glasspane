@@ -3135,9 +3135,10 @@ body.site h2 {
 .site nav {
   display: flex !important;
   align-items: center !important;
-  justify-content: center !important;
+  justify-content: flex-end !important;
   gap: 16px !important;
   flex-wrap: wrap !important;
+  justify-self: end !important;
 }
 
 .premium-nav a,
@@ -3156,7 +3157,8 @@ body.site h2 {
 
 .premium-nav a:hover,
 .premium-nav a.active,
-.site .nav-link:hover {
+.site .nav-link:hover,
+.site .nav-link.active {
   border-color: rgba(0, 185, 133, 0.24) !important;
   background: rgba(212, 247, 233, 0.88) !important;
   color: var(--premium-ink) !important;

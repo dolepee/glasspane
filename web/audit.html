@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Audit packet - Glasspane Rooms</title>
+<meta name="description" content="A reviewer packet for a Glasspane payout room: room summary, selected receipts, privacy boundary, tamper proof, and export links." />
+<link rel="canonical" href="https://glasspane-iota.vercel.app/audit" />
+<meta property="og:title" content="Glasspane audit packet" />
+<meta property="og:description" content="Submission-ready proof of selected shielded payouts without leaking the wallet graph." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://glasspane-iota.vercel.app/audit" />
+<meta property="og:image" content="https://glasspane-iota.vercel.app/room/og-glasspane-rooms.svg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Glasspane audit packet" />
+<meta name="twitter:description" content="Submission-ready proof of selected shielded payouts without leaking the wallet graph." />
+<meta name="twitter:image" content="https://glasspane-iota.vercel.app/room/og-glasspane-rooms.svg" />
+<meta name="theme-color" content="#06281b" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="/app.css?v=8" />
+</head>
+<body class="premium page-audit">
+<div class="gp-shell premium-shell">
+  <header class="premium-topbar">
+    <a class="gp-brand" href="/" aria-label="Glasspane home">
+      <span class="gp-mark" aria-hidden="true"><span></span></span>
+      <span><strong>Glasspane Rooms</strong><small>Rooms</small></span>
+    </a>
+    <nav class="gp-nav premium-nav" aria-label="Primary">
+      <a href="/">Home</a>
+      <a href="/room/zechub-demo">Live board</a>
+      <a href="/room/create">Create room</a>
+      <a href="/receipt.html">Decoder</a>
+      <a href="/boundary">Boundary</a>
+      <a class="active" href="/audit">Audit</a>
+    </nav>
+    <div class="premium-network" aria-label="Network">
+      <span><span class="gp-dot" aria-hidden="true"></span>mainnet</span>
+      <strong>Zcash</strong>
+    </div>
+  </header>
+
+  <main class="premium-static">
+    <section class="premium-static-hero">
+      <p class="premium-pill"><span class="gp-dot" aria-hidden="true"></span>Reviewer packet</p>
+      <h1>Audit packet for a payout room</h1>
+      <p>Everything a reviewer needs: room summary, selected receipts, privacy boundary, and tamper proof.</p>
+    </section>
+
+    <section class="premium-report" aria-labelledby="report-title">
+      <h2 id="report-title">Glasspane Room Report</h2>
+      <p>ZecHub demo payout room - generated from selected receipts</p>
+      <div class="premium-report-grid">
+        <article>
+          <h3>Room facts</h3>
+          <dl>
+            <div><dt>Network</dt><dd>Zcash mainnet</dd></div>
+            <div><dt>Selected total</dt><dd>0.00100000 ZEC</dd></div>
+            <div><dt>Selected recipients</dt><dd>1</dd></div>
+            <div><dt>Privacy mode</dt><dd>selected-only</dd></div>
+          </dl>
+        </article>
+        <article>
+          <h3>Verification</h3>
+          <dl>
+            <div><dt>Receipt opened</dt><dd>pass</dd></div>
+            <div><dt>Tamper check</dt><dd class="danger">rejected</dd></div>
+            <div><dt>Browser verifier</dt><dd>pass</dd></div>
+            <div><dt>Treasury graph</dt><dd>hidden</dd></div>
+          </dl>
+        </article>
+        <article>
+          <h3>Share packet</h3>
+          <dl>
+            <div><dt>Receiver CSV</dt><dd>ready</dd></div>
+            <div><dt>Public board</dt><dd>ready</dd></div>
+            <div><dt>JSON packet</dt><dd>ready</dd></div>
+            <div><dt>Human summary</dt><dd>ready</dd></div>
+          </dl>
+        </article>
+      </div>
+      <div class="premium-actions">
+        <a class="premium-button primary" href="/room/zechub-demo">Open public board</a>
+        <a class="premium-button" href="/room/create">Run browser verifier</a>
+        <a class="premium-button" href="https://github.com/dolepee/glasspane">Read the repo</a>
+      </div>
+    </section>
+
+    <section class="premium-cta" aria-labelledby="claim-title">
+      <div>
+        <h2 id="claim-title">Submission-ready claim</h2>
+        <p>Glasspane publishes proof of selected shielded payouts without leaking the wallet graph, and rejects tampered receipt packets in the browser.</p>
+      </div>
+      <a class="premium-button primary" href="/room/zechub-demo">Inspect room</a>
+    </section>
+  </main>
+
+  <footer class="premium-footer">
+    <span>Glasspane Rooms for ZecHub Hackathon 3.0, Accounting track.</span>
+    <span>Selected payouts verified. Treasury stays opaque.</span>
+  </footer>
+</div>
+</body>
+</html>

@@ -17,218 +17,135 @@
 <meta name="twitter:description" content="Private payout boards for Zcash teams." />
 <meta name="twitter:image" content="https://glasspane-iota.vercel.app/room/og-glasspane-rooms.svg" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-<link rel="stylesheet" href="/app.css?v=5" />
+<link rel="stylesheet" href="/app.css?v=8" />
 </head>
-<body class="launch page-home concept-workspace">
-<div class="gp-shell workspace-shell">
-  <header class="gp-topbar workspace-topbar">
+<body class="premium page-home">
+<div class="gp-shell premium-shell">
+  <header class="premium-topbar">
     <a class="gp-brand" href="/" aria-label="Glasspane home">
       <span class="gp-mark" aria-hidden="true"><span></span></span>
       <span>
         <strong>Glasspane Rooms</strong>
-        <small>Private payout board</small>
+        <small>Selective payout transparency</small>
       </span>
     </a>
-    <nav class="gp-nav" aria-label="Primary">
+    <nav class="gp-nav premium-nav" aria-label="Primary">
+      <a class="active" href="/">Home</a>
       <a href="/room/zechub-demo">Live board</a>
       <a href="/room/create">Create room</a>
-      <a href="/receipt.html">Receipt utility</a>
-      <a href="https://github.com/dolepee/glasspane">GitHub</a>
+      <a href="/receipt.html">Decoder</a>
+      <a href="/boundary">Boundary</a>
+      <a href="/audit">Audit</a>
     </nav>
+    <div class="premium-network" aria-label="Network">
+      <span><span class="gp-dot" aria-hidden="true"></span>mainnet</span>
+      <strong>Zcash</strong>
+    </div>
   </header>
 
   <main>
-    <section class="workspace-hero" aria-labelledby="hero-title">
-      <div class="workspace-copy">
-        <p class="workspace-eyebrow"><span class="gp-dot" aria-hidden="true"></span>Zcash accounting room</p>
-        <h1 id="hero-title">Private payout boards for teams that cannot leak the wallet.</h1>
-        <p class="workspace-lede">Glasspane lets a Zcash team disclose selected shielded payouts with memo, amount, recipient, tx evidence, CSV export, and tamper checks without publishing a viewing key.</p>
-        <div class="gp-actions">
-          <a class="gp-button primary" href="/room/zechub-demo">Open demo room</a>
-          <a class="gp-button" href="/room/create">Create a room</a>
-          <button class="gp-button" type="button" id="export-csv">Export demo CSV</button>
-        </div>
-        <div class="workspace-proof-row" aria-label="Launch proof">
-          <div><span>Mainnet Orchard</span><strong>real receipt path</strong></div>
-          <div><span>Privacy boundary</span><strong>no wallet key shared</strong></div>
-          <div><span>Verifier behavior</span><strong>tamper fails loudly</strong></div>
+    <section class="premium-home-hero" aria-labelledby="hero-title">
+      <div class="premium-hero-copy">
+        <p class="premium-pill"><span class="gp-dot" aria-hidden="true"></span>Zcash selective transparency</p>
+        <h1 id="hero-title">Show the payout.<br />Hide the wallet.</h1>
+        <p class="premium-lede">Glasspane turns shielded payout rooms into reviewer-safe public boards: selected receipts are visible, tampered exports are rejected, and the treasury graph stays opaque.</p>
+        <div class="premium-actions">
+          <a class="premium-button primary" href="/room/zechub-demo">Open demo room</a>
+          <a class="premium-button" href="/room/create">Create a room</a>
+          <button class="premium-button" type="button" id="export-csv">Export CSV</button>
         </div>
       </div>
 
-      <div class="room-workspace" aria-label="Glasspane payout room preview">
-        <div class="workspace-windowbar">
-          <div>
-            <span class="workspace-window-label">Live room</span>
-            <strong>ZecHub demo payout room</strong>
-          </div>
-          <div class="workspace-window-actions" aria-label="Room status">
-            <span><span class="gp-dot" aria-hidden="true"></span>Verified</span>
-            <span>Mainnet</span>
-          </div>
+      <aside class="premium-live-card" aria-label="Live room preview">
+        <div class="premium-card-head">
+          <span>Live room</span>
+          <strong><span class="gp-dot" aria-hidden="true"></span>verified</strong>
         </div>
-
-        <div class="workspace-grid">
-          <aside class="workspace-sidebar" aria-label="Rooms">
-            <div class="workspace-sidebar-head">
-              <span>Rooms</span>
-              <strong>2</strong>
-            </div>
-            <div class="workspace-room active">
-              <span>ZecHub payouts</span>
-              <strong>Accounting</strong>
-            </div>
-            <div class="workspace-room muted-room">
-              <span>Core contributors</span>
-              <strong>Draft room</strong>
-            </div>
-            <div class="workspace-command">
-              <span>Local verifier</span>
-              <code>gp-room --csv payouts.csv</code>
-            </div>
-          </aside>
-
-          <section class="workspace-board" aria-label="ZecHub demo payout room preview">
-            <div class="workspace-board-head">
-              <div>
-                <span class="gp-console-label">Room summary</span>
-                <div class="gp-summary" id="summary">1 selected shielded payout verified, 1 tampered receipt rejected, rest of treasury opaque.</div>
-              </div>
-              <a class="workspace-small-link" href="/room/zechub-demo">Full board</a>
-            </div>
-
-            <div class="workspace-metrics" aria-label="Room metrics">
-              <div class="primary">
-                <span>Selected disclosed</span>
-                <strong id="total-zec">0.00100000 ZEC</strong>
-              </div>
-              <div>
-                <span>Verified</span>
-                <strong id="verified-count">1</strong>
-              </div>
-              <div>
-                <span>Rejected</span>
-                <strong id="rejected-count">1</strong>
-              </div>
-              <div>
-                <span>Network</span>
-                <strong id="network">mainnet</strong>
-              </div>
-            </div>
-
-            <div class="gp-table-wrap workspace-table-wrap">
-              <table class="gp-table workspace-table" aria-label="Selected payout rows">
-                <thead>
-                  <tr>
-                    <th scope="col">Status</th>
-                    <th scope="col">Recipient</th>
-                    <th scope="col">Memo</th>
-                    <th scope="col">Amount</th>
-                    <th scope="col">Tx</th>
-                  </tr>
-                </thead>
-                <tbody id="board">
-                  <tr class="room-data-row">
-                    <td data-label="Status"><span class="gp-status verified"><span class="gp-dot" aria-hidden="true"></span>verified</span></td>
-                    <td data-label="Recipient"><strong>Demo recipient</strong><span>First verified payout</span></td>
-                    <td data-label="Memo" class="mono">glasspane first receipt</td>
-                    <td data-label="Amount" class="mono">0.00100000 ZEC</td>
-                    <td data-label="Tx"><a class="gp-tx" href="https://mainnet.zcashexplorer.app/transactions/66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0" target="_blank" rel="noopener">66167c...cfd0</a></td>
-                  </tr>
-                  <tr class="room-data-row">
-                    <td data-label="Status"><span class="gp-status rejected"><span class="gp-dot" aria-hidden="true"></span>rejected</span></td>
-                    <td data-label="Recipient"><strong>Tamper check</strong><span>Tampered receipt copy</span></td>
-                    <td data-label="Memo" class="mono">OCK does not match this Orchard action; the receipt is wrong, tampered, or forged</td>
-                    <td data-label="Amount" class="mono">not opened</td>
-                    <td data-label="Tx"><a class="gp-tx" href="https://mainnet.zcashexplorer.app/transactions/66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0" target="_blank" rel="noopener">66167c...cfd0</a></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div id="load-error" class="gp-error" hidden></div>
-          </section>
-
-          <aside class="workspace-inspector" aria-label="Verification inspector">
-            <div class="inspector-block">
-              <span>Verification</span>
-              <strong>Receipt opened</strong>
-              <p>One selected output recovered from raw tx evidence.</p>
-            </div>
-            <div class="inspector-list">
-              <div><span>OCK</span><strong>valid</strong></div>
-              <div><span>Memo</span><strong>recovered</strong></div>
-              <div><span>Tamper copy</span><strong>rejected</strong></div>
-            </div>
-            <div class="inspector-boundary">
-              <span>Privacy boundary</span>
-              <p id="privacy-boundary">Only the selected receipts are disclosed.</p>
-              <small id="generated-at">Generated from verified-room.json at 7/1/2026, 6:55:43 PM.</small>
-            </div>
-          </aside>
+        <h2>ZecHub demo payout room</h2>
+        <div class="premium-total">
+          <span>selected shielded payout</span>
+          <strong id="total-zec">0.00100000 ZEC</strong>
+          <small>only selected amount revealed</small>
         </div>
-      </div>
+        <p id="summary">1 selected shielded payout verified, 1 tampered receipt rejected, rest of treasury opaque.</p>
+        <div class="premium-room-steps" aria-label="Room status">
+          <div><span class="step-dot green"></span><strong>opened</strong><small>board created</small></div>
+          <div><span class="step-dot green"></span><strong id="verified-count">1</strong><small>browser check</small></div>
+          <div><span class="step-dot red"></span><strong id="rejected-count">1</strong><small>tamper caught</small></div>
+          <div><span class="step-dot gold"></span><strong id="network">mainnet</strong><small>treasury hidden</small></div>
+        </div>
+        <div id="load-error" class="gp-error" hidden></div>
+      </aside>
     </section>
 
-    <section class="workspace-boundary" aria-labelledby="why-title">
+    <section class="premium-stat-grid" aria-label="Glasspane room facts">
+      <article>
+        <span>Selected payout</span>
+        <strong>0.00100000 ZEC</strong>
+        <p>one public receipt</p>
+      </article>
+      <article>
+        <span>Tamper check</span>
+        <strong class="danger">1 rejected</strong>
+        <p>changed payload caught</p>
+      </article>
+      <article>
+        <span>Treasury exposure</span>
+        <strong class="gold">opaque</strong>
+        <p>non-selected outputs hidden</p>
+      </article>
+      <article>
+        <span>Browser verifier</span>
+        <strong class="blue">local only</strong>
+        <p>no server trust</p>
+      </article>
+    </section>
+
+    <section class="premium-promise" aria-labelledby="promise-title">
+      <h2 id="promise-title">The Glasspane promise</h2>
       <div>
-        <p class="gp-section-label">Privacy boundary</p>
-        <h2 id="why-title">A board for the payout, not the whole wallet.</h2>
-      </div>
-      <div class="workspace-boundary-grid">
-        <article class="sealed">
-          <span>Sealed</span>
-          <strong>Seed, spending key, OVK, viewing key, balance, other transactions</strong>
-          <p>These stay out of the room.</p>
-        </article>
-        <article class="opened">
-          <span>Opened</span>
-          <strong>One selected output: recipient, amount, memo, tx evidence</strong>
-          <p>This is what the reviewer can verify.</p>
-        </article>
-        <article class="rejected">
-          <span>Rejected</span>
-          <strong>Wrong OCK, wrong tx, or modified receipt</strong>
-          <p>The verifier fails loudly instead of producing a false payout row.</p>
-        </article>
+        <span><strong>1</strong>Select only the receipts you want to disclose</span>
+        <span><strong>2</strong>Publish a receiver-safe proof packet</span>
+        <span><strong>3</strong>Catch tampering in the browser</span>
+        <span><strong>4</strong>Keep non-selected shielded transactions private</span>
       </div>
     </section>
 
-    <section class="workspace-process" aria-labelledby="workflow-title">
-      <p class="gp-section-label">Verification path</p>
-      <h2 id="workflow-title">The room is assembled from evidence, not trust.</h2>
-      <div class="workspace-process-grid">
-        <article>
-          <span>1</span>
-          <strong>Issue receipt</strong>
-          <p>Disclose the per-output OCK for the chosen shielded payment.</p>
-        </article>
-        <article>
-          <span>2</span>
-          <strong>Recover output</strong>
-          <p><code>gp-core</code> recovers recipient, value, and memo from raw tx data.</p>
-        </article>
-        <article>
-          <span>3</span>
-          <strong>Publish room</strong>
-          <p><code>gp-room</code> writes a verified report and optional accounting CSV.</p>
-        </article>
-      </div>
-      <pre class="gp-terminal"><code>cargo run -p gp-room -- examples/rooms/zechub-demo/room.json --csv payouts.csv --out verified-room.json</code></pre>
-    </section>
-
-    <section class="workspace-cta" aria-labelledby="next-title">
+    <section class="premium-board-preview" aria-labelledby="preview-title">
       <div>
-        <p class="gp-section-label">Try it</p>
-        <h2 id="next-title">Open the board, then verify the receipt yourself.</h2>
+        <p class="premium-pill"><span class="gp-dot" aria-hidden="true"></span>Selected payout room</p>
+        <h2 id="preview-title">Receiver-safe proof, not wallet surveillance.</h2>
+        <p id="privacy-boundary">Only the listed receipt outputs are disclosed.</p>
       </div>
-      <div class="gp-actions">
-        <a class="gp-button primary" href="/room/zechub-demo">Inspect demo room</a>
-        <a class="gp-button" href="/room/create">Run browser verifier</a>
-        <a class="gp-button" href="https://github.com/dolepee/glasspane">Read the repo</a>
-      </div>
+      <table class="premium-mini-table" aria-label="Selected payout preview">
+        <thead>
+          <tr><th>Status</th><th>Recipient</th><th>Memo</th><th>Amount</th></tr>
+        </thead>
+        <tbody id="board">
+          <tr class="room-data-row">
+            <td><span class="gp-status verified"><span class="gp-dot" aria-hidden="true"></span>verified</span></td>
+            <td><strong>Demo recipient</strong></td>
+            <td class="mono">glasspane first receipt</td>
+            <td class="mono">0.00100000 ZEC</td>
+          </tr>
+          <tr class="room-data-row">
+            <td><span class="gp-status rejected"><span class="gp-dot" aria-hidden="true"></span>rejected</span></td>
+            <td><strong>Tamper check</strong></td>
+            <td class="mono">payload changed after export</td>
+            <td class="mono">not opened</td>
+          </tr>
+        </tbody>
+      </table>
+      <small id="generated-at">Generated from verified-room.json at 7/1/2026, 6:55:43 PM.</small>
+    </section>
+
+    <section class="premium-cta" aria-labelledby="next-title">
+      <h2 id="next-title">Submission-ready payout transparency for Zcash teams.</h2>
+      <a class="premium-button primary" href="/room/zechub-demo">Inspect the live room</a>
     </section>
   </main>
 
-  <footer class="gp-footer">
+  <footer class="premium-footer">
     <span>Glasspane Rooms for ZecHub Hackathon 3.0, Accounting track.</span>
     <span>Selected payouts verified. Treasury stays opaque.</span>
   </footer>
@@ -327,6 +244,7 @@
     status.append(dot, normalizedStatus);
 
     const role = document.createElement("span");
+    role.className = "premium-recipient-cell";
     const roleName = document.createElement("strong");
     roleName.textContent = item.role || "Recipient";
     const roleLabel = document.createElement("span");

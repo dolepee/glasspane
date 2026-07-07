@@ -25,6 +25,8 @@
   "rewrites": [
     { "source": "/room/zechub-demo", "destination": "/room/zechub-demo.html" },
     { "source": "/room/create", "destination": "/room/create.html" },
+    { "source": "/boundary", "destination": "/boundary.html" },
+    { "source": "/audit", "destination": "/audit.html" },
     { "source": "/r/:payload", "destination": "/receipt" },
     { "source": "/r/:payload*", "destination": "/receipt" }
   ]

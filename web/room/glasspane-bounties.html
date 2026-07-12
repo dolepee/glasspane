@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Glasspane Feedback Bounties - private Zcash payout ledger</title>
-<meta name="description" content="A live, consented feedback bounty ledger. Every published payout is verified while the rest of the wallet stays private." />
-<link rel="canonical" href="https://glasspane-iota.vercel.app/room/glasspane-bounties" />
-<meta property="og:title" content="Glasspane Feedback Bounties" />
+<title>Glasspane Support Transfers - private Zcash payout ledger</title>
+<meta name="description" content="A live ledger of selected wallet setup and coordination support transfers. Every published transfer is verified while the rest of the wallet stays private." />
+<link rel="canonical" href="https://glasspane-iota.vercel.app/room/glasspane-support" />
+<meta property="og:title" content="Glasspane Support Transfers" />
 <meta property="og:description" content="Every published payout is verified while the rest of the wallet stays private." />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://glasspane-iota.vercel.app/room/glasspane-bounties" />
-<meta property="og:image" content="https://glasspane-iota.vercel.app/room/og-glasspane-rooms.svg" />
+<meta property="og:url" content="https://glasspane-iota.vercel.app/room/glasspane-support" />
+<meta property="og:image" content="https://glasspane-iota.vercel.app/room/og-glasspane-rooms.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Glasspane Feedback Bounties" />
-<meta name="twitter:description" content="A private payout ledger for consented bounty disbursements." />
-<meta name="twitter:image" content="https://glasspane-iota.vercel.app/room/og-glasspane-rooms.svg" />
+<meta name="twitter:title" content="Glasspane Support Transfers" />
+<meta name="twitter:description" content="A private payout ledger for selected, consented support transfers." />
+<meta name="twitter:image" content="https://glasspane-iota.vercel.app/room/og-glasspane-rooms.png" />
 <meta name="theme-color" content="#111713" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="stylesheet" href="/app.css?v=8" />
@@ -32,7 +32,7 @@
     <nav class="premium-nav" aria-label="Primary">
       <a href="/room/zechub-demo">Board</a>
       <a href="/room/create">Create</a>
-      <a href="/room/create#browser-verify-title">Verify</a>
+      <a href="/room/create#payouts-title">Verify</a>
       <a href="/audit">Audit</a>
     </nav>
     <div class="premium-network" role="group" aria-label="Network">
@@ -44,8 +44,8 @@
   <main>
     <section class="premium-home-hero" aria-labelledby="title">
       <div class="premium-hero-copy">
-        <p class="premium-pill"><span class="gp-dot" aria-hidden="true"></span>Live bounty ledger</p>
-        <h1 id="title">Glasspane Feedback Bounties</h1>
+        <p class="premium-pill"><span class="gp-dot" aria-hidden="true"></span>Live support ledger</p>
+        <h1 id="title">Glasspane Support Transfers</h1>
         <p class="premium-lede" id="summary">Loading the independently verified payout report.</p>
         <div class="premium-actions">
           <a class="premium-button" href="#payouts">View payout board</a>
@@ -60,7 +60,7 @@
           <span>Live room</span>
           <strong><span class="gp-dot" aria-hidden="true"></span>verified</strong>
         </div>
-        <h2>Glasspane Feedback Bounties</h2>
+        <h2>Glasspane Support Transfers</h2>
         <div class="premium-total">
           <span>selected shielded payout</span>
           <strong id="total-zec">Loading</strong>
@@ -124,7 +124,7 @@
         <div>
           <strong>Embeddable badge</strong>
           <p class="muted">Links back to this room. The room report remains the source of truth.</p>
-          <a class="badge-preview" id="badge-link" href="https://glasspane-iota.vercel.app/room/glasspane-bounties" aria-label="Open the Glasspane verified payout badge link">
+          <a class="badge-preview" id="badge-link" href="https://glasspane-iota.vercel.app/room/glasspane-support" aria-label="Open the Glasspane verified payout badge link">
             <img src="/room/glasspane-badge.svg" alt="payouts verified - Glasspane" width="258" height="40" />
           </a>
         </div>
@@ -162,11 +162,11 @@
 <script id="room-data" type="application/json">
 {
   "version": "0",
-  "title": "Glasspane Feedback Bounties",
-  "purpose": "The books of this feedback bounty program. Every published payout is verified while the rest of the wallet stays private.",
+  "title": "Glasspane Support Transfers",
+  "purpose": "Selected wallet setup and coordination support transfers, verified without exposing the rest of the wallet.",
   "privacy_boundary": "Only the selected payout output below is disclosed: recipient, amount, memo, and transaction reference. The seed, spending key, viewing keys, wallet balance, change output, and other transactions remain private.",
   "network": "mainnet",
-  "generated_at": "2026-07-12T10:41:34.389285Z",
+  "generated_at": "2026-07-12T21:32:19.864893Z",
   "overall_pass": true,
   "verified_count": 1,
   "rejected_count": 0,
@@ -178,8 +178,8 @@
   "results": [
     {
       "id": "community-support-01",
-      "label": "Community support payout",
-      "role": "Community participant",
+      "label": "Wallet setup support transfer",
+      "role": "Community collaborator",
       "expected_outcome": "verified",
       "status": "verified",
       "expected_result_observed": true,
@@ -199,8 +199,8 @@
 }
 </script>
 <script>
-  const roomUrl = "/room/glasspane-bounties.json";
-  const roomHref = "https://glasspane-iota.vercel.app/room/glasspane-bounties";
+  const roomUrl = "/room/glasspane-support.json";
+  const roomHref = "https://glasspane-iota.vercel.app/room/glasspane-support";
   const badgeHref = "https://glasspane-iota.vercel.app/room/glasspane-badge.svg";
   const boardBody = document.getElementById("board-body");
   const summary = document.getElementById("summary");

@@ -16,8 +16,8 @@ verifier, and the wallet remainder stays opaque.
 
 * Website: **https://glasspane-iota.vercel.app/**
 * Rooms board: **https://glasspane-iota.vercel.app/room/zechub-demo**
-* Feedback bounty ledger: **https://glasspane-iota.vercel.app/room/glasspane-bounties**
-* Self-serve renderer: **https://glasspane-iota.vercel.app/room/create**
+* Support-transfer ledger: **https://glasspane-iota.vercel.app/room/glasspane-support**
+* Self-serve room builder: **https://glasspane-iota.vercel.app/room/create**
 * Room schema: [`spec/room.md`](spec/room.md)
 * Receipt format spec: [`spec/receipt.md`](spec/receipt.md)
 * Mainnet receipt tutorial: [`docs/run-a-real-receipt.md`](docs/run-a-real-receipt.md)
@@ -76,12 +76,12 @@ the per-output OCK:
 * Recovered: **0.001 ZEC** to an Orchard address, memo `glasspane first receipt`
 * The rest of the wallet stayed opaque.
 
-The live feedback ledger also contains a confirmed NU6.2 payout:
+The live support-transfer ledger also contains a confirmed NU6.2 transfer:
 
 * Tx: [`9571fcf98f0d7b47ff1dfccc46f7c83412698a44b1aed147ed333800c95fe078`](https://mainnet.zcashexplorer.app/transactions/9571fcf98f0d7b47ff1dfccc46f7c83412698a44b1aed147ed333800c95fe078) (block 3,409,633)
 * Recovered: **0.0002 ZEC**, memo `glasspane community support 01`
 * Receipt: [`community-support-01.json`](examples/rooms/glasspane-bounties/receipts/community-support-01.json)
-* Board: [`/room/glasspane-bounties`](https://glasspane-iota.vercel.app/room/glasspane-bounties)
+* Board: [`/room/glasspane-support`](https://glasspane-iota.vercel.app/room/glasspane-support)
 
 Reproduce it from a fresh clone in one command (offline, using the bundled raw tx):
 
@@ -103,8 +103,8 @@ Production-shape v0 across the receipt primitive and room verifier.
 | `gp-room`: verify a payout room from receipts + raw tx files | shipped |
 | Room schema and example mainnet room | shipped |
 | Live Rooms board `/room/zechub-demo` | shipped |
-| Honest zero-to-many feedback bounty ledger | shipped with a confirmed, consented mainnet payout |
-| Self-serve room renderer `/room/create` | shipped |
+| Honest support-transfer ledger | shipped with a confirmed, consented mainnet transfer |
+| Self-serve room builder `/room/create` | shipped with multi-payout WASM verification, safe sharing, and replayable ZIP export |
 | CSV export for accounting tools | shipped in room UI and `gp-room --csv` |
 | Embeddable verified-payout badge | shipped on room pages |
 | Receipt URL form (`https://host/r/<base64url>`) | shipped |
@@ -155,9 +155,9 @@ paste a `verified-room.json` into
 [`/room/create`](https://glasspane-iota.vercel.app/room/create).
 
 The separate
-[`/room/glasspane-bounties`](https://glasspane-iota.vercel.app/room/glasspane-bounties)
-ledger publishes only real, consented feedback payouts and now contains its
-first verified mainnet row. The Windows-friendly append flow is documented in
+[`/room/glasspane-support`](https://glasspane-iota.vercel.app/room/glasspane-support)
+ledger publishes only real, consented support transfers and now contains its
+first verified mainnet row. The Windows-friendly receipt flow is documented in
 [`docs/publish-a-feedback-bounty.md`](docs/publish-a-feedback-bounty.md).
 
 ### 3. Issue a receipt for a shielded payment you sent
@@ -260,7 +260,7 @@ glasspane/
 │   ├── room/
 │   │   ├── zechub-demo.html   # Rooms board
 │   │   ├── zechub-demo.json   # Public room report
-│   │   └── create.html        # Self-serve room renderer
+│   │   └── create.html        # Self-serve verified room builder
 │   └── wasm/                  # Browser verifier bundle generated from gp-wasm
 └── .github/workflows/
     └── ci.yml        # fmt + clippy + tests on every push

@@ -3,508 +3,240 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Create a Glasspane Room</title>
-<meta name="description" content="Render a Glasspane verified-room.json report or verify a single receipt and raw Zcash transaction in the browser." />
+<title>Build a private payout room | Glasspane</title>
+<meta name="description" content="Create a verified Zcash payout room in your browser. Verify selected shielded receipts with Glasspane WASM, preview the board, and export a replayable proof packet." />
 <link rel="canonical" href="https://glasspane-iota.vercel.app/room/create" />
-<meta property="og:title" content="Create a Glasspane Room" />
-<meta property="og:description" content="Render a private Zcash payout board or run a local browser receipt verification." />
+<meta property="og:title" content="Build a private payout room | Glasspane" />
+<meta property="og:description" content="Verify selected Zcash payouts locally, assemble a public proof board, and export a replayable room packet." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://glasspane-iota.vercel.app/room/create" />
-<meta property="og:image" content="https://glasspane-iota.vercel.app/room/og-glasspane-rooms.svg" />
+<meta property="og:image" content="https://glasspane-iota.vercel.app/room/og-glasspane-rooms.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Create a Glasspane Room" />
-<meta name="twitter:description" content="Render a private Zcash payout board or run a local browser receipt verification." />
-<meta name="twitter:image" content="https://glasspane-iota.vercel.app/room/og-glasspane-rooms.svg" />
+<meta name="twitter:title" content="Build a private payout room | Glasspane" />
+<meta name="twitter:description" content="A local-first room builder for selective Zcash payout transparency." />
+<meta name="twitter:image" content="https://glasspane-iota.vercel.app/room/og-glasspane-rooms.png" />
 <meta name="theme-color" content="#111713" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-<link rel="stylesheet" href="/app.css?v=8" />
+<link rel="stylesheet" href="/app.css?v=9" />
 </head>
-<body class="site premium page-create">
+<body class="site premium page-create page-room-builder">
 <div class="gp-shell premium-shell">
   <header class="premium-topbar">
     <a class="gp-brand" href="/" aria-label="Glasspane home">
       <span class="gp-mark" aria-hidden="true"><span></span></span>
       <span>
         <strong>Glasspane Rooms</strong>
-        <small>Rooms</small>
+        <small>Selective payout transparency</small>
       </span>
     </a>
     <nav class="premium-nav" aria-label="Primary">
       <a href="/room/zechub-demo">Board</a>
-      <a class="nav-link active" href="/room/create">Create</a>
-      <a href="/room/create#browser-verify-title">Verify</a>
-      <a class="nav-link" href="/audit">Audit</a>
+      <a class="active" href="/room/create">Create</a>
+      <a href="#payouts-title">Verify</a>
+      <a href="/audit">Audit</a>
     </nav>
-    <div class="premium-network" aria-label="Network">
-      <span><span class="gp-dot" aria-hidden="true"></span>mainnet</span>
+    <div class="premium-network" aria-label="Network status">
+      <span><span class="gp-dot" aria-hidden="true"></span>local-first</span>
       <strong>Zcash</strong>
     </div>
   </header>
 
   <main>
-    <section class="hero">
-      <div class="intro">
-        <span class="eyebrow"><span class="gp-dot" aria-hidden="true"></span>Browser verifier + room renderer</span>
-        <h1>Create a payout room</h1>
-        <p class="lede">Run `gp-room` on your receipts and raw Zcash transactions, then render the verified report as a shareable payout board. For a single receipt, the browser can fetch the public raw tx and verify locally with Glasspane WASM.</p>
-        <pre class="command"><code>cargo run -p gp-room -- path/to/room.json --out verified-room.json</code></pre>
+    <section class="builder-hero" aria-labelledby="builder-title">
+      <div>
+        <p class="premium-pill"><span class="gp-dot" aria-hidden="true"></span>Room builder</p>
+        <h1 id="builder-title">Build the board.<br />Keep the wallet closed.</h1>
+        <p class="premium-lede">Turn selected shielded receipts into a verified payout room. Recovery runs locally with Glasspane WASM; only the finished disclosures enter the share link.</p>
       </div>
-
-      <form class="tool" id="room-form">
-        <label for="room-json">verified-room.json</label>
-        <textarea id="room-json" spellcheck="false" autocomplete="off" placeholder="{ &quot;version&quot;: &quot;0&quot;, &quot;title&quot;: &quot;...&quot;, &quot;results&quot;: [...] }"></textarea>
-        <div class="file-drop" id="file-drop">
-          <span>Drop a verified-room.json file here, or choose one from disk.</span>
-        <label for="room-file">Upload verified-room.json</label>
-          <input id="room-file" type="file" accept="application/json,.json" />
-        </div>
-        <div class="actions">
-          <button class="premium-button primary" type="submit">Render room</button>
-          <button class="premium-button secondary" type="button" id="load-example">Load example</button>
-          <button class="premium-button secondary" type="button" id="copy-link">Copy share link</button>
-          <button class="premium-button secondary" type="button" id="download-json">Download JSON</button>
-          <button class="premium-button secondary" type="button" id="download-csv">Export CSV</button>
-        </div>
-        <div class="message" id="message">Paste, upload, or load the ZecHub demo report.</div>
-      </form>
+      <div class="builder-proof-line" aria-label="Builder guarantees">
+        <span><strong>01</strong>No wallet keys</span>
+        <span><strong>02</strong>Local verification</span>
+        <span><strong>03</strong>Replayable export</span>
+      </div>
     </section>
 
-    <section class="section verification-grid" aria-labelledby="browser-verify-title">
-      <div class="intro browser-copy">
-        <span class="eyebrow"><span class="gp-dot" aria-hidden="true"></span>WASM recovery path</span>
-        <h2 id="browser-verify-title">Verify in this browser</h2>
-        <p class="lede">The browser path recovers the disclosed Orchard or Sapling output from a Glasspane receipt and raw Zcash transaction hex. It can fetch the public raw tx for you, and it never asks for a seed, spending key, outgoing viewing key, or wallet-wide viewing key.</p>
-        <div class="trust-list" aria-label="Browser verification boundaries">
-          <div class="trust-item"><span>Verifier</span><strong>gp-core via WASM</strong></div>
-          <div class="trust-item"><span>Raw tx source</span><strong>Glasspane API or paste fallback</strong></div>
-          <div class="trust-item"><span>Room publishing</span><strong>Rust gp-room report</strong></div>
-        </div>
-      </div>
+    <div class="builder-layout">
+      <form class="builder-workspace" id="builder-form" novalidate>
+        <section class="builder-step" id="room-details" aria-labelledby="room-details-title">
+          <header class="builder-step-head">
+            <span class="builder-step-number" aria-hidden="true">01</span>
+            <div>
+              <p>Room identity</p>
+              <h2 id="room-details-title">Define the public board</h2>
+            </div>
+            <span class="builder-step-state" id="details-state">Required</span>
+          </header>
 
-      <form class="tool" id="wasm-form">
-        <div class="verify-inputs">
-          <div>
-            <label for="wasm-receipt">receipt JSON or /r/ URL</label>
-            <textarea id="wasm-receipt" spellcheck="false" autocomplete="off" aria-describedby="wasm-message" placeholder="{ &quot;version&quot;: &quot;0&quot;, &quot;network&quot;: &quot;mainnet&quot;, ... }"></textarea>
+          <div class="builder-field-grid">
+            <div class="builder-field builder-field-wide">
+              <label for="room-title">Room title</label>
+              <input id="room-title" name="room-title" type="text" maxlength="80" required aria-describedby="room-title-help" placeholder="Contributor support payouts" />
+              <small id="room-title-help">The public name shown at the top of the board.</small>
+            </div>
+            <div class="builder-field">
+              <label for="room-network">Zcash network</label>
+              <select id="room-network" name="room-network" required>
+                <option value="mainnet">Mainnet</option>
+                <option value="testnet">Testnet</option>
+                <option value="regtest">Regtest</option>
+              </select>
+            </div>
+            <div class="builder-field builder-field-wide">
+              <label for="room-purpose">Purpose</label>
+              <textarea id="room-purpose" name="room-purpose" maxlength="240" required aria-describedby="room-purpose-help" placeholder="Selected support transfers published for accountable coordination."></textarea>
+              <small id="room-purpose-help">State why these specific payouts are being disclosed.</small>
+            </div>
+            <div class="builder-field builder-field-wide">
+              <label for="privacy-boundary">Privacy boundary</label>
+              <textarea id="privacy-boundary" name="privacy-boundary" maxlength="360" required aria-describedby="privacy-boundary-help">Only the selected payout outputs are disclosed: recipient, amount, memo, and transaction reference. Wallet keys, balance, change outputs, and unrelated transactions remain private.</textarea>
+              <small id="privacy-boundary-help">This statement travels with the verified room.</small>
+            </div>
           </div>
-          <div>
-            <label for="wasm-rawtx">raw transaction hex</label>
-            <textarea id="wasm-rawtx" spellcheck="false" autocomplete="off" aria-describedby="wasm-message" placeholder="Click Fetch raw tx, or paste 050000800a27a726..."></textarea>
+        </section>
+
+        <section class="builder-step" id="payouts" aria-labelledby="payouts-title">
+          <header class="builder-step-head">
+            <span class="builder-step-number" aria-hidden="true">02</span>
+            <div>
+              <p>Selected disclosure</p>
+              <h2 id="payouts-title">Add and verify payouts</h2>
+            </div>
+            <span class="builder-step-state" id="payouts-state">0 verified</span>
+          </header>
+
+          <div class="payout-list" id="payout-list" aria-live="polite"></div>
+          <div class="builder-row-actions">
+            <button class="premium-button secondary" type="button" id="add-payout">Add payout</button>
+            <button class="premium-button secondary" type="button" id="load-support-example">Load live support transfer</button>
           </div>
-        </div>
-        <div class="actions">
-          <button class="premium-button secondary" type="button" id="fetch-rawtx">Fetch raw tx</button>
-          <button class="premium-button primary" type="submit">Verify in browser</button>
-          <button class="premium-button secondary" type="button" id="load-wasm-demo">Load demo inputs</button>
-        </div>
-        <div class="message" id="wasm-message" role="status" aria-live="polite">Ready for receipt + raw transaction verification.</div>
-        <div class="wasm-result" id="wasm-result" hidden></div>
+          <div class="message" id="builder-message" role="status" aria-live="polite">Room details and verified payouts remain in this browser until you export or share them.</div>
+        </section>
+
+        <section class="builder-step" id="finish-room" aria-labelledby="finish-title">
+          <header class="builder-step-head">
+            <span class="builder-step-number" aria-hidden="true">03</span>
+            <div>
+              <p>Board output</p>
+              <h2 id="finish-title">Review and package the room</h2>
+            </div>
+            <span class="builder-step-state" id="finish-state">Not built</span>
+          </header>
+
+          <div class="builder-output-actions">
+            <button class="premium-button primary" type="submit" id="build-room">Build verified room</button>
+            <button class="premium-button secondary" type="button" id="copy-share-link" disabled>Copy private-safe link</button>
+            <button class="premium-button secondary" type="button" id="download-packet" disabled>Download proof packet</button>
+            <button class="premium-button secondary" type="button" id="download-json" disabled>Download board JSON</button>
+            <button class="premium-button secondary" type="button" id="download-csv" disabled>Export CSV</button>
+          </div>
+
+          <details class="builder-import">
+            <summary>Render an existing verified-room.json</summary>
+            <div>
+              <label class="premium-button secondary" for="room-file">Choose verified report</label>
+              <input id="room-file" type="file" accept="application/json,.json" />
+              <span id="import-file-name">No file selected</span>
+            </div>
+          </details>
+        </section>
       </form>
-    </section>
 
-    <section class="section" aria-labelledby="preview-title">
-      <div class="section-title">
-        <h2 id="preview-title">Room preview</h2>
-      </div>
-      <div class="stats" id="stats" hidden></div>
-      <div class="board" id="board" hidden>
-        <div class="board-title">Rendered room preview</div>
-        <div class="row head" aria-hidden="true">
-          <div class="cell">Status</div>
-          <div class="cell">Recipient role</div>
-          <div class="cell">Recovered memo</div>
-          <div class="cell">Amount</div>
-          <div class="cell">Tx</div>
+      <aside class="builder-sidebar" aria-label="Room readiness">
+        <div class="builder-readiness">
+          <div class="builder-readiness-head">
+            <span>Room readiness</span>
+            <strong id="readiness-score">0%</strong>
+          </div>
+          <div class="builder-meter" aria-hidden="true"><span id="readiness-bar"></span></div>
+          <dl>
+            <div><dt>Room details</dt><dd id="readiness-details">waiting</dd></div>
+            <div><dt>Selected payouts</dt><dd id="readiness-payouts">0</dd></div>
+            <div><dt>Verified locally</dt><dd id="readiness-verified">0</dd></div>
+            <div><dt>Shared wallet data</dt><dd>none</dd></div>
+          </dl>
         </div>
+        <div class="builder-boundary">
+          <span class="builder-boundary-icon" aria-hidden="true"></span>
+          <strong>The share link excludes receipts and OCKs.</strong>
+          <p>The downloadable replay packet contains the disclosure files you supplied. Treat that packet like a public receipt.</p>
+        </div>
+      </aside>
+    </div>
+
+    <section class="builder-preview" id="room-preview" aria-labelledby="preview-title" hidden>
+      <div class="builder-preview-head">
+        <div>
+          <p class="premium-pill"><span class="gp-dot" aria-hidden="true"></span>Verified room</p>
+          <h2 id="preview-title">Board preview</h2>
+          <p id="preview-purpose"></p>
+        </div>
+        <div class="builder-preview-total">
+          <span>Selected total</span>
+          <strong id="preview-total">0.00000000 ZEC</strong>
+          <small id="preview-summary">0 verified payouts</small>
+        </div>
+      </div>
+      <div class="builder-preview-table-wrap">
+        <table class="premium-mini-table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Recipient role</th>
+              <th>Recovered memo</th>
+              <th>Amount</th>
+              <th>Transaction</th>
+            </tr>
+          </thead>
+          <tbody id="preview-body"></tbody>
+        </table>
       </div>
     </section>
   </main>
+
+  <footer class="premium-footer">
+    <span>Glasspane Rooms v0</span>
+    <span>Selected payouts verified. Treasury stays opaque.</span>
+  </footer>
 </div>
 
-<script>
-  const input = document.getElementById("room-json");
-  const form = document.getElementById("room-form");
-  const message = document.getElementById("message");
-  const stats = document.getElementById("stats");
-  const board = document.getElementById("board");
-  const fileDrop = document.getElementById("file-drop");
-  const fileInput = document.getElementById("room-file");
-  const copyLinkButton = document.getElementById("copy-link");
-  const wasmForm = document.getElementById("wasm-form");
-  const wasmReceipt = document.getElementById("wasm-receipt");
-  const wasmRawTx = document.getElementById("wasm-rawtx");
-  const wasmMessage = document.getElementById("wasm-message");
-  const wasmResult = document.getElementById("wasm-result");
-  const fetchRawTxButton = document.getElementById("fetch-rawtx");
-  let wasmModulePromise;
-  let currentRoom;
+<template id="payout-template">
+  <article class="payout-editor">
+    <header>
+      <div>
+        <span class="payout-index">Payout 01</span>
+        <strong class="payout-heading">Unverified receipt</strong>
+      </div>
+      <button class="payout-remove" type="button" aria-label="Remove payout">Remove</button>
+    </header>
+    <div class="payout-meta-grid">
+      <div class="builder-field">
+        <label>Public label</label>
+        <input class="payout-label" type="text" maxlength="80" required placeholder="Wallet setup support transfer" />
+      </div>
+      <div class="builder-field">
+        <label>Recipient role</label>
+        <input class="payout-role" type="text" maxlength="80" required placeholder="Community collaborator" />
+      </div>
+    </div>
+    <div class="payout-proof-grid">
+      <div class="builder-field">
+        <label>Glasspane receipt JSON or /r/ URL</label>
+        <textarea class="payout-receipt" spellcheck="false" required placeholder="Paste the receipt JSON or Glasspane receipt URL"></textarea>
+      </div>
+      <div class="builder-field">
+        <label>Raw Zcash transaction hex</label>
+        <textarea class="payout-raw" spellcheck="false" required placeholder="Fetch from the receipt txid or paste raw transaction hex"></textarea>
+      </div>
+    </div>
+    <div class="payout-actions">
+      <button class="premium-button secondary payout-fetch" type="button">Fetch raw transaction</button>
+      <button class="premium-button primary payout-verify" type="button">Verify payout</button>
+      <span class="payout-status" role="status" aria-live="polite">Waiting for receipt</span>
+    </div>
+    <div class="payout-result" hidden></div>
+  </article>
+</template>
 
-  function setMessage(text, isError = false) {
-    message.textContent = text;
-    message.className = isError ? "message err" : "message";
-  }
-
-  function setWasmMessage(text, state = "", invalidFields = []) {
-    wasmMessage.textContent = text;
-    wasmMessage.className = state ? `message ${state}` : "message";
-    wasmReceipt.removeAttribute("aria-invalid");
-    wasmRawTx.removeAttribute("aria-invalid");
-    for (const field of invalidFields) field.setAttribute("aria-invalid", "true");
-  }
-
-  function toBase64Url(text) {
-    const bytes = new TextEncoder().encode(text);
-    let binary = "";
-    for (const byte of bytes) binary += String.fromCharCode(byte);
-    return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-  }
-
-  function fromBase64Url(encoded) {
-    let normalized = encoded.replace(/-/g, "+").replace(/_/g, "/");
-    while (normalized.length % 4) normalized += "=";
-    const binary = atob(normalized);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-    return new TextDecoder("utf-8").decode(bytes);
-  }
-
-  function parseRoomJson(text) {
-    const data = JSON.parse(text);
-    if (!data || data.version !== "0" || !Array.isArray(data.results)) {
-      throw new Error("not a Glasspane verified-room.json report");
-    }
-    return data;
-  }
-
-  function parseReceiptInput(text) {
-    const trimmed = text.trim();
-    if (!trimmed) throw new Error("receipt input is empty");
-    const rawJson = trimmed.startsWith("{")
-      ? trimmed
-      : fromBase64Url((trimmed.includes("/r/") ? trimmed.split("/r/").pop() : trimmed).split(/[?#]/)[0]);
-    const receipt = JSON.parse(rawJson);
-    if (!receipt || receipt.version !== "0") throw new Error("not a Glasspane v0 receipt");
-    if (!/^[0-9a-f]{64}$/i.test(receipt.tx_id || "")) throw new Error("receipt tx_id must be 64 hex characters");
-    return receipt;
-  }
-
-  function loadRoomText(text, successMessage) {
-    const data = parseRoomJson(text);
-    input.value = JSON.stringify(data, null, 2);
-    render(data);
-    if (successMessage) setMessage(successMessage);
-  }
-
-  function shortTx(tx) {
-    if (!tx) return "tx";
-    return tx.slice(0, 6) + "..." + tx.slice(-4);
-  }
-
-  function cell(label, content, className = "") {
-    const div = document.createElement("div");
-    div.className = `cell ${className}`.trim();
-    div.setAttribute("data-label", label);
-    if (content instanceof Node) div.appendChild(content);
-    else div.textContent = content;
-    return div;
-  }
-
-  function stat(value, label) {
-    const item = document.createElement("div");
-    item.className = "stat";
-    const strong = document.createElement("strong");
-    strong.textContent = value;
-    const span = document.createElement("span");
-    span.textContent = label;
-    item.append(strong, span);
-    return item;
-  }
-
-  function csvEscape(value) {
-    const text = value == null ? "" : String(value);
-    return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
-  }
-
-  function roomToCsv(data) {
-    const header = ["status", "recipient", "memo", "amount ZEC", "tx id", "verified-at"];
-    const rows = data.results.map(item => [
-      item.status || "",
-      item.recipient || "",
-      item.memo || item.error || "",
-      item.amount_zec || "",
-      item.tx_id || "",
-      data.generated_at || "",
-    ]);
-    return [header, ...rows].map(row => row.map(csvEscape).join(",")).join("\n") + "\n";
-  }
-
-  function slugify(value) {
-    return String(value || "glasspane-room").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "glasspane-room";
-  }
-
-  function downloadText(filename, text, type) {
-    const blob = new Blob([text], { type });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    link.click();
-    URL.revokeObjectURL(url);
-  }
-
-  function resultItem(label, value) {
-    const item = document.createElement("div");
-    item.className = "result-kv";
-    const key = document.createElement("span");
-    key.textContent = label;
-    const val = document.createElement("strong");
-    val.textContent = value || "-";
-    item.append(key, val);
-    return item;
-  }
-
-  function renderWasmResult(result) {
-    const header = document.createElement("div");
-    header.className = "result-header";
-    const title = document.createElement("span");
-    title.textContent = "Output recovered";
-    const badge = document.createElement("span");
-    badge.className = "status verified";
-    const dot = document.createElement("span");
-    dot.className = "gp-dot";
-    dot.setAttribute("aria-hidden", "true");
-    badge.append(dot, "verified");
-    header.append(title, badge);
-
-    const grid = document.createElement("div");
-    grid.className = "result-grid";
-    grid.append(
-      resultItem("Amount", `${result.amount_zec} ZEC`),
-      resultItem("Memo", result.memo),
-      resultItem("Recipient", result.recipient),
-      resultItem("Tx", result.tx_id),
-      resultItem("Pool", result.pool),
-      resultItem("Verifier", result.verifier)
-    );
-
-    wasmResult.replaceChildren(header, grid);
-    wasmResult.hidden = false;
-  }
-
-  async function loadWasmModule() {
-    if (!wasmModulePromise) {
-      wasmModulePromise = import("/wasm/gp_wasm.js").then(async module => {
-        await module.default();
-        return module;
-      });
-    }
-    return wasmModulePromise;
-  }
-
-  function render(data) {
-    parseRoomJson(JSON.stringify(data));
-    currentRoom = data;
-
-    stats.hidden = false;
-    stats.replaceChildren(
-      stat(data.total_zec || "0.00000000", "ZEC disclosed"),
-      stat(data.verified_count ?? 0, "verified"),
-      stat(data.rejected_count ?? 0, "rejected"),
-      stat(data.network || "unknown", "network")
-    );
-
-    board.hidden = false;
-    board.querySelectorAll(".row:not(.head)").forEach(row => row.remove());
-    for (const item of data.results) {
-      const row = document.createElement("div");
-      row.className = "row room-data-row";
-
-      const itemStatus = item.status === "verified" ? "verified" : "rejected";
-      const status = document.createElement("span");
-      status.className = `status ${itemStatus}`;
-      const dot = document.createElement("span");
-      dot.className = "gp-dot";
-      dot.setAttribute("aria-hidden", "true");
-      status.append(dot, itemStatus);
-
-      const tx = item.tx_url ? document.createElement("a") : document.createElement("span");
-      tx.className = item.tx_url ? "tx-link" : "muted";
-      tx.textContent = shortTx(item.tx_id);
-      if (item.tx_url) {
-        tx.href = item.tx_url;
-        tx.target = "_blank";
-        tx.rel = "noopener";
-      }
-
-      row.append(
-        cell("Status", status),
-        cell("Recipient role", `${item.role || "Recipient"} - ${item.label || item.id || "receipt"}`),
-        cell("Recovered memo", item.memo || item.error || "No memo disclosed", "mono"),
-        cell("Amount", item.amount_zec ? `${item.amount_zec} ZEC` : "not opened", "mono"),
-        cell("Tx", tx)
-      );
-      board.appendChild(row);
-    }
-    setMessage(`${data.title || "Room"} rendered from verified-room.json.`);
-  }
-
-  form.addEventListener("submit", event => {
-    event.preventDefault();
-    try {
-      loadRoomText(input.value, "Room rendered from verified-room.json.");
-    } catch (err) {
-      setMessage(err.message, true);
-    }
-  });
-
-  wasmForm.addEventListener("submit", async event => {
-    event.preventDefault();
-    wasmResult.hidden = true;
-    setWasmMessage("Running browser verification...");
-    try {
-      const module = await loadWasmModule();
-      const raw = module.verify_receipt_with_raw_tx(wasmReceipt.value, wasmRawTx.value);
-      const result = JSON.parse(raw);
-      renderWasmResult(result);
-      setWasmMessage("Receipt verified locally in the browser.", "ok");
-    } catch (err) {
-      setWasmMessage(err.message || String(err), "err", [wasmReceipt, wasmRawTx]);
-    }
-  });
-
-  fetchRawTxButton.addEventListener("click", async () => {
-    wasmResult.hidden = true;
-    setWasmMessage("Fetching public raw transaction...");
-    try {
-      const receipt = parseReceiptInput(wasmReceipt.value);
-      if (receipt.network !== "mainnet") {
-        throw new Error("raw tx fetch currently supports mainnet receipts only");
-      }
-      const response = await fetch(`/api/raw-tx?network=${encodeURIComponent(receipt.network)}&txid=${encodeURIComponent(receipt.tx_id)}`);
-      const body = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(body.error || "raw tx fetch failed");
-      wasmRawTx.value = body.raw_tx_hex;
-      setWasmMessage(`Raw transaction fetched from ${body.source}. Verify locally when ready.`, "ok");
-    } catch (err) {
-      setWasmMessage(err.message || String(err), "err", [wasmReceipt]);
-    }
-  });
-
-  document.getElementById("load-wasm-demo").addEventListener("click", async () => {
-    wasmResult.hidden = true;
-    setWasmMessage("Loading demo verification inputs...");
-    try {
-      const [receiptResponse, rawTxResponse] = await Promise.all([
-        fetch("/room/demo-receipt.json"),
-        fetch("/room/demo-tx.hex"),
-      ]);
-      if (!receiptResponse.ok) throw new Error("could not load demo receipt");
-      if (!rawTxResponse.ok) throw new Error("could not load demo transaction");
-      wasmReceipt.value = await receiptResponse.text();
-      wasmRawTx.value = await rawTxResponse.text();
-      setWasmMessage("Demo receipt and raw transaction loaded.");
-    } catch (err) {
-      setWasmMessage(err.message, "err");
-    }
-  });
-
-  document.getElementById("load-example").addEventListener("click", async () => {
-    try {
-      const response = await fetch("/room/zechub-demo.json");
-      if (!response.ok) throw new Error("could not load example room");
-      const text = await response.text();
-      loadRoomText(text, "ZecHub demo room loaded.");
-    } catch (err) {
-      setMessage(err.message, true);
-    }
-  });
-
-  copyLinkButton.addEventListener("click", async () => {
-    try {
-      const data = parseRoomJson(input.value);
-      const payload = toBase64Url(JSON.stringify(data));
-      const url = `${window.location.origin}${window.location.pathname}#room=${payload}`;
-      window.history.replaceState(null, "", `#room=${payload}`);
-
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(url);
-      } else {
-        const scratch = document.createElement("textarea");
-        scratch.value = url;
-        scratch.setAttribute("readonly", "");
-        scratch.style.position = "fixed";
-        scratch.style.left = "-9999px";
-        document.body.appendChild(scratch);
-        scratch.select();
-        document.execCommand("copy");
-        scratch.remove();
-      }
-      setMessage("Share link copied. The report data stays inside the URL hash.");
-    } catch (err) {
-      setMessage(err.message, true);
-    }
-  });
-
-  async function loadFile(file) {
-    if (!file) return;
-    try {
-      const text = await file.text();
-      loadRoomText(text, `${file.name} rendered.`);
-    } catch (err) {
-      setMessage(err.message, true);
-    }
-  }
-
-  fileInput.addEventListener("change", () => loadFile(fileInput.files[0]));
-
-  ["dragenter", "dragover"].forEach(type => {
-    fileDrop.addEventListener(type, event => {
-      event.preventDefault();
-      fileDrop.classList.add("is-dragging");
-    });
-  });
-
-  ["dragleave", "drop"].forEach(type => {
-    fileDrop.addEventListener(type, event => {
-      event.preventDefault();
-      fileDrop.classList.remove("is-dragging");
-    });
-  });
-
-  fileDrop.addEventListener("drop", event => {
-    loadFile(event.dataTransfer.files[0]);
-  });
-
-  document.getElementById("download-json").addEventListener("click", () => {
-    try {
-      const parsed = JSON.parse(input.value);
-      downloadText("verified-room.json", JSON.stringify(parsed, null, 2), "application/json");
-      setMessage("verified-room.json download prepared.");
-    } catch (err) {
-      setMessage(err.message, true);
-    }
-  });
-
-  document.getElementById("download-csv").addEventListener("click", () => {
-    try {
-      const data = parseRoomJson(input.value);
-      downloadText(`${slugify(data.title)}.csv`, roomToCsv(data), "text/csv;charset=utf-8");
-      setMessage("CSV export prepared.");
-    } catch (err) {
-      setMessage(err.message, true);
-    }
-  });
-
-  (function autoLoadSharedRoom() {
-    const params = new URLSearchParams(window.location.hash.slice(1));
-    const roomPayload = params.get("room");
-    if (!roomPayload) return;
-    try {
-      loadRoomText(fromBase64Url(roomPayload), "Room loaded from share link.");
-    } catch (err) {
-      setMessage(err.message, true);
-    }
-  })();
-</script>
+<script type="module" src="/room/create.js"></script>
 </body>
 </html>

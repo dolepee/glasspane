@@ -1,10 +1,10 @@
 {
   "version": "0",
-  "title": "Glasspane Feedback Bounties",
-  "purpose": "The books of this feedback bounty program. Every published payout is verified while the rest of the wallet stays private.",
+  "title": "Glasspane Support Transfers",
+  "purpose": "Selected wallet setup and coordination support transfers, verified without exposing the rest of the wallet.",
   "privacy_boundary": "Only the selected payout output below is disclosed: recipient, amount, memo, and transaction reference. The seed, spending key, viewing keys, wallet balance, change output, and other transactions remain private.",
   "network": "mainnet",
-  "generated_at": "2026-07-12T10:41:34.389285Z",
+  "generated_at": "2026-07-12T21:32:19.864893Z",
   "overall_pass": true,
   "verified_count": 1,
   "rejected_count": 0,
@@ -16,8 +16,8 @@
   "results": [
     {
       "id": "community-support-01",
-      "label": "Community support payout",
-      "role": "Community participant",
+      "label": "Wallet setup support transfer",
+      "role": "Community collaborator",
       "expected_outcome": "verified",
       "status": "verified",
       "expected_result_observed": true,

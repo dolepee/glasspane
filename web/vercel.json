@@ -24,6 +24,7 @@
   ],
   "rewrites": [
     { "source": "/room/zechub-demo", "destination": "/room/zechub-demo.html" },
+    { "source": "/room/glasspane-bounties", "destination": "/room/glasspane-bounties.html" },
     { "source": "/room/create", "destination": "/room/create.html" },
     { "source": "/boundary", "destination": "/boundary.html" },
     { "source": "/audit", "destination": "/audit.html" },

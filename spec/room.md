@@ -16,6 +16,11 @@ or block explorer raw-transaction endpoint. The room never contains wallet
 secrets, seeds, spending keys, outgoing viewing keys, or unified full viewing
 keys.
 
+An empty room is valid when its expected total is zero or omitted and its
+expected memo list is empty. This lets a team publish an honest ledger before
+its first payout. A zero-receipt room with a non-zero minimum, non-zero exact
+total, or expected memo fails verification.
+
 ## `room.json`
 
 ```json

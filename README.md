@@ -16,6 +16,7 @@ verifier, and the wallet remainder stays opaque.
 
 * Website: **https://glasspane-iota.vercel.app/**
 * Rooms board: **https://glasspane-iota.vercel.app/room/zechub-demo**
+* Feedback bounty ledger: **https://glasspane-iota.vercel.app/room/glasspane-bounties**
 * Self-serve renderer: **https://glasspane-iota.vercel.app/room/create**
 * Room schema: [`spec/room.md`](spec/room.md)
 * Receipt format spec: [`spec/receipt.md`](spec/receipt.md)
@@ -85,6 +86,7 @@ Production-shape v0 across the receipt primitive and room verifier.
 | `gp-room`: verify a payout room from receipts + raw tx files | shipped |
 | Room schema and example mainnet room | shipped |
 | Live Rooms board `/room/zechub-demo` | shipped |
+| Honest zero-to-many feedback bounty ledger | shipped; awaiting first real payout |
 | Self-serve room renderer `/room/create` | shipped |
 | CSV export for accounting tools | shipped in room UI and `gp-room --csv` |
 | Embeddable verified-payout badge | shipped on room pages |
@@ -98,7 +100,7 @@ Production-shape v0 across the receipt primitive and room verifier.
 | WASM in-browser cryptographic recovery | shipped with raw tx fetch + paste fallback on `/room/create` |
 | ZSA-aware receipts | roadmap |
 
-21 tests passing across 6 crates.
+24 tests passing across 6 crates.
 
 ## Quickstart
 
@@ -132,6 +134,12 @@ Open the live board at
 [`/room/zechub-demo`](https://glasspane-iota.vercel.app/room/zechub-demo), or
 paste a `verified-room.json` into
 [`/room/create`](https://glasspane-iota.vercel.app/room/create).
+
+The separate
+[`/room/glasspane-bounties`](https://glasspane-iota.vercel.app/room/glasspane-bounties)
+ledger begins empty and publishes only real, consented feedback payouts. The
+Windows-friendly append flow is documented in
+[`docs/publish-a-feedback-bounty.md`](docs/publish-a-feedback-bounty.md).
 
 ### 3. Issue a receipt for a shielded payment you sent
 
@@ -244,7 +252,7 @@ The web app (`web/`) deploys to Vercel automatically on every push to `main` (Ve
 cargo test --workspace
 ```
 
-21 tests across:
+24 tests across:
 
 * Receipt format (envelope validate, version reject, label length, JSON round trip, URL round trip, bare-payload URL parse, garbage URL reject, ed25519 signature round trip, ed25519 tampering reject).
 * OCK derivation (byte helper round trip, Orchard test vectors 0 and 1 bit-exact, Sapling test vector 0 bit-exact, input sensitivity: any bit flip in OVK / epk / cmx must change the OCK).

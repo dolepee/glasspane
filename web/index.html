@@ -35,7 +35,7 @@
       <a href="/room/create#browser-verify-title">Verify</a>
       <a href="/audit">Audit</a>
     </nav>
-    <div class="premium-network" aria-label="Network">
+    <div class="premium-network" role="group" aria-label="Network">
       <span><span class="gp-dot" aria-hidden="true"></span>mainnet</span>
       <strong>Zcash</strong>
     </div>
@@ -66,7 +66,7 @@
           <small>only selected amount revealed</small>
         </div>
         <p id="summary">1 selected shielded payout verified, 1 tampered receipt rejected, rest of treasury opaque.</p>
-        <div class="premium-room-steps" aria-label="Room status">
+        <div class="premium-room-steps" role="group" aria-label="Room status">
           <div><span class="step-dot green"></span><strong>opened</strong><small>board created</small></div>
           <div><span class="step-dot green"></span><strong id="verified-count">1</strong><small>browser check</small></div>
           <div><span class="step-dot red"></span><strong id="rejected-count">1</strong><small>tamper caught</small></div>
@@ -74,6 +74,30 @@
         </div>
         <div id="load-error" class="gp-error" hidden></div>
       </aside>
+    </section>
+
+    <section class="premium-room-index" aria-labelledby="rooms-title">
+      <div class="premium-room-index-head">
+        <div>
+          <p class="premium-pill"><span class="gp-dot" aria-hidden="true"></span>Public rooms</p>
+          <h2 id="rooms-title">Proof boards with different jobs.</h2>
+        </div>
+        <p>The demo proves the verifier. The bounty ledger proves the workflow can operate in public without opening the wallet.</p>
+      </div>
+      <div class="premium-room-list">
+        <a class="premium-room-row" href="/room/zechub-demo">
+          <span class="premium-room-status verified"><span class="gp-dot" aria-hidden="true"></span>verified</span>
+          <span><strong>ZecHub demo payout room</strong><small>Real mainnet payout plus a deliberately rejected tamper case.</small></span>
+          <span class="mono">0.00100000 ZEC</span>
+          <span>Open room</span>
+        </a>
+        <a class="premium-room-row" href="/room/glasspane-bounties">
+          <span class="premium-room-status open"><span class="gp-dot" aria-hidden="true"></span>live</span>
+          <span><strong>Glasspane Feedback Bounties</strong><small>An honest zero-to-many ledger for consented community payouts.</small></span>
+          <span class="mono">starts at zero</span>
+          <span>Open ledger</span>
+        </a>
+      </div>
     </section>
 
     <section class="premium-stat-grid" aria-label="Glasspane room facts">

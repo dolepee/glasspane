@@ -1,0 +1,16 @@
+{
+  "version": "0",
+  "title": "Glasspane Feedback Bounties",
+  "purpose": "The books of this feedback bounty program. Every published payout is verified while the rest of the wallet stays private.",
+  "privacy_boundary": "No payout receipts are published yet. When a bounty is paid, only that selected output will be disclosed; the seed, spending key, viewing keys, balance, and other transactions remain private.",
+  "network": "mainnet",
+  "generated_at": "2026-07-12T08:43:40.397392Z",
+  "overall_pass": true,
+  "verified_count": 0,
+  "rejected_count": 0,
+  "total_zatoshis": 0,
+  "total_zec": "0.00000000",
+  "expected_memo_labels": [],
+  "results": [],
+  "failures": []
+}

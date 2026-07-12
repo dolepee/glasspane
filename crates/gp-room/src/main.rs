@@ -172,9 +172,6 @@ fn verify_room(room: &Room, base_dir: &Path) -> Result<VerifiedRoom> {
     if room.version != "0" {
         bail!("unsupported room version: {}", room.version);
     }
-    if room.receipts.is_empty() {
-        bail!("room has no receipts");
-    }
 
     let mut results = Vec::with_capacity(room.receipts.len());
     let mut failures = Vec::new();
@@ -278,6 +275,18 @@ fn verify_room(room: &Room, base_dir: &Path) -> Result<VerifiedRoom> {
         }
 
         results.push(report);
+    }
+
+    for expected_memo in &room.expected.memo_labels {
+        let observed = results.iter().any(|report| {
+            report.status == ReceiptStatus::Verified
+                && report.memo.as_deref() == Some(expected_memo.as_str())
+        });
+        if !observed {
+            failures.push(format!(
+                "expected memo was not recovered from a verified receipt: {expected_memo:?}"
+            ));
+        }
     }
 
     if let Some(min_total) = room.expected.min_total_zatoshis {
@@ -587,5 +596,77 @@ mod tests {
         assert!(csv.contains(
             "\"OCK does not match this Orchard action; the receipt is wrong, tampered, or forged\""
         ));
+    }
+
+    #[test]
+    fn empty_room_is_an_honest_zero_value_report() {
+        let room = Room {
+            version: "0".to_string(),
+            title: "Empty payout ledger".to_string(),
+            purpose: "Publish receipts only after payouts happen.".to_string(),
+            privacy_boundary: "No receipt outputs are disclosed yet.".to_string(),
+            network: Network::Mainnet,
+            expected: RoomExpected {
+                memo_labels: vec![],
+                min_total_zatoshis: None,
+                total_zatoshis: Some(0),
+            },
+            receipts: vec![],
+        };
+
+        let report = verify_room(&room, Path::new(".")).expect("empty room should report");
+        assert!(report.overall_pass, "{:?}", report.failures);
+        assert_eq!(report.verified_count, 0);
+        assert_eq!(report.rejected_count, 0);
+        assert_eq!(report.total_zatoshis, 0);
+        assert!(report.results.is_empty());
+    }
+
+    #[test]
+    fn empty_room_fails_nonzero_expectations() {
+        let room = Room {
+            version: "0".to_string(),
+            title: "Missing payout ledger".to_string(),
+            purpose: "A payout is expected.".to_string(),
+            privacy_boundary: "No receipt outputs are disclosed.".to_string(),
+            network: Network::Mainnet,
+            expected: RoomExpected {
+                memo_labels: vec![],
+                min_total_zatoshis: Some(1),
+                total_zatoshis: None,
+            },
+            receipts: vec![],
+        };
+
+        let report = verify_room(&room, Path::new(".")).expect("room should report failure");
+        assert!(!report.overall_pass);
+        assert!(report
+            .failures
+            .iter()
+            .any(|failure| failure.contains("room total below minimum")));
+    }
+
+    #[test]
+    fn empty_room_fails_expected_memo_claims() {
+        let room = Room {
+            version: "0".to_string(),
+            title: "Missing payout ledger".to_string(),
+            purpose: "A payout memo is expected.".to_string(),
+            privacy_boundary: "No receipt outputs are disclosed.".to_string(),
+            network: Network::Mainnet,
+            expected: RoomExpected {
+                memo_labels: vec!["missing payout".to_string()],
+                min_total_zatoshis: None,
+                total_zatoshis: None,
+            },
+            receipts: vec![],
+        };
+
+        let report = verify_room(&room, Path::new(".")).expect("room should report failure");
+        assert!(!report.overall_pass);
+        assert!(report
+            .failures
+            .iter()
+            .any(|failure| failure.contains("expected memo was not recovered")));
     }
 }

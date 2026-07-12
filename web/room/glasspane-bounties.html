@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Glasspane Rooms - private Zcash payout board</title>
-<meta name="description" content="A private payout board for Zcash teams: verify selected shielded payouts, totals, and memos without handing over a viewing key." />
-<link rel="canonical" href="https://glasspane-iota.vercel.app/room/zechub-demo" />
-<meta property="og:title" content="Glasspane Rooms" />
-<meta property="og:description" content="Verify selected shielded Zcash payouts while the rest of the treasury stays opaque." />
+<title>Glasspane Feedback Bounties - private Zcash payout ledger</title>
+<meta name="description" content="A live, consented feedback bounty ledger. Every published Zcash payout is verified while the rest of the wallet stays private." />
+<link rel="canonical" href="https://glasspane-iota.vercel.app/room/glasspane-bounties" />
+<meta property="og:title" content="Glasspane Feedback Bounties" />
+<meta property="og:description" content="Every published feedback payout is verified while the rest of the Zcash wallet stays private." />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://glasspane-iota.vercel.app/room/zechub-demo" />
+<meta property="og:url" content="https://glasspane-iota.vercel.app/room/glasspane-bounties" />
 <meta property="og:image" content="https://glasspane-iota.vercel.app/room/og-glasspane-rooms.svg" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Glasspane Rooms" />
-<meta name="twitter:description" content="Private payout boards for Zcash teams." />
+<meta name="twitter:title" content="Glasspane Feedback Bounties" />
+<meta name="twitter:description" content="A live, selective-disclosure Zcash payout ledger." />
 <meta name="twitter:image" content="https://glasspane-iota.vercel.app/room/og-glasspane-rooms.svg" />
 <meta name="theme-color" content="#111713" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -342,6 +342,14 @@
     font-weight: 800;
     min-height: 20px;
   }
+  .room-empty {
+    padding: 30px 22px;
+    border-top: 1px solid var(--line);
+    background: var(--blue-soft);
+    color: var(--blue);
+  }
+  .room-empty strong { display: block; margin-bottom: 5px; color: var(--ink); }
+  .room-empty span { color: var(--muted); line-height: 1.55; }
   code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
   footer {
     padding: 36px 0 54px;
@@ -401,12 +409,12 @@
       </span>
     </a>
     <nav aria-label="Primary">
-      <a class="nav-link active" href="/room/zechub-demo">Board</a>
+      <a class="nav-link active" href="/room/glasspane-bounties">Board</a>
       <a class="nav-link" href="/room/create">Create</a>
       <a class="nav-link" href="/room/create#browser-verify-title">Verify</a>
       <a class="nav-link" href="/audit">Audit</a>
     </nav>
-    <div class="premium-network" aria-label="Network">
+    <div class="premium-network" role="group" aria-label="Network">
       <span><span class="dot" aria-hidden="true"></span>mainnet</span>
       <strong>Zcash</strong>
     </div>
@@ -415,10 +423,10 @@
   <main>
     <section class="hero" aria-labelledby="title">
       <div class="hero-copy">
-        <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Mainnet room</span>
-        <span class="proof-mode"><span class="dot" aria-hidden="true"></span>Rust verified</span>
-        <h1 id="title">ZecHub demo payout room</h1>
-        <p class="lede" id="summary">1 selected shielded payout verified, 1 tampered receipt rejected, rest of treasury opaque.</p>
+        <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Live bounty ledger</span>
+        <span class="proof-mode" id="proof-state"><span class="dot" aria-hidden="true"></span>Ledger open</span>
+        <h1 id="title">Glasspane Feedback Bounties</h1>
+        <p class="lede" id="summary">Ledger open. No payouts have been published; no recipient data is disclosed.</p>
         <div class="hero-actions">
           <a class="button" href="#payouts">View payout board</a>
           <a class="button secondary" href="#reproduce">Verify locally</a>
@@ -430,12 +438,12 @@
       <aside class="status-panel" aria-label="Room status">
         <div>
           <div class="label">Disclosed total</div>
-          <div class="status-value" id="total-zec">0.00100000 ZEC</div>
+          <div class="status-value" id="total-zec">0.00000000 ZEC</div>
           <div class="muted">Only selected outputs are opened.</div>
         </div>
         <div class="status-grid">
-          <div><strong id="verified-count">1</strong><span>verified</span></div>
-          <div><strong id="rejected-count">1</strong><span>rejected</span></div>
+          <div><strong id="verified-count">0</strong><span>published</span></div>
+          <div><strong id="rejected-count">0</strong><span>rejected</span></div>
           <div><strong id="network">mainnet</strong><span>network</span></div>
           <div><strong>opaque</strong><span>wallet rest</span></div>
         </div>
@@ -460,19 +468,9 @@
           <div class="cell">Amount</div>
           <div class="cell">Mainnet tx</div>
         </div>
-        <div class="row room-data-row">
-          <div class="cell" data-label="Status"><span class="status verified"><span class="dot" aria-hidden="true"></span>verified</span></div>
-          <div class="cell" data-label="Recipient role"><strong>Demo recipient</strong><br><span class="muted">First verified payout</span></div>
-          <div class="cell mono" data-label="Recovered memo">glasspane first receipt</div>
-          <div class="cell mono" data-label="Amount">0.00100000 ZEC</div>
-          <div class="cell" data-label="Mainnet tx"><a class="tx-link" href="https://mainnet.zcashexplorer.app/transactions/66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0" target="_blank" rel="noopener">66167c...cfd0</a></div>
-        </div>
-        <div class="row room-data-row">
-          <div class="cell" data-label="Status"><span class="status rejected"><span class="dot" aria-hidden="true"></span>rejected</span></div>
-          <div class="cell" data-label="Recipient role"><strong>Tamper check</strong><br><span class="muted">Tampered receipt copy</span></div>
-          <div class="cell mono" data-label="Recovered memo">OCK does not match this Orchard action; the receipt is wrong, tampered, or forged</div>
-          <div class="cell mono" data-label="Amount">not opened</div>
-          <div class="cell" data-label="Mainnet tx"><a class="tx-link" href="https://mainnet.zcashexplorer.app/transactions/66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0" target="_blank" rel="noopener">66167c...cfd0</a></div>
+        <div class="room-empty" id="room-empty">
+          <strong>Waiting for the first consented payout.</strong>
+          <span>This is an honest zero-value ledger. A row appears only after a real mainnet receipt passes the Rust verifier.</span>
         </div>
       </div>
     </section>
@@ -494,7 +492,7 @@
       </div>
     </section>
 
-    <section class="section" id="share-room" aria-labelledby="share-title">
+    <section class="section" id="share-room" aria-labelledby="share-title" hidden>
       <div class="section-title">
         <h2 id="share-title">Share this room</h2>
         <p>Use the badge anywhere a team wants to point readers to the verified payout board.</p>
@@ -503,7 +501,7 @@
         <div>
           <strong>Embeddable badge</strong>
           <p class="muted">Links back to this room. The room report remains the source of truth.</p>
-          <a class="badge-preview" href="https://glasspane-iota.vercel.app/room/zechub-demo" aria-label="Open the Glasspane verified payout badge link">
+          <a class="badge-preview" href="https://glasspane-iota.vercel.app/room/glasspane-bounties" aria-label="Open the Glasspane verified payout badge link">
             <img src="/room/glasspane-badge.svg" alt="payouts verified - Glasspane" width="258" height="40" />
           </a>
         </div>
@@ -528,78 +526,43 @@
         <h2 id="reproduce-title">Reproduce locally</h2>
         <p>This room report is verified by the Rust verifier and reproducible locally. Single receipt verification also runs in-browser from receipt JSON and raw transaction hex on the create page.</p>
       </div>
-      <pre class="terminal"><code>cargo run -p gp-room -- examples/rooms/zechub-demo/room.json --out verified-room.json</code></pre>
+      <pre class="terminal"><code>cargo run -p gp-room -- examples/rooms/glasspane-bounties/room.json --out verified-room.json</code></pre>
     </section>
   </main>
 
   <footer>
-    <span id="generated-at">Generated from verified-room.json at 7/1/2026, 6:55:43 PM.</span>
+    <span id="generated-at">Generated from an empty verified-room.json report.</span>
   </footer>
 </div>
 
 <script id="room-data" type="application/json">
 {
   "version": "0",
-  "title": "ZecHub demo payout room",
-  "purpose": "A Glasspane Rooms demo showing how selected shielded Zcash payouts can be proven without exposing the rest of the wallet.",
-  "privacy_boundary": "Only the listed receipt outputs are disclosed. No seed, spending key, outgoing viewing key, or wallet-wide viewing key is published.",
+  "title": "Glasspane Feedback Bounties",
+  "purpose": "The books of this feedback bounty program. Every published payout is verified while the rest of the wallet stays private.",
+  "privacy_boundary": "No payout receipts are published yet. When a bounty is paid, only that selected output will be disclosed; the seed, spending key, viewing keys, balance, and other transactions remain private.",
   "network": "mainnet",
-  "generated_at": "2026-07-01T17:55:43.226035Z",
+  "generated_at": "2026-07-12T08:43:40.397392Z",
   "overall_pass": true,
-  "verified_count": 1,
-  "rejected_count": 1,
-  "total_zatoshis": 100000,
-  "total_zec": "0.00100000",
-  "expected_memo_labels": ["glasspane first receipt"],
-  "results": [
-    {
-      "id": "mainnet-first-receipt",
-      "label": "First verified payout",
-      "role": "Demo recipient",
-      "expected_outcome": "verified",
-      "status": "verified",
-      "expected_result_observed": true,
-      "tamper": false,
-      "tx_id": "66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0",
-      "tx_url": "https://mainnet.zcashexplorer.app/transactions/66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0",
-      "pool": "orchard",
-      "output_index": 1,
-      "amount_zatoshis": 100000,
-      "amount_zec": "0.00100000",
-      "memo": "glasspane first receipt",
-      "recipient": "u1ug9ltzk9y74pgqtc7mtwnc8vsnlqlsalhamkfd4lyhegrfv6ff5znwr4syzylrpta36ehs3jjm3c4ssvpfar8zq2hamg35wwzqxqemeu",
-      "error": null
-    },
-    {
-      "id": "tampered-ock",
-      "label": "Tampered receipt copy",
-      "role": "Tamper check",
-      "expected_outcome": "rejected",
-      "status": "rejected",
-      "expected_result_observed": true,
-      "tamper": true,
-      "tx_id": "66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0",
-      "tx_url": "https://mainnet.zcashexplorer.app/transactions/66167cd3020eb329446e86d80ccd0494baa3959bf9a0e586dbdccd204b6dcfd0",
-      "pool": "orchard",
-      "output_index": 1,
-      "amount_zatoshis": null,
-      "amount_zec": null,
-      "memo": null,
-      "recipient": null,
-      "error": "OCK does not match this Orchard action; the receipt is wrong, tampered, or forged"
-    }
-  ],
+  "verified_count": 0,
+  "rejected_count": 0,
+  "total_zatoshis": 0,
+  "total_zec": "0.00000000",
+  "expected_memo_labels": [],
+  "results": [],
   "failures": []
 }
 </script>
 <script>
-  const roomUrl = "/room/zechub-demo.json";
-  const roomHref = "https://glasspane-iota.vercel.app/room/zechub-demo";
+  const roomUrl = "/room/glasspane-bounties.json";
+  const roomHref = "https://glasspane-iota.vercel.app/room/glasspane-bounties";
   const badgeHref = "https://glasspane-iota.vercel.app/room/glasspane-badge.svg";
   const board = document.getElementById("board");
   const summary = document.getElementById("summary");
   const errorBox = document.getElementById("load-error");
   const copyMessage = document.getElementById("copy-message");
+  const emptyState = document.getElementById("room-empty");
+  const shareRoom = document.getElementById("share-room");
   let currentRoom = JSON.parse(document.getElementById("room-data").textContent);
 
   function statusLabel(status) {
@@ -718,9 +681,14 @@
   function render(data) {
     currentRoom = data;
     document.title = `${data.title} - Glasspane Rooms`;
-    const selected = data.verified_count === 1 ? "selected shielded payout" : "selected shielded payouts";
-    const rejected = data.rejected_count === 1 ? "tampered receipt" : "tampered receipts";
-    summary.textContent = `${data.verified_count} ${selected} verified, ${data.rejected_count} ${rejected} rejected, rest of treasury opaque.`;
+    if (data.verified_count === 0) {
+      summary.textContent = "Ledger open. No payouts have been published; no recipient data is disclosed.";
+      document.getElementById("proof-state").lastChild.textContent = "Ledger open";
+    } else {
+      const selected = data.verified_count === 1 ? "consented shielded payout" : "consented shielded payouts";
+      summary.textContent = `${data.verified_count} ${selected} verified, rest of treasury opaque.`;
+      document.getElementById("proof-state").lastChild.textContent = "Rust verified";
+    }
     document.getElementById("total-zec").textContent = `${data.total_zec} ZEC`;
     document.getElementById("verified-count").textContent = data.verified_count;
     document.getElementById("rejected-count").textContent = data.rejected_count;
@@ -728,6 +696,8 @@
     document.getElementById("privacy-boundary").textContent = data.privacy_boundary;
     document.getElementById("generated-at").textContent = `Generated from verified-room.json at ${new Date(data.generated_at).toLocaleString()}.`;
     board.querySelectorAll(".row:not(.head)").forEach(row => row.remove());
+    emptyState.hidden = data.results.length !== 0;
+    shareRoom.hidden = data.verified_count === 0;
     data.results.forEach(item => board.appendChild(renderRow(item)));
   }
 

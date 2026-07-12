@@ -17,7 +17,8 @@
 use anyhow::{anyhow, bail, Context, Result};
 use clap::Parser;
 use gp_core::{
-    derive_orchard_ock, derive_sapling_ock, ock_to_bytes, OrchardOckInputs, SaplingOckInputs,
+    derive_orchard_ock, derive_sapling_ock, ensure_transaction_id, ock_to_bytes, parse_transaction,
+    OrchardOckInputs, SaplingOckInputs,
 };
 use gp_types::{Network, Pool, Receipt};
 use orchard::keys::OutgoingViewingKey;
@@ -27,7 +28,6 @@ use zcash_client_backend::proto::service::{
 };
 use zcash_note_encryption::EphemeralKeyBytes;
 use zcash_primitives::transaction::Transaction;
-use zcash_protocol::consensus::{BranchId, MainNetwork, NetworkUpgrade, Parameters};
 
 #[derive(Parser, Debug)]
 #[command(
@@ -145,7 +145,9 @@ async fn main() -> Result<()> {
             fetch_tx(&args.lightwalletd, tx_id).await?
         }
     };
-    let tx = parse_tx(&raw_tx)?;
+    let tx = parse_transaction(&raw_tx)?;
+    let expected_tx_id = hex::encode(tx_id);
+    ensure_transaction_id(&tx, &expected_tx_id)?;
     eprintln!("  Transaction parsed.");
 
     // Locate the action / output for the named pool and derive OCK.
@@ -221,14 +223,6 @@ async fn fetch_tx(endpoint: &str, tx_id_bytes: [u8; 32]) -> Result<Vec<u8>> {
         bail!("lightwalletd returned an empty transaction for the given txid");
     }
     Ok(raw.data)
-}
-
-fn parse_tx(raw: &[u8]) -> Result<Transaction> {
-    let nu5_height = MainNetwork
-        .activation_height(NetworkUpgrade::Nu5)
-        .ok_or_else(|| anyhow!("MainNetwork is missing the NU5 activation height"))?;
-    let branch_id = BranchId::for_height(&MainNetwork, nu5_height);
-    Transaction::read(raw, branch_id).context("parse raw transaction")
 }
 
 /// Locate the Orchard action at `output_index` in `tx`, extract its

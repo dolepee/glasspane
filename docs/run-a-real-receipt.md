@@ -33,15 +33,19 @@ glasspane receipt"`.
 
 Wait for confirmation. Note the **transaction id** the wallet shows you.
 
-## Step 2: identify the output index
+## Step 2: identify the recipient action index
 
-A Zcash shielded transaction can have multiple Orchard actions (outputs).
-You need the index of the action that landed at YOUR receiver.
+A Zcash shielded transaction can have multiple Orchard actions, including a
+change action. You need the index of the action that landed at the intended
+receiver. Do not assume the recipient is action `0`; the first live bounty
+receipt in this repository is action `1` because action `0` is change.
 
-The easiest path: if the transaction has exactly one output to your address
-(the typical case for small test sends), the index is **0**.
+If the wallet does not show the action index, issue and verify private
+candidate receipts for the available indices. Keep only the candidate whose
+recovered recipient, amount, and memo all match the intended payment. Never
+publish a candidate that opens the change action.
 
-For multi-output transactions, you can list the actions via:
+A future inspection command can make this more direct:
 
 ```bash
 # (Future v0.2 command, not yet implemented in this CLI:
@@ -49,8 +53,9 @@ For multi-output transactions, you can list the actions via:
 # For v0, count outputs manually in your wallet.)
 ```
 
-For the initial mainnet test, send a transaction with exactly one shielded
-output. The output index is 0.
+The receipt-to-raw-transaction txid check prevents a candidate from being
+verified against a different transaction, but selecting the intended action
+still requires checking the recovered payment details.
 
 ## Step 3: issue the receipt
 
@@ -58,7 +63,7 @@ output. The output index is 0.
 ./target/release/gp-issue \
   --pool orchard \
   --tx-id <your-tx-id-in-hex> \
-  --output-index 0 \
+  --output-index <recipient-action-index> \
   --ovk <your-32-byte-ovk-in-hex> \
   --label "first mainnet glasspane receipt" \
   --out receipt.json \

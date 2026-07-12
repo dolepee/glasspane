@@ -66,6 +66,13 @@ the per-output OCK:
 * Recovered: **0.001 ZEC** to an Orchard address, memo `glasspane first receipt`
 * The rest of the wallet stayed opaque.
 
+The live feedback ledger also contains a confirmed NU6.2 payout:
+
+* Tx: [`9571fcf98f0d7b47ff1dfccc46f7c83412698a44b1aed147ed333800c95fe078`](https://mainnet.zcashexplorer.app/transactions/9571fcf98f0d7b47ff1dfccc46f7c83412698a44b1aed147ed333800c95fe078) (block 3,409,633)
+* Recovered: **0.0002 ZEC**, memo `glasspane community support 01`
+* Receipt: [`community-support-01.json`](examples/rooms/glasspane-bounties/receipts/community-support-01.json)
+* Board: [`/room/glasspane-bounties`](https://glasspane-iota.vercel.app/room/glasspane-bounties)
+
 Reproduce it from a fresh clone in one command (offline, using the bundled raw tx):
 
 ```bash
@@ -86,7 +93,7 @@ Production-shape v0 across the receipt primitive and room verifier.
 | `gp-room`: verify a payout room from receipts + raw tx files | shipped |
 | Room schema and example mainnet room | shipped |
 | Live Rooms board `/room/zechub-demo` | shipped |
-| Honest zero-to-many feedback bounty ledger | shipped; awaiting first real payout |
+| Honest zero-to-many feedback bounty ledger | shipped with a confirmed, consented mainnet payout |
 | Self-serve room renderer `/room/create` | shipped |
 | CSV export for accounting tools | shipped in room UI and `gp-room --csv` |
 | Embeddable verified-payout badge | shipped on room pages |
@@ -98,9 +105,11 @@ Production-shape v0 across the receipt primitive and room verifier.
 | Input-sensitivity tests (bit flips must change the OCK) | shipped |
 | CI (cargo fmt + clippy `-D warnings` + tests on every push) | shipped |
 | WASM in-browser cryptographic recovery | shipped with raw tx fetch + paste fallback on `/room/create` |
+| Current transaction parsing | NU5 through NU6.2, shared across CLI, room, issuer, and WASM |
+| Receipt-to-raw-tx binding | txid checked before every disclosure path |
 | ZSA-aware receipts | roadmap |
 
-24 tests passing across 6 crates.
+26 tests passing across the workspace.
 
 ## Quickstart
 
@@ -137,19 +146,24 @@ paste a `verified-room.json` into
 
 The separate
 [`/room/glasspane-bounties`](https://glasspane-iota.vercel.app/room/glasspane-bounties)
-ledger begins empty and publishes only real, consented feedback payouts. The
-Windows-friendly append flow is documented in
+ledger publishes only real, consented feedback payouts and now contains its
+first verified mainnet row. The Windows-friendly append flow is documented in
 [`docs/publish-a-feedback-bounty.md`](docs/publish-a-feedback-bounty.md).
 
 ### 3. Issue a receipt for a shielded payment you sent
 
-You need: the transaction id (from your wallet), the output index for the action that landed at your receiver (`0` for single-output sends), and your Outgoing Viewing Key as 32 bytes hex. See [`docs/run-a-real-receipt.md`](docs/run-a-real-receipt.md) for how to extract the OVK from Zashi, YWallet, Zingo, or zcashd.
+You need: the transaction id (from your wallet), the action index that landed
+at the intended receiver, and your Outgoing Viewing Key as 32 bytes hex. Do
+not assume the recipient is action `0`; shielded sends commonly include a
+change action. See [`docs/run-a-real-receipt.md`](docs/run-a-real-receipt.md)
+for the safe identification flow and how to extract the OVK from Zashi,
+YWallet, Zingo, or zcashd.
 
 ```bash
 ./target/release/gp-issue \
   --pool orchard \
   --tx-id <your-tx-id> \
-  --output-index 0 \
+  --output-index <recipient-action-index> \
   --ovk <your-32-byte-ovk> \
   --label "first glasspane receipt" \
   --out receipt.json \

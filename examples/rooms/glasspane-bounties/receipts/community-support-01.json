@@ -1,0 +1,10 @@
+{
+  "version": "0",
+  "network": "mainnet",
+  "pool": "orchard",
+  "tx_id": "9571fcf98f0d7b47ff1dfccc46f7c83412698a44b1aed147ed333800c95fe078",
+  "output_index": 1,
+  "ock": "pI6N3QUGoH4ggucHLaUaPU_WUiPFs2eFc07_95gztdg",
+  "label": "Community support payout",
+  "issued_at": "2026-07-12T10:38:39.498902Z"
+}

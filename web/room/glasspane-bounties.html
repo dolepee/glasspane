@@ -424,9 +424,9 @@
     <section class="hero" aria-labelledby="title">
       <div class="hero-copy">
         <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Live bounty ledger</span>
-        <span class="proof-mode" id="proof-state"><span class="dot" aria-hidden="true"></span>Ledger open</span>
+        <span class="proof-mode" id="proof-state"><span class="dot" aria-hidden="true"></span>Loading report</span>
         <h1 id="title">Glasspane Feedback Bounties</h1>
-        <p class="lede" id="summary">Ledger open. No payouts have been published; no recipient data is disclosed.</p>
+        <p class="lede" id="summary">Loading the independently verified payout report.</p>
         <div class="hero-actions">
           <a class="button" href="#payouts">View payout board</a>
           <a class="button secondary" href="#reproduce">Verify locally</a>
@@ -438,12 +438,12 @@
       <aside class="status-panel" aria-label="Room status">
         <div>
           <div class="label">Disclosed total</div>
-          <div class="status-value" id="total-zec">0.00000000 ZEC</div>
+          <div class="status-value" id="total-zec">Loading</div>
           <div class="muted">Only selected outputs are opened.</div>
         </div>
         <div class="status-grid">
-          <div><strong id="verified-count">0</strong><span>published</span></div>
-          <div><strong id="rejected-count">0</strong><span>rejected</span></div>
+          <div><strong id="verified-count">-</strong><span>published</span></div>
+          <div><strong id="rejected-count">-</strong><span>rejected</span></div>
           <div><strong id="network">mainnet</strong><span>network</span></div>
           <div><strong>opaque</strong><span>wallet rest</span></div>
         </div>
@@ -469,8 +469,8 @@
           <div class="cell">Mainnet tx</div>
         </div>
         <div class="room-empty" id="room-empty">
-          <strong>Waiting for the first consented payout.</strong>
-          <span>This is an honest zero-value ledger. A row appears only after a real mainnet receipt passes the Rust verifier.</span>
+          <strong>Loading verified payouts.</strong>
+          <span>A row appears only after a real mainnet receipt passes the Rust verifier.</span>
         </div>
       </div>
     </section>
@@ -531,7 +531,7 @@
   </main>
 
   <footer>
-    <span id="generated-at">Generated from an empty verified-room.json report.</span>
+    <span id="generated-at">Loading verified-room.json report.</span>
   </footer>
 </div>
 
@@ -540,16 +540,37 @@
   "version": "0",
   "title": "Glasspane Feedback Bounties",
   "purpose": "The books of this feedback bounty program. Every published payout is verified while the rest of the wallet stays private.",
-  "privacy_boundary": "No payout receipts are published yet. When a bounty is paid, only that selected output will be disclosed; the seed, spending key, viewing keys, balance, and other transactions remain private.",
+  "privacy_boundary": "Only the selected payout output below is disclosed: recipient, amount, memo, and transaction reference. The seed, spending key, viewing keys, wallet balance, change output, and other transactions remain private.",
   "network": "mainnet",
-  "generated_at": "2026-07-12T08:43:40.397392Z",
+  "generated_at": "2026-07-12T10:41:34.389285Z",
   "overall_pass": true,
-  "verified_count": 0,
+  "verified_count": 1,
   "rejected_count": 0,
-  "total_zatoshis": 0,
-  "total_zec": "0.00000000",
-  "expected_memo_labels": [],
-  "results": [],
+  "total_zatoshis": 20000,
+  "total_zec": "0.00020000",
+  "expected_memo_labels": [
+    "glasspane community support 01"
+  ],
+  "results": [
+    {
+      "id": "community-support-01",
+      "label": "Community support payout",
+      "role": "Community participant",
+      "expected_outcome": "verified",
+      "status": "verified",
+      "expected_result_observed": true,
+      "tamper": false,
+      "tx_id": "9571fcf98f0d7b47ff1dfccc46f7c83412698a44b1aed147ed333800c95fe078",
+      "tx_url": "https://mainnet.zcashexplorer.app/transactions/9571fcf98f0d7b47ff1dfccc46f7c83412698a44b1aed147ed333800c95fe078",
+      "pool": "orchard",
+      "output_index": 1,
+      "amount_zatoshis": 20000,
+      "amount_zec": "0.00020000",
+      "memo": "glasspane community support 01",
+      "recipient": "u1y3untlvq77ntuw7f5g93nhtugwajggf4ta47zqcuy3z09y3sz9s336e0xmaxktzpt9fkt5sxeppa3s7q663dtuwa0m9p0wh95u2tz6a0",
+      "error": null
+    }
+  ],
   "failures": []
 }
 </script>

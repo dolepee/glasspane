@@ -3,7 +3,9 @@
 //! The exported WASM function takes a Glasspane receipt plus raw Zcash
 //! transaction hex and runs the same OCK recovery path used by the Rust CLI.
 
-use gp_core::{ock_from_bytes, recover_orchard, recover_sapling};
+use gp_core::{
+    ensure_transaction_id, ock_from_bytes, parse_transaction, recover_orchard, recover_sapling,
+};
 use gp_types::{Network, Pool, Receipt};
 use serde::Serialize;
 use wasm_bindgen::prelude::*;
@@ -14,7 +16,6 @@ use zcash_address::{
 use zcash_note_encryption::OutgoingCipherKey;
 use zcash_primitives::transaction::Transaction;
 use zcash_protocol::consensus::NetworkType;
-use zcash_protocol::consensus::{BranchId, MainNetwork, NetworkUpgrade, Parameters};
 
 #[derive(Debug, Serialize)]
 struct BrowserVerifyResult {
@@ -72,14 +73,9 @@ fn verify_receipt(receipt_input: &str, raw_tx_hex: &str) -> Result<BrowserVerify
     };
 
     let raw_tx = decode_raw_tx(raw_tx_hex)?;
-    let tx = parse_tx(&raw_tx)?;
+    let tx = parse_transaction(&raw_tx).map_err(|err| err.to_string())?;
     let parsed_tx_id = tx.txid().to_string();
-    if parsed_tx_id != receipt.tx_id {
-        return Err(format!(
-            "raw transaction txid mismatch: receipt references {}, parsed {}",
-            receipt.tx_id, parsed_tx_id
-        ));
-    }
+    ensure_transaction_id(&tx, &receipt.tx_id).map_err(|err| err.to_string())?;
 
     let ock = ock_from_bytes(receipt.ock_bytes().map_err(|err| err.to_string())?);
     let recovered = match receipt.pool {
@@ -128,14 +124,6 @@ fn decode_raw_tx(raw_tx_hex: &str) -> Result<Vec<u8>, String> {
         return Err("raw transaction hex is empty".to_string());
     }
     hex::decode(&compact).map_err(|err| format!("decode raw transaction hex: {err}"))
-}
-
-fn parse_tx(raw: &[u8]) -> Result<Transaction, String> {
-    let nu5_height = MainNetwork
-        .activation_height(NetworkUpgrade::Nu5)
-        .ok_or_else(|| "MainNetwork is missing the NU5 activation height".to_string())?;
-    let branch_id = BranchId::for_height(&MainNetwork, nu5_height);
-    Transaction::read(raw, branch_id).map_err(|err| format!("parse raw transaction: {err}"))
 }
 
 fn recover_orchard_output(

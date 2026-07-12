@@ -2,15 +2,36 @@
   "version": "0",
   "title": "Glasspane Feedback Bounties",
   "purpose": "The books of this feedback bounty program. Every published payout is verified while the rest of the wallet stays private.",
-  "privacy_boundary": "No payout receipts are published yet. When a bounty is paid, only that selected output will be disclosed; the seed, spending key, viewing keys, balance, and other transactions remain private.",
+  "privacy_boundary": "Only the selected payout output below is disclosed: recipient, amount, memo, and transaction reference. The seed, spending key, viewing keys, wallet balance, change output, and other transactions remain private.",
   "network": "mainnet",
-  "generated_at": "2026-07-12T08:43:40.397392Z",
+  "generated_at": "2026-07-12T10:41:34.389285Z",
   "overall_pass": true,
-  "verified_count": 0,
+  "verified_count": 1,
   "rejected_count": 0,
-  "total_zatoshis": 0,
-  "total_zec": "0.00000000",
-  "expected_memo_labels": [],
-  "results": [],
+  "total_zatoshis": 20000,
+  "total_zec": "0.00020000",
+  "expected_memo_labels": [
+    "glasspane community support 01"
+  ],
+  "results": [
+    {
+      "id": "community-support-01",
+      "label": "Community support payout",
+      "role": "Community participant",
+      "expected_outcome": "verified",
+      "status": "verified",
+      "expected_result_observed": true,
+      "tamper": false,
+      "tx_id": "9571fcf98f0d7b47ff1dfccc46f7c83412698a44b1aed147ed333800c95fe078",
+      "tx_url": "https://mainnet.zcashexplorer.app/transactions/9571fcf98f0d7b47ff1dfccc46f7c83412698a44b1aed147ed333800c95fe078",
+      "pool": "orchard",
+      "output_index": 1,
+      "amount_zatoshis": 20000,
+      "amount_zec": "0.00020000",
+      "memo": "glasspane community support 01",
+      "recipient": "u1y3untlvq77ntuw7f5g93nhtugwajggf4ta47zqcuy3z09y3sz9s336e0xmaxktzpt9fkt5sxeppa3s7q663dtuwa0m9p0wh95u2tz6a0",
+      "error": null
+    }
+  ],
   "failures": []
 }

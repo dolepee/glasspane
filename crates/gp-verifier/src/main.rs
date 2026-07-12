@@ -14,7 +14,8 @@
 use anyhow::{anyhow, bail, Context, Result};
 use clap::Parser;
 use gp_core::{
-    ock_from_bytes, recover_orchard, recover_sapling, OrchardDisclosure, SaplingDisclosure,
+    ensure_transaction_id, ock_from_bytes, parse_transaction, recover_orchard, recover_sapling,
+    OrchardDisclosure, SaplingDisclosure,
 };
 use gp_types::{Network, Pool, Receipt};
 use tonic::transport::Channel;
@@ -27,7 +28,6 @@ use zcash_client_backend::proto::service::{
 };
 use zcash_primitives::transaction::Transaction;
 use zcash_protocol::consensus::NetworkType;
-use zcash_protocol::consensus::{BranchId, MainNetwork, NetworkUpgrade, Parameters};
 
 #[derive(Parser, Debug)]
 #[command(
@@ -135,7 +135,8 @@ async fn main() -> Result<()> {
             fetch_tx(&args.lightwalletd, tx_id_bytes).await?
         }
     };
-    let tx = parse_tx(&raw_tx)?;
+    let tx = parse_transaction(&raw_tx)?;
+    ensure_transaction_id(&tx, &receipt.tx_id)?;
     println!(
         "  Transaction parsed (consensus branch={:?}).",
         tx.consensus_branch_id()
@@ -178,20 +179,6 @@ async fn fetch_tx(endpoint: &str, tx_id_bytes: [u8; 32]) -> Result<Vec<u8>> {
         bail!("lightwalletd returned an empty transaction for the given txid");
     }
     Ok(raw.data)
-}
-
-/// Parse raw tx bytes into a Zcash Transaction object. We have to tell the
-/// parser the consensus branch in order to dispatch the right component
-/// decoders; we use NU5 which is what current mainnet Orchard outputs live
-/// under.
-fn parse_tx(raw: &[u8]) -> Result<Transaction> {
-    // NU5 activated on Zcash mainnet at the Orchard upgrade. Later upgrades
-    // (NU6, etc.) maintain compatibility for tx parsing purposes here.
-    let nu5_height = MainNetwork
-        .activation_height(NetworkUpgrade::Nu5)
-        .ok_or_else(|| anyhow!("MainNetwork is missing the NU5 activation height"))?;
-    let branch_id = BranchId::for_height(&MainNetwork, nu5_height);
-    Transaction::read(raw, branch_id).context("parse raw transaction")
 }
 
 /// Run the Orchard recovery path against the action at `output_index`.

@@ -6,7 +6,9 @@
 
 use anyhow::{anyhow, bail, Context, Result};
 use clap::Parser;
-use gp_core::{ock_from_bytes, recover_orchard, recover_sapling};
+use gp_core::{
+    ensure_transaction_id, ock_from_bytes, parse_transaction, recover_orchard, recover_sapling,
+};
 use gp_types::{Network, Pool, Receipt};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
@@ -17,7 +19,6 @@ use zcash_address::{
 use zcash_note_encryption::OutgoingCipherKey;
 use zcash_primitives::transaction::Transaction;
 use zcash_protocol::consensus::NetworkType;
-use zcash_protocol::consensus::{BranchId, MainNetwork, NetworkUpgrade, Parameters};
 
 #[derive(Parser, Debug)]
 #[command(
@@ -384,7 +385,8 @@ fn verify_entry(
     let raw_tx_hex = std::fs::read_to_string(&raw_tx_path)
         .with_context(|| format!("read raw tx {}", raw_tx_path.display()))?;
     let raw_tx = hex::decode(raw_tx_hex.trim()).context("decode raw tx hex")?;
-    let tx = parse_tx(&raw_tx)?;
+    let tx = parse_transaction(&raw_tx)?;
+    ensure_transaction_id(&tx, &receipt.tx_id)?;
     let ock = ock_from_bytes(receipt.ock_bytes()?);
     let recovered = match receipt.pool {
         Pool::Orchard => recover_orchard_output(&tx, receipt.output_index, &ock, receipt.network)?,
@@ -407,14 +409,6 @@ fn resolve_room_path(base_dir: &Path, value: &Path) -> PathBuf {
     } else {
         base_dir.join(value)
     }
-}
-
-fn parse_tx(raw: &[u8]) -> Result<Transaction> {
-    let nu5_height = MainNetwork
-        .activation_height(NetworkUpgrade::Nu5)
-        .ok_or_else(|| anyhow!("MainNetwork is missing the NU5 activation height"))?;
-    let branch_id = BranchId::for_height(&MainNetwork, nu5_height);
-    Transaction::read(raw, branch_id).context("parse raw transaction")
 }
 
 fn recover_orchard_output(

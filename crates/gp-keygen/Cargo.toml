@@ -10,12 +10,12 @@ name = "gp-keygen"
 path = "src/main.rs"
 
 [dependencies]
-zcash_keys = { version = "0.13", default-features = false, features = ["orchard", "sapling", "transparent-inputs"] }
+zcash_keys = { version = "0.15", default-features = false, features = ["orchard", "sapling", "transparent-inputs"] }
 zcash_protocol = { workspace = true, features = ["std"] }
 zcash_address = { workspace = true, features = ["std"] }
 orchard = { workspace = true }
 zip32 = "0.2"
-zcash_transparent = { version = "0.7", features = ["transparent-inputs"] }
+zcash_transparent = { version = "0.9", features = ["transparent-inputs"] }
 secp256k1 = "0.29"
 bs58 = { version = "0.5", features = ["check"] }
 bip0039 = { version = "0.12", features = ["all-languages"] }

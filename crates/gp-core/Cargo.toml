@@ -10,8 +10,11 @@ gp-types = { path = "../gp-types" }
 orchard = { workspace = true }
 sapling-crypto = { workspace = true }
 zcash_note_encryption = { workspace = true }
+zcash_primitives = { workspace = true }
+zcash_protocol = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]
+hex = { workspace = true }
 rand = { workspace = true }
 rand_core = { workspace = true }

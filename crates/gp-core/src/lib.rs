@@ -22,12 +22,52 @@ use thiserror::Error;
 use zcash_note_encryption::{
     try_output_recovery_with_ock, Domain, EphemeralKeyBytes, OutgoingCipherKey,
 };
+use zcash_primitives::transaction::Transaction;
+use zcash_protocol::consensus::BranchId;
 
 /// Errors raised by gp-core.
 #[derive(Debug, Error)]
 pub enum CoreError {
     #[error("output recovery failed; the OCK does not match this output")]
     RecoveryFailed,
+    #[error("parse raw transaction: {0}")]
+    TransactionParse(String),
+    #[error("raw transaction txid mismatch: receipt references {expected}, parsed {actual}")]
+    TransactionIdMismatch { expected: String, actual: String },
+}
+
+/// Parse a transaction using the consensus branch embedded in its v5 header.
+/// Older transaction versions retain the previous NU5 parser fallback.
+pub fn parse_transaction(raw: &[u8]) -> Result<Transaction, CoreError> {
+    let header = raw
+        .get(..12)
+        .ok_or_else(|| CoreError::TransactionParse("transaction header is truncated".into()))?;
+    let version =
+        u32::from_le_bytes(header[..4].try_into().expect("four-byte slice")) & 0x7fff_ffff;
+    let branch_id = if version == 5 {
+        let encoded = u32::from_le_bytes(header[8..12].try_into().expect("four-byte slice"));
+        BranchId::try_from(encoded).map_err(|_| {
+            CoreError::TransactionParse(format!("unsupported v5 consensus branch 0x{encoded:08x}"))
+        })?
+    } else {
+        BranchId::Nu5
+    };
+
+    Transaction::read(raw, branch_id)
+        .map_err(|error| CoreError::TransactionParse(error.to_string()))
+}
+
+/// Bind a receipt to the exact raw transaction it claims to disclose.
+pub fn ensure_transaction_id(tx: &Transaction, expected: &str) -> Result<(), CoreError> {
+    let actual = tx.txid().to_string();
+    if actual == expected {
+        Ok(())
+    } else {
+        Err(CoreError::TransactionIdMismatch {
+            expected: expected.to_string(),
+            actual,
+        })
+    }
 }
 
 /// All the data gp-issuer needs to derive an Orchard OCK once it has parsed
@@ -158,8 +198,36 @@ mod tests {
     use orchard::{note::ExtractedNoteCommitment as Cmx, value::ValueCommitment as Cv};
     use zcash_note_encryption::EphemeralKeyBytes;
 
+    #[test]
+    fn parse_transaction_accepts_nu6_2_branch() {
+        let mut raw = hex::decode(include_str!("../../../examples/mainnet-tx.hex").trim())
+            .expect("mainnet transaction fixture must be valid hex");
+        raw[8..12].copy_from_slice(&u32::from(BranchId::Nu6_2).to_le_bytes());
+
+        parse_transaction(&raw).expect("NU6.2 v5 transactions must parse");
+    }
+
+    #[test]
+    fn transaction_id_binding_rejects_wrong_raw_transaction() {
+        let raw = hex::decode(include_str!("../../../examples/mainnet-tx.hex").trim())
+            .expect("mainnet transaction fixture must be valid hex");
+        let tx = parse_transaction(&raw).expect("mainnet transaction fixture must parse");
+        let actual = tx.txid().to_string();
+        ensure_transaction_id(&tx, &actual).expect("matching txid must pass");
+
+        let wrong = format!(
+            "{}{}",
+            if &actual[..1] == "0" { "1" } else { "0" },
+            &actual[1..]
+        );
+        assert!(matches!(
+            ensure_transaction_id(&tx, &wrong),
+            Err(CoreError::TransactionIdMismatch { .. })
+        ));
+    }
+
     /// Orchard test vector index 0, sourced from
-    /// orchard 0.13.1 `src/test_vectors/note_encryption.rs`,
+    /// orchard 0.15.0 `src/test_vectors/note_encryption.rs`,
     /// which in turn references the canonical Zcash protocol test vectors at
     /// https://github.com/zcash-hackworks/zcash-test-vectors/blob/master/orchard_note_encryption.py
     mod tv0 {

@@ -286,7 +286,7 @@ cargo test --workspace
 * Repository contracts (the support receipt publisher targets the current live room artifacts).
 * API surface (Orchard `derive_ock` and `try_output_recovery_with_ock` reachable through the published `Domain` trait at expected signatures).
 
-`cargo clippy --workspace --all-targets -- -D warnings` is clean. CI runs formatting, clippy, Rust tests, and Node tests on every push to `main`.
+`cargo clippy --workspace --all-targets -- -D warnings` is clean. CI runs formatting, clippy, Rust tests, Node tests, and a RustSec dependency audit on every push to `main`.
 
 ## Cryptographic primitives + versions
 
@@ -296,7 +296,7 @@ cargo test --workspace
 | Sapling note encryption + OCK | `sapling-crypto` | 0.7 | per-output `prf_ock`, `try_sapling_output_recovery_with_ock` |
 | Shared ZNE machinery | `zcash_note_encryption` | 0.4 | `try_output_recovery_with_ock` |
 | Transaction parsing | `zcash_primitives` | 0.29 | `Transaction::read` |
-| lightwalletd gRPC client | `zcash_client_backend` | 0.23 | `CompactTxStreamerClient::get_transaction` |
+| lightwalletd gRPC client | `zcash_client_backend` | 0.24.0-rc.1 | `CompactTxStreamerClient::get_transaction` |
 | Unified Address encoding | `zcash_address` | 0.13 | recipient display in `u1...` form |
 | Receipt signing | `ed25519-dalek` | 2 | optional envelope signature |
 

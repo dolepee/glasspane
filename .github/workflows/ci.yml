@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   test:
     name: Rust + Node checks
@@ -27,3 +31,7 @@ jobs:
         run: cargo test --locked --workspace --all-targets
       - name: browser builder and repository contract tests
         run: node --test tests/*.test.mjs
+      - name: RustSec dependency audit
+        uses: rustsec/audit-check@v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}

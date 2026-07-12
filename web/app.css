@@ -5011,9 +5011,17 @@ body.site h2 {
 }
 
 .site .payout-remove {
-  min-height: 34px !important;
+  min-width: 54px !important;
+  min-height: 44px !important;
   border: 0 !important;
   background: transparent !important;
   color: var(--premium-red) !important;
   padding: 6px !important;
+}
+
+.site .gp-brand:focus-visible,
+.page-room-builder select:focus-visible,
+.page-room-builder summary:focus-visible {
+  outline: 3px solid rgba(244, 179, 35, 0.68) !important;
+  outline-offset: 3px !important;
 }

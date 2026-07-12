@@ -22,10 +22,12 @@
       ]
     }
   ],
+  "redirects": [
+    { "source": "/room/glasspane-bounties", "destination": "/room/glasspane-support", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/room/zechub-demo", "destination": "/room/zechub-demo.html" },
     { "source": "/room/glasspane-support", "destination": "/room/glasspane-support.html" },
-    { "source": "/room/glasspane-bounties", "destination": "/room/glasspane-support.html" },
     { "source": "/room/create", "destination": "/room/create.html" },
     { "source": "/boundary", "destination": "/boundary.html" },
     { "source": "/audit", "destination": "/audit.html" },

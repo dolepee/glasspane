@@ -101,7 +101,7 @@ async fn main() -> Result<()> {
         Err(e) => bail!("signature verification failed: {e}"),
     }
 
-    println!("RECEIPT  {}", &receipt.tx_id);
+    println!("RECEIPT  {}", receipt.tx_id);
     println!("  pool        : {:?}", receipt.pool);
     println!("  network     : {:?}", receipt.network);
     println!("  output_index: {}", receipt.output_index);

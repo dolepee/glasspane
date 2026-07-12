@@ -10,3 +10,6 @@ target/
 wallet*.json
 *.local.json
 .vercel
+
+# local demo / recording script, keep in ~/Downloads/glasspane, never commit
+DEMO_SCRIPT.md

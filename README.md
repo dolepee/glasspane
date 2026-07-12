@@ -24,6 +24,16 @@ verifier, and the wallet remainder stays opaque.
 
 Submission for **ZecHub Hackathon 3.0**, Accounting track.
 
+
+## Live Demo
+
+Recommended flow:
+
+1. Open `https://glasspane-iota.vercel.app/room/zechub-demo`
+2. Open `https://glasspane-iota.vercel.app/room/create` for local rendering
+3. Open `/boundary.html` to explain the privacy boundary
+4. End with `/receipt.html` and `/audit` links.
+
 ## What it proves
 
 For each selected payout, a Glasspane receipt discloses one per-output
@@ -266,7 +276,7 @@ The web app (`web/`) deploys to Vercel automatically on every push to `main` (Ve
 cargo test --workspace
 ```
 
-24 tests across:
+26 tests across:
 
 * Receipt format (envelope validate, version reject, label length, JSON round trip, URL round trip, bare-payload URL parse, garbage URL reject, ed25519 signature round trip, ed25519 tampering reject).
 * OCK derivation (byte helper round trip, Orchard test vectors 0 and 1 bit-exact, Sapling test vector 0 bit-exact, input sensitivity: any bit flip in OVK / epk / cmx must change the OCK).

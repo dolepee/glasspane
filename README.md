@@ -30,7 +30,7 @@ Submission for **ZecHub Hackathon 3.0**, Accounting track.
 Recommended flow:
 
 1. Open `https://glasspane-iota.vercel.app/room/zechub-demo`
-2. Open `https://glasspane-iota.vercel.app/room/create` for local rendering
+2. Open `https://glasspane-iota.vercel.app/room/create` and load the live support transfer
 3. Open `/boundary.html` to explain the privacy boundary
 4. End with `/receipt.html` and `/audit` links.
 
@@ -119,7 +119,7 @@ Production-shape v0 across the receipt primitive and room verifier.
 | Receipt-to-raw-tx binding | txid checked before every disclosure path |
 | ZSA-aware receipts | roadmap |
 
-26 tests passing across the workspace.
+26 Rust tests and 6 Node tests passing across the project.
 
 ## Quickstart
 
@@ -151,7 +151,7 @@ For accounting tools, export the same verified report as CSV:
 
 Open the live board at
 [`/room/zechub-demo`](https://glasspane-iota.vercel.app/room/zechub-demo), or
-paste a `verified-room.json` into
+import a `verified-room.json` into
 [`/room/create`](https://glasspane-iota.vercel.app/room/create).
 
 The separate
@@ -276,26 +276,28 @@ The web app (`web/`) deploys to Vercel automatically on every push to `main` (Ve
 cargo test --workspace
 ```
 
-26 tests across:
+26 Rust tests plus 6 Node tests across:
 
 * Receipt format (envelope validate, version reject, label length, JSON round trip, URL round trip, bare-payload URL parse, garbage URL reject, ed25519 signature round trip, ed25519 tampering reject).
 * OCK derivation (byte helper round trip, Orchard test vectors 0 and 1 bit-exact, Sapling test vector 0 bit-exact, input sensitivity: any bit flip in OVK / epk / cmx must change the OCK).
 * Room verification and export (example room verifies with expected tamper rejection; unexpected tamper fails the room; CSV contains accounting rows).
 * Browser WASM verification (example receipt recovers from raw tx; tampered OCK fails loudly; raw txid mismatch fails before recovery).
+* Browser room builder output (private-safe report, CLI-compatible manifest, ZIP packet, CSV escaping, and unverified-payout rejection).
+* Repository contracts (the support receipt publisher targets the current live room artifacts).
 * API surface (Orchard `derive_ock` and `try_output_recovery_with_ock` reachable through the published `Domain` trait at expected signatures).
 
-`cargo clippy --workspace --all-targets -- -D warnings` is clean. CI runs all three checks (fmt, clippy, tests) on every push to `main`.
+`cargo clippy --workspace --all-targets -- -D warnings` is clean. CI runs formatting, clippy, Rust tests, and Node tests on every push to `main`.
 
 ## Cryptographic primitives + versions
 
 | Component | Crate | Version | Role |
 |---|---|---|---|
-| Orchard note encryption + OCK | `orchard` | 0.13.1 | per-output `prf_ock_orchard`, `Domain::derive_ock` |
+| Orchard note encryption + OCK | `orchard` | 0.15.0 | per-output `prf_ock_orchard`, `Domain::derive_ock` |
 | Sapling note encryption + OCK | `sapling-crypto` | 0.7 | per-output `prf_ock`, `try_sapling_output_recovery_with_ock` |
 | Shared ZNE machinery | `zcash_note_encryption` | 0.4 | `try_output_recovery_with_ock` |
-| Transaction parsing | `zcash_primitives` | 0.27 | `Transaction::read` |
-| lightwalletd gRPC client | `zcash_client_backend` | 0.22 | `CompactTxStreamerClient::get_transaction` |
-| Unified Address encoding | `zcash_address` | 0.11 | recipient display in `u1...` form |
+| Transaction parsing | `zcash_primitives` | 0.29 | `Transaction::read` |
+| lightwalletd gRPC client | `zcash_client_backend` | 0.23 | `CompactTxStreamerClient::get_transaction` |
+| Unified Address encoding | `zcash_address` | 0.13 | recipient display in `u1...` form |
 | Receipt signing | `ed25519-dalek` | 2 | optional envelope signature |
 
 All versions are pinned to released-on-crates.io releases for reproducibility.

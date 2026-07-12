@@ -1,9 +1,9 @@
-# Publish a feedback bounty receipt
+# Publish a support or bounty receipt
 
-The Feedback Bounties room starts at zero and grows only after real mainnet
-payouts verify. The publish command copies only the selected receipt and public
-raw transaction into the room, verifies the complete room with `gp-room`, and
-updates the web report and CSV.
+The Support Transfers room grows only after real mainnet transfers verify. The
+publish command copies only the selected receipt and public raw transaction into
+the room, verifies the complete room with `gp-room`, and updates the web report
+and CSV.
 
 ## Before paying
 

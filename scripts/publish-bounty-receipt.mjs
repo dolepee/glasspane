@@ -83,6 +83,17 @@ function removeIfPresent(filePath) {
   if (existsSync(filePath)) rmSync(filePath, { force: true });
 }
 
+export function supportRoomPaths(repoRoot) {
+  const roomDir = path.join(repoRoot, "examples", "rooms", "glasspane-bounties");
+  return {
+    roomDir,
+    roomPath: path.join(roomDir, "room.json"),
+    verifiedPath: path.join(roomDir, "verified-room.json"),
+    csvPath: path.join(roomDir, "payouts.csv"),
+    webReportPath: path.join(repoRoot, "web", "room", "glasspane-support.json"),
+  };
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const receiptSource = path.resolve(required(args, "receipt"));
@@ -111,11 +122,8 @@ async function main() {
 
   const scriptDir = path.dirname(fileURLToPath(import.meta.url));
   const repoRoot = path.resolve(scriptDir, "..");
-  const roomDir = path.join(repoRoot, "examples", "rooms", "glasspane-bounties");
-  const roomPath = path.join(roomDir, "room.json");
-  const verifiedPath = path.join(roomDir, "verified-room.json");
-  const csvPath = path.join(roomDir, "payouts.csv");
-  const webReportPath = path.join(repoRoot, "web", "room", "glasspane-bounties.json");
+  const { roomDir, roomPath, verifiedPath, csvPath, webReportPath } =
+    supportRoomPaths(repoRoot);
   const receiptDestination = path.join(roomDir, "receipts", `${id}.json`);
   const rawDestination = path.join(roomDir, "raw", `${id}.hex`);
   const candidatePath = path.join(roomDir, `.room-${process.pid}.tmp.json`);
@@ -130,9 +138,9 @@ async function main() {
   const receipt = readJson(receiptSource, "receipt");
   const txId = String(receipt.tx_id || "").toLowerCase();
   if (!TXID_RE.test(txId)) throw new Error("receipt tx_id must be 64 hex characters");
-  if (receipt.network !== "mainnet") throw new Error("the bounty room accepts mainnet receipts only");
+  if (receipt.network !== "mainnet") throw new Error("the support room accepts mainnet receipts only");
 
-  const room = readJson(roomPath, "bounty room");
+  const room = readJson(roomPath, "support room");
   if (room.receipts.some((entry) => entry.id === id)) {
     throw new Error(`receipt id already exists in room.json: ${id}`);
   }
@@ -217,7 +225,12 @@ async function main() {
   console.log(`Web report:  ${path.relative(repoRoot, webReportPath)}`);
 }
 
-main().catch((error) => {
-  console.error(`publish failed: ${error.message}`);
-  process.exitCode = 1;
-});
+const invokedDirectly = process.argv[1]
+  && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (invokedDirectly) {
+  main().catch((error) => {
+    console.error(`publish failed: ${error.message}`);
+    process.exitCode = 1;
+  });
+}

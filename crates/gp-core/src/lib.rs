@@ -441,7 +441,7 @@ mod tests {
     /// `Domain` trait from external code.
     ///
     /// Constructing a real `ValueCommitment` requires an internal
-    /// `ValueCommitTrapdoor` (`pub(crate)` in orchard 0.13.1). External
+    /// `ValueCommitTrapdoor` (`pub(crate)` in orchard 0.15.0). External
     /// callers therefore only ever obtain `ValueCommitment` references from
     /// a parsed `Action`, never by construction. This test confirms the
     /// `Domain::derive_ock` function exists in the public surface at the

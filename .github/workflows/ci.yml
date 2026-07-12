@@ -8,10 +8,13 @@ on:
 
 jobs:
   test:
-    name: cargo test + clippy + fmt
+    name: Rust + Node checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt
@@ -22,3 +25,5 @@ jobs:
         run: cargo clippy --locked --workspace --all-targets -- -D warnings
       - name: cargo test (Zcash protocol test vectors run here)
         run: cargo test --locked --workspace --all-targets
+      - name: browser builder and repository contract tests
+        run: node --test tests/*.test.mjs

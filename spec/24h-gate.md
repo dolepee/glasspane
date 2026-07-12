@@ -16,7 +16,7 @@ This document records what was validated and how.
    labels are rejected. Tx id and OCK round trip through hex / base64url.
 2. **The cryptographic API surface is reachable**. `gp-core` calls
    `OrchardDomain::derive_ock` and `try_output_recovery_with_ock` via
-   the public `Domain` trait against `orchard 0.13.1` +
+   the public `Domain` trait against `orchard 0.15.0` +
    `zcash_note_encryption 0.4.1`. Type signatures match what the
    protocol specifies.
 3. **The full network pipeline compiles end to end**. Both `gp-issue`
@@ -46,7 +46,7 @@ different `cv`, `cmx`, `epk` values.
 References:
 - ZIP 244 (transaction format)
 - Zcash protocol spec §4.20 (`prf_ock_orchard`)
-- `orchard 0.13.1` `note_encryption.rs`
+- `orchard 0.15.0` `note_encryption.rs`
 - `zcash_note_encryption 0.4.1` `try_output_recovery_with_ock`
 
 ## Acceptance criteria (met)
@@ -60,16 +60,17 @@ References:
   lightwalletd, fed to `gp-core::recover_orchard`, yields the original
   note plaintext.
 
-## Acceptance criteria (deferred to mainnet round trip)
+## Subsequent validation (met)
 
-- An end to end round trip with a real $0.005 mainnet payment, fetched
-  via a public lightwalletd, recovering exactly the disclosed payment.
-  This requires the operator to send a real shielded transaction and is
-  documented in `docs/run-a-real-receipt.md` (forthcoming).
+- End-to-end Orchard mainnet round trips recover exactly the disclosed
+  recipient, amount, and memo from bundled raw transactions.
+- A confirmed NU6.2 support transfer verifies through the CLI, room verifier,
+  and browser WASM path.
+- Sapling OCK derivation and recovery are covered by published protocol test
+  vectors and the shared `gp-core` verifier path.
 
 ## What this gate does not cover
 
-- Sapling pool support (planned for v0.2).
 - Wallet integration UX (planned post v0).
 - ZSA support (planned post v0).
 - Production grade key management for OVK input.

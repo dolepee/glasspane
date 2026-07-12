@@ -4295,6 +4295,10 @@ body.site h2 {
   font-size: 38px !important;
 }
 
+.premium-promise .premium-lede {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
 .premium-promise div {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -4501,6 +4505,7 @@ body.site h2 {
 }
 
 .snippet textarea {
+  box-sizing: border-box;
   width: 100%;
   min-height: 82px;
   border: 1px solid var(--premium-line);

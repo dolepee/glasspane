@@ -31,19 +31,21 @@ Recommended flow:
 
 1. Open `https://glasspane-iota.vercel.app/room/zechub-demo`
 2. Open `https://glasspane-iota.vercel.app/room/create` and load the live support transfer
-3. Open `/boundary.html` to explain the privacy boundary
-4. End with `/receipt.html` and `/audit` links.
+3. Open `/boundary` to explain the privacy boundary
+4. End with `/receipt` and `/audit` links.
 
 ## What it proves
 
 For each selected payout, a Glasspane receipt discloses one per-output
 **Out Cipher Key (OCK)**. The verifier uses that OCK against the named Zcash
-transaction output and recovers:
+transaction output and recovers the selected output's:
 
 * recipient address
 * amount
-* encrypted memo
-* aggregate room total
+* memo contents
+
+The room total is a separate aggregate, calculated from the verified outputs
+rather than recovered from any single OCK.
 
 It does **not** disclose the sender's seed, spending key, outgoing viewing key,
 unified full viewing key, other transactions, or wallet balance.
